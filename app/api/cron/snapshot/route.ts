@@ -15,8 +15,10 @@ import type { EcrSnapshot, Snapshot } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 /** Daily job: one primary host rank pull + one ECR pull, both stored as
- *  dated snapshots. Host rank is primary and its failure fails the run; an
- *  ECR failure is reported but does not fail the run. Staleness guard: the
+ *  dated snapshots. Both captures ALWAYS run to completion, each in its own
+ *  try/catch, and the response status is decided afterwards: a primary
+ *  failure makes the run 502, an ECR failure is reported but does not fail
+ *  the run. Neither capture can stop the other. Staleness guard: the
  *  primary is stale when no host has published since the prior stored day
  *  (keyed off the latest host publish time, not our captured-at), or when
  *  values are identical anyway. A stale row is still stored, but flagged
@@ -38,6 +40,7 @@ export async function GET(req: Request) {
   const priorEcr = latestEcr && latestEcr.date !== date ? latestEcr : prevEcr;
 
   let host_rank: Record<string, unknown>;
+  let primaryFailed = false;
   try {
     const { meta, players } = await fetchFpHostRank();
     const { stale, reason } = hostRankStaleness({ meta, rows: players }, priorHostRank);
@@ -64,10 +67,9 @@ export async function GET(req: Request) {
       blob_url: url,
     };
   } catch (err) {
-    return NextResponse.json(
-      { ok: false, date, error: err instanceof Error ? err.message : String(err) },
-      { status: 502 }
-    );
+    // Recorded, not returned. ECR below must still run and write.
+    primaryFailed = true;
+    host_rank = { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 
   let ecr: Record<string, unknown>;
@@ -92,12 +94,16 @@ export async function GET(req: Request) {
     ecr = { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 
-  return NextResponse.json({
-    ok: true,
-    date,
-    stale: warnings.length > 0,
-    warnings,
-    host_rank,
-    ecr,
-  });
+  // Status decided only after both captures have completed.
+  return NextResponse.json(
+    {
+      ok: !primaryFailed,
+      date,
+      stale: warnings.length > 0,
+      warnings,
+      host_rank,
+      ecr,
+    },
+    { status: primaryFailed ? 502 : 200 }
+  );
 }
