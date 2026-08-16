@@ -19,16 +19,16 @@ export const SIGNAL_WEIGHT: Record<Signal, number> = {
 
 export type Rankable = {
   signal: Signal | null;
-  adpDelta: number | null;
+  hostRankDelta: number | null;
   ecrDelta: number | null;
   gap: number | null;
   inUniverse: boolean;
-  adpRank: number;
+  hostRankOrdinal: number;
 };
 
 /**
  * Higher = stronger story; 0 = not a story at all.
- * Movement is measured in threshold-multiples so an ADP move and an ECR move
+ * Movement is measured in threshold-multiples so a host rank move and an ECR move
  * are on one scale, and the gap only ever breaks near-ties.
  */
 export function signalStrength(r: Rankable): number {
@@ -36,18 +36,18 @@ export function signalStrength(r: Rankable): number {
   const weight = SIGNAL_WEIGHT[r.signal];
   if (weight === 0) return 0;
   const move =
-    Math.abs(r.adpDelta ?? 0) / THRESHOLDS.ADP_MOVE +
+    Math.abs(r.hostRankDelta ?? 0) / THRESHOLDS.HOST_RANK_MOVE +
     Math.abs(r.ecrDelta ?? 0) / THRESHOLDS.ECR_MOVE;
   const gap = Math.abs(r.gap ?? 0) / THRESHOLDS.GAP_NOTABLE;
   return weight * 1000 + move * 10 + gap;
 }
 
-/** Strongest first. Ties break toward the costlier player (lower ADP rank). */
+/** Strongest first. Ties break toward the costlier player (lower host rank ordinal). */
 export function rankStories<T extends Rankable>(rows: T[]): T[] {
   return rows
     .filter((r) => signalStrength(r) > 0)
     .sort(
-      (a, b) => signalStrength(b) - signalStrength(a) || a.adpRank - b.adpRank
+      (a, b) => signalStrength(b) - signalStrength(a) || a.hostRankOrdinal - b.hostRankOrdinal
     );
 }
 
@@ -57,11 +57,11 @@ export function rankStories<T extends Rankable>(rows: T[]): T[] {
  * One event that pushes two prices in opposite directions says more than any
  * single-player reading, so a qualifying pair outranks every single story.
  *
- * Qualifying is data-driven and deliberately NOT strict about symmetry. ADP is
- * an average of real human drafts, so two backfield-mates will not move by
- * equal and opposite amounts, and demanding that would throw away true stories.
- * What is required is that both sides are comparable and that at least one has
- * cleared the ADP movement bar; the
+ * Qualifying is data-driven and deliberately NOT strict about symmetry. The
+ * average host rank is a mean across host boards, so two backfield-mates will
+ * not move by equal and opposite amounts, and demanding that would throw away
+ * true stories. What is required is that both sides are comparable and that
+ * at least one has cleared the host rank movement bar; the
  * score then REWARDS opposition rather than requiring it, and the card states
  * the measured directions rather than asserting a mirror.
  *
@@ -75,20 +75,20 @@ export function pairStrength<T extends Rankable>(
 ): number {
   if (!a.inUniverse || !b.inUniverse) return 0;
   if (a.signal === null || b.signal === null) return 0;
-  if (a.adpDelta == null || b.adpDelta == null) return 0;
-  // At least one side must clear the published ADP bar. The old test excluded a
+  if (a.hostRankDelta == null || b.hostRankDelta == null) return 0;
+  // At least one side must clear the published host rank bar. The old test excluded a
   // pair only when BOTH deltas were exactly zero, so a pair could lead the
   // homepage on +2.3 against -0.1, with a large red arrow on a side that had
   // effectively not moved and copy claiming one back's gain was showing up as
   // the other's loss. "Actually moving" now means what the rest of the product
   // means by it.
   const moved =
-    Math.abs(a.adpDelta) >= THRESHOLDS.ADP_MOVE ||
-    Math.abs(b.adpDelta) >= THRESHOLDS.ADP_MOVE;
+    Math.abs(a.hostRankDelta) >= THRESHOLDS.HOST_RANK_MOVE ||
+    Math.abs(b.hostRankDelta) >= THRESHOLDS.HOST_RANK_MOVE;
   if (!moved) return 0;
-  const opposed = a.adpDelta * b.adpDelta < 0;
+  const opposed = a.hostRankDelta * b.hostRankDelta < 0;
   const spread =
-    (Math.abs(a.adpDelta) + Math.abs(b.adpDelta)) / THRESHOLDS.ADP_MOVE;
+    (Math.abs(a.hostRankDelta) + Math.abs(b.hostRankDelta)) / THRESHOLDS.HOST_RANK_MOVE;
   // A shared, documented event is what makes it one story instead of two.
   return (sharedEvent ? 10_000 : 5_000) + (opposed ? 500 : 0) + spread * 10;
 }
@@ -96,7 +96,7 @@ export function pairStrength<T extends Rankable>(
 /** True when the two sides moved in genuinely opposite directions this window. */
 export function isOpposed(a: Rankable, b: Rankable): boolean {
   return (
-    a.adpDelta != null && b.adpDelta != null && a.adpDelta * b.adpDelta < 0
+    a.hostRankDelta != null && b.hostRankDelta != null && a.hostRankDelta * b.hostRankDelta < 0
   );
 }
 
@@ -107,7 +107,7 @@ export function isOpposed(a: Rankable, b: Rankable): boolean {
  * Red means you are paying up. It applies to the VALUE READ only, which is
  * the gap and the rounds figure derived from it.
  *
- * Movement is deliberately excluded. A falling ADP is a falling price, so
+ * Movement is deliberately excluded. A falling host rank is a falling price, so
  * painting it red would contradict the rule above on the same card.
  * Movement gets a direction arrow and neutral text instead.
  *
@@ -137,7 +137,7 @@ export function valueWord(gap: number | null): string | null {
  * same unless the underlying numbers really are the same.
  *
  * Rounds lead, because that is what a drafter thinks in. No new thresholds:
- * it reads THRESHOLDS.ADP_MOVE for what counts as a move and nothing else.
+ * it reads THRESHOLDS.HOST_RANK_MOVE for what counts as a move and nothing else.
  *
  * It is now split in two. The story card leads with the MOVE, because the move
  * is the news on this site, and carries the value read underneath as the
@@ -146,7 +146,7 @@ export function valueWord(gap: number | null): string | null {
  */
 export type StoryRow = {
   name: string;
-  adpDelta: number | null;
+  hostRankDelta: number | null;
   ecrDelta: number | null;
   gap: number | null;
 };
@@ -154,7 +154,7 @@ export type StoryRow = {
 export type MoveRead = {
   /** Direction of the CHANGE. Arrows belong to movement and nothing else. */
   arrow: "▲" | "▼" | null;
-  /** Plain language, neutral by rule: "Up 3.4 picks since Aug 10". */
+  /** Plain language, neutral by rule: "Up 3.4 spots since Aug 10". */
   headline: string;
   /** What the experts did over the same window, or null when unknown. */
   expert: string | null;
@@ -176,7 +176,7 @@ export type ValueRead = {
  */
 export function moveLine(r: StoryRow, moveWindow: string): MoveRead {
   const first = r.name.split(" ")[0];
-  const move = r.adpDelta;
+  const move = r.hostRankDelta;
 
   let arrow: "▲" | "▼" | null = null;
   let headline: string;
@@ -186,7 +186,7 @@ export function moveLine(r: StoryRow, moveWindow: string): MoveRead {
     headline = `${first} is unmoved ${moveWindow}`;
   } else {
     arrow = move > 0 ? "▲" : "▼";
-    headline = `${first} is ${move > 0 ? "up" : "down"} ${Math.abs(move).toFixed(1)} picks ${moveWindow}`;
+    headline = `${first} is ${move > 0 ? "up" : "down"} ${Math.abs(move).toFixed(1)} spots ${moveWindow}`;
   }
 
   let expert: string | null = null;

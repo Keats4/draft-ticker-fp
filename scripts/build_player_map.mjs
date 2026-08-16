@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 /**
- * Builds the Sleeper-canonical player mapping table from the three
- * fixture/source files. Never auto-picks an ambiguous match: anything
- * uncertain lands in data/mapping_review.json for human review.
+ * Builds the Sleeper-canonical player mapping table. FantasyPros player_id is
+ * the only foreign key that matters now: the host rank (price) series and the
+ * ECR series share it, so the map exists solely to reach sleeper_id, which is
+ * what catalysts, featured and archetypes key on. Never auto-picks an
+ * ambiguous match: anything uncertain lands in data/mapping_review.json for
+ * human review.
  *
  * Usage: node scripts/build_player_map.mjs
- * Reads:  fixtures/sleeper_players.json, fixtures/fp_ecr.json, fixtures/ffc_adp.json
- * Writes: data/player_map.json, data/mapping_review.json
+ * Reads:  fixtures/sleeper_players.json, fixtures/fp_ecr.json, fixtures/fp_host_rank.json
+ * Writes: data/player_map.json, data/mapping_review.json, data/archetype_review.json
  */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
@@ -26,8 +29,16 @@ const pos = (p) => ({ PK: "K", DST: "DEF", FB: "RB" })[p] ?? p;
 const teamAlias = (t) => ({ JAC: "JAX", WSH: "WAS", OAK: "LV", SD: "LAC", STL: "LAR" })[t] ?? t;
 
 const sleeper = JSON.parse(readFileSync("fixtures/sleeper_players.json", "utf8"));
-const fp = JSON.parse(readFileSync("fixtures/fp_ecr.json", "utf8")).players;
-const ffc = JSON.parse(readFileSync("fixtures/ffc_adp.json", "utf8")).players;
+// FantasyPros players: the union of the ECR fixture and the host rank fixture,
+// keyed by player_id (both carry player_yahoo_id). Host rank rows take
+// precedence because that board is what the product prices.
+const fpEcr = JSON.parse(readFileSync("fixtures/fp_ecr.json", "utf8")).players;
+const fpHostRank = JSON.parse(readFileSync("fixtures/fp_host_rank.json", "utf8")).players;
+const hostRankIds = new Set(fpHostRank.map((p) => p.player_id));
+const fpById = new Map();
+for (const p of fpEcr) fpById.set(p.player_id, p);
+for (const p of fpHostRank) fpById.set(p.player_id, p);
+const fp = [...fpById.values()];
 
 // ---- index Sleeper (canonical) ----
 const FANTASY_POS = new Set(["QB", "RB", "WR", "TE", "K", "DEF"]);
@@ -66,8 +77,6 @@ const review = {
   generated_at: null, // stamped by caller commit; kept stable for diffs
   fp_unmatched: [],
   fp_ambiguous: [],
-  ffc_unmatched: [],
-  ffc_ambiguous: [],
   team_mismatch: [],
 };
 
@@ -129,50 +138,20 @@ for (const p of fp) {
   if (hits.length === 0) review.fp_unmatched.push(label);
 }
 
-// ---- FFC -> Sleeper ----
-const ffcToSleeper = new Map();
-for (const p of ffc) {
-  const position = pos(p.position);
-  const label = `${p.name} (${position} ${p.team})`;
-  if (position === "DEF") {
-    const hit = sleeperById.get(teamAlias(p.team));
-    if (hit && hit.pos === "DEF") {
-      ffcToSleeper.set(p.player_id, { sleeper_id: hit.sleeper_id, method: "team-def" });
-    } else review.ffc_unmatched.push(label);
-    continue;
-  }
-  const n = norm(p.name);
-  let hits = byNameTeamPos.get(`${n}|${teamAlias(p.team)}|${position}`) ?? [];
-  let hit = resolve(hits, "ffc", label);
-  if (hit) {
-    ffcToSleeper.set(p.player_id, { sleeper_id: hit.sleeper_id, method: "name-team-pos" });
-    continue;
-  }
-  if (hits.length > 1) continue;
-  hits = byNamePos.get(`${n}|${position}`) ?? [];
-  hit = resolve(hits, "ffc", label);
-  if (hit) {
-    ffcToSleeper.set(p.player_id, { sleeper_id: hit.sleeper_id, method: "name-pos" });
-    review.team_mismatch.push({ source: "ffc", name: label, sleeper_team: hit.team });
-    continue;
-  }
-  if (hits.length === 0) review.ffc_unmatched.push(label);
-}
-
 // ---- combine into canonical map ----
 const map = {};
-for (const [ffcId, { sleeper_id, method }] of ffcToSleeper) {
-  const s = sleeperById.get(sleeper_id);
-  map[sleeper_id] ??= { sleeper_id, name: s.name, team: s.team, pos: s.pos };
-  map[sleeper_id].years_exp = s.years_exp;
-  map[sleeper_id].age = s.age;
-  map[sleeper_id].injury_status = s.injury_status;
-  map[sleeper_id].ffc_id = ffcId;
-  map[sleeper_id].ffc_method = method;
-}
+const entryFor = (s) => ({
+  sleeper_id: s.sleeper_id,
+  name: s.name,
+  team: s.team,
+  pos: s.pos,
+  years_exp: s.years_exp,
+  age: s.age,
+  injury_status: s.injury_status,
+});
 for (const [fpId, { sleeper_id, method }] of fpToSleeper) {
   const s = sleeperById.get(sleeper_id);
-  map[sleeper_id] ??= { sleeper_id, name: s.name, team: s.team, pos: s.pos };
+  map[sleeper_id] ??= entryFor(s);
   map[sleeper_id].fp_id = fpId;
   map[sleeper_id].fp_method = method;
 }
@@ -184,13 +163,13 @@ try {
   for (const [fpId, rule] of Object.entries(ov.fp_to_sleeper ?? {})) {
     const s = sleeperById.get(rule.sleeper_id);
     if (!s) continue;
-    map[rule.sleeper_id] ??= { sleeper_id: s.sleeper_id, name: s.name, team: s.team, pos: s.pos };
+    map[rule.sleeper_id] ??= entryFor(s);
     map[rule.sleeper_id].fp_id = Number(fpId);
     map[rule.sleeper_id].fp_method = "manual-override";
     // clear from review
-    const fp = (JSON.parse(readFileSync("fixtures/fp_ecr.json","utf8")).players).find(p=>p.player_id===Number(fpId));
-    if (fp) {
-      const label = `${fp.player_name} (${fp.player_position_id} ${fp.player_team_id})`;
+    const fpRow = fpById.get(Number(fpId));
+    if (fpRow) {
+      const label = `${fpRow.player_name} (${pos(fpRow.player_position_id)} ${fpRow.player_team_id})`;
       review.fp_unmatched = review.fp_unmatched.filter((x) => x !== label);
     }
     overridesApplied++;
@@ -222,8 +201,8 @@ const archReview = [];
 for (const e of Object.values(map)) {
   const a = archetypeOf(e);
   if (a) { e.archetype = a.tag; e.archetype_reason = a.reason; }
-  else if (e.ffc_id != null) {
-    // only players actually shown (in FFC pool) matter for review
+  else if (e.fp_id != null && hostRankIds.has(e.fp_id)) {
+    // only players actually shown (on the host rank board) matter for review
     archReview.push({ sleeper_id: e.sleeper_id, name: e.name, pos: e.pos, years_exp: e.years_exp, age: e.age });
   }
 }
@@ -234,13 +213,11 @@ writeFileSync("data/player_map.json", JSON.stringify(map, null, 1));
 writeFileSync("data/mapping_review.json", JSON.stringify(review, null, 1));
 
 // ---- report ----
-const both = Object.values(map).filter((m) => m.ffc_id != null && m.fp_id != null);
+const mappedHostRank = fpHostRank.filter((p) => fpToSleeper.has(p.player_id) || Object.values(map).some((m) => m.fp_id === p.player_id)).length;
 console.log(`sleeper fantasy-pos players indexed: ${sleeperById.size}`);
 console.log(`fp mapped:  ${fpToSleeper.size}/${fp.length} (+${overridesApplied} override)`);
-console.log(`ffc mapped: ${ffcToSleeper.size}/${ffc.length}`);
-console.log(`ffc rows with an ECR via map (both sides): ${both.length}/${ffc.length}`);
+console.log(`host rank board rows with a sleeper_id: ${mappedHostRank}/${fpHostRank.length}`);
 console.log(
   `review: fp_unmatched=${review.fp_unmatched.length} fp_ambiguous=${review.fp_ambiguous.length} ` +
-    `ffc_unmatched=${review.ffc_unmatched.length} ffc_ambiguous=${review.ffc_ambiguous.length} ` +
     `team_mismatch=${review.team_mismatch.length}`
 );
