@@ -2,6 +2,7 @@ import Link from "next/link";
 import EvalScorecard from "@/components/EvalScorecard";
 import { THRESHOLDS, type FpLite } from "@/lib/math";
 import { loadAllEcrSnapshots, loadFirstAndLatestSnapshots } from "@/lib/snapshot";
+import { CATALYST_LOOKBACK_DAYS } from "@/lib/evidence";
 import { buildMarketRows, type MapByFfc } from "@/lib/market";
 import playerMap from "@/data/player_map.json";
 import ffcFixture from "@/fixtures/ffc_adp.json";
@@ -383,27 +384,30 @@ export default async function Methodology() {
             market, not all of fantasy football.
           </li>
           <li>
-            Because ADP is a trailing seven-day mean, two consecutive daily
-            snapshots share six of their seven days of drafts. A single day of
-            news therefore enters the average at roughly one-seventh weight and
-            takes about a week to wash through, so a real repricing appears as a
-            week-long slope rather than a step, and day-over-day movement is
-            damped. The move thresholds have not yet been re-fitted against that
-            property {AWAITING}.
+            News does not hit the price all at once. Drafters are spread across
+            days, so someone drafting Thursday has heard Tuesday&rsquo;s news and
+            someone who drafted Tuesday morning had not, and the five host
+            boards refresh at different times, more than a day apart on some
+            days. A reaction therefore keeps entering the average host rank for
+            days after the event, and a real repricing looks like a slope rather
+            than a step. How many days that takes is not published by any host
+            and has not yet been measured here {AWAITING}.
           </li>
           <li>
-            The same property sets the catalyst lookback. The Aug 10 snapshot
-            averages drafts from Aug 4 to Aug 10 and the Aug 12 snapshot
-            averages Aug 6 to Aug 12, so the move between them is driven only
-            by the drafts entering the newer mean (Aug 11 to Aug 12) and the
-            drafts leaving the older one (Aug 4 to Aug 5). The Aug 6 to Aug 10
-            overlap sits in both means and largely cancels. A catalyst on the
-            leaving edge therefore pushes the measured move against its own
-            direction, because the reaction is ageing out of the average.
-            Catalysts are matched over the full rolling window for that reason,
-            not over the gap between snapshots. Until Aug 14, 2026 they were
-            matched from the previous snapshot forward, which silently
-            discarded the entire leaving edge.
+            The catalyst lookback follows from that. A catalyst is matched to a
+            move if it falls inside the {CATALYST_LOOKBACK_DAYS} days before the
+            older snapshot or anywhere up to the newer one, not only inside the
+            gap between the two snapshots, because an event older than the gap
+            can still be the cause. The number {CATALYST_LOOKBACK_DAYS} is an
+            assumption, stated as one: it is a prior for staggered drafting plus
+            host publish lag plus whatever averaging the hosts do, and it is
+            consistent with the one directional measurement on file (mover news
+            fell a median 3 days before the window end in the August lookback
+            test). Once enough history exists it will be replaced by a measured
+            figure: how many days a verified catalyst takes to finish moving the
+            price. Before Aug 16, 2026 the price was a published seven day
+            trailing mean and this window was read off that spec; it no longer
+            can be.
           </li>
           <li>
             ECR history is short, it begins with the first automated capture,

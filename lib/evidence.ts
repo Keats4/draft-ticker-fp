@@ -5,7 +5,7 @@
  * reading into "act", "unexplained" explicitly means watch, don't act.
  *
  * catalyst-confirmed: a verified (non-sample) catalyst exists inside the
- *   lookback that can actually have moved the price. See below, that lookback
+ *   lookback that can plausibly have moved the price. See below, that lookback
  *   is NOT the gap between the two snapshots.
  * unexplained: no verified catalyst yet, the move is real but the "why" is
  *   not documented, so the fallback copy applies.
@@ -13,10 +13,40 @@
 export type Evidence = { confirmed: boolean; label: string; note: string };
 
 /**
- * FFC ADP is a trailing mean over roughly this many days of drafts, not a
- * spot price. Everything below follows from that one fact.
+ * How many days before the OLDER snapshot a catalyst may sit and still count
+ * as inside the move window.
+ *
+ * ASSUMPTION, NOT DERIVED. The price is an average host rank across five host
+ * boards. None of the hosts publishes how its board is aggregated or over what
+ * window, so this number cannot be read off a spec. It is a judgment call,
+ * stated as one, for these reasons:
+ *
+ *   1. Drafters are spread across days. Someone drafting Thursday has heard
+ *      Tuesday's news; someone who drafted Tuesday morning had not. A reaction
+ *      keeps entering the price for days after the event, so an event older
+ *      than the snapshot gap can still be the cause of the move.
+ *   2. The five hosts publish at different times, up to a day or more apart
+ *      (25.6h spread observed on 2026-08-16), so a board that has not refreshed
+ *      lags the news by at least that.
+ *   3. Each host almost certainly aggregates over some window of its own,
+ *      length unknown, which stretches the tail further.
+ *
+ * Seven is a prior for the sum of those. The one empirical hook is the news
+ * lookback timing test (RESEARCH_LOG.md finding 13): mover news fell a median
+ * 3 days, mean 4.6, before the window end, directional only.
+ *
+ * TO BE MEASURED once enough history exists: for every verified catalyst with
+ * a confirmed date, track rank_ave day by day after the event and record how
+ * many days pass before the move stops. The median of that replaces this
+ * constant. Until then, copy that mentions the window must say "assumed", not
+ * "derived".
+ *
+ * (Before 2026-08-16 the price was a published seven day trailing mean and
+ * this constant was derived from that spec, with catalysts further classified
+ * as entering, overlap or leaving the mean. That classification depended on
+ * knowing the window edges and was removed with the source.)
  */
-export const ADP_MEAN_DAYS = 7;
+export const CATALYST_LOOKBACK_DAYS = 7;
 
 function addDays(iso: string, n: number): string {
   const d = new Date(iso + "T12:00:00Z");
@@ -25,50 +55,13 @@ function addDays(iso: string, n: number): string {
 }
 
 /**
- * The move between two daily snapshots is a difference of two overlapping
- * trailing means. With a 7 day mean and snapshots on Aug 10 and Aug 12:
- *
- *   Aug 10 ADP averages drafts from Aug 04 to Aug 10
- *   Aug 12 ADP averages drafts from Aug 06 to Aug 12
- *
- * so the delta is driven only by the drafts ENTERING the newer mean (Aug 11
- * to Aug 12) and the drafts LEAVING the older one (Aug 04 to Aug 05). Days in
- * the overlap (Aug 06 to Aug 10) sit in both means and largely cancel.
- *
- * The causally relevant lookback for a previous -> latest move is therefore
- * the OLDER mean's own window start, not the previous snapshot date. Filtering
- * catalysts to "on or after the previous snapshot" silently discards the
- * entire leaving edge, which is the half with the counterintuitive sign.
+ * Earliest catalyst date that can have contributed to a previous -> latest
+ * move: CATALYST_LOOKBACK_DAYS - 1 days before the older snapshot. Filtering
+ * catalysts to "on or after the previous snapshot" would discard events whose
+ * reaction was still working through the price when the window opened.
  */
 export function catalystLookbackStart(previousDate: string): string {
-  return addDays(previousDate, -(ADP_MEAN_DAYS - 1));
-}
-
-export type WindowEdge = "entering" | "overlap" | "leaving";
-
-/**
- * Which part of the rolling window a catalyst sits in. Display only: it does
- * not gate the evidence tier, it explains the direction a reader should
- * expect.
- *
- * entering: inside the newer mean only. Pushes the move in the direction of
- *   the news.
- * leaving: inside the older mean only. Pushes the move AGAINST the direction
- *   of the news, because the reaction is ageing out of the trailing average.
- * overlap: inside both means. Largely cancels, so it carries the least
- *   explanatory weight even though it is the most recent-looking.
- */
-export function windowEdge(
-  catalystDate: string,
-  previousDate: string,
-  latestDate: string
-): WindowEdge | null {
-  const latestStart = catalystLookbackStart(latestDate);
-  const prevStart = catalystLookbackStart(previousDate);
-  if (catalystDate > previousDate && catalystDate <= latestDate) return "entering";
-  if (catalystDate >= prevStart && catalystDate < latestStart) return "leaving";
-  if (catalystDate >= latestStart && catalystDate <= previousDate) return "overlap";
-  return null;
+  return addDays(previousDate, -(CATALYST_LOOKBACK_DAYS - 1));
 }
 
 /** True when a catalyst date can have contributed to the previous -> latest move. */
@@ -77,7 +70,7 @@ export function inMoveWindow(
   previousDate: string,
   latestDate: string
 ): boolean {
-  return windowEdge(catalystDate, previousDate, latestDate) !== null;
+  return catalystDate >= catalystLookbackStart(previousDate) && catalystDate <= latestDate;
 }
 
 export function evidenceFor(verifiedCatalystInWindow: boolean): Evidence {
@@ -85,7 +78,7 @@ export function evidenceFor(verifiedCatalystInWindow: boolean): Evidence {
     ? {
         confirmed: true,
         label: "Catalyst-confirmed",
-        note: "backed by a verified catalyst inside the rolling window of the move",
+        note: "backed by a verified catalyst inside the lookback window of the move",
       }
     : {
         confirmed: false,
