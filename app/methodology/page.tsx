@@ -405,9 +405,7 @@ export default async function Methodology() {
             fell a median 3 days before the window end in the August lookback
             test). Once enough history exists it will be replaced by a measured
             figure: how many days a verified catalyst takes to finish moving the
-            price. Before Aug 16, 2026 the price was a published seven day
-            trailing mean and this window was read off that spec; it no longer
-            can be.
+            price.
           </li>
           <li>
             ECR history is short, it begins with the first automated capture,
