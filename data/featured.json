@@ -1,0 +1,13 @@
+{
+  "_doc": "Curated featured set. A mirror pair shares one real event and tends to move in opposite directions (one back's stock up = the other's down). 'event' and 'note' are authored by Navi from the verified catalyst JSON: empty string renders as 'catalyst pending', never invented. The page shows each player's REAL numbers from the daily snapshots; it never asserts a move the data doesn't show. 'movers' are auto-detected from today's data, not listed here.",
+  "mirror_pairs": [
+    {
+      "id": "car-backfield",
+      "title": "Carolina backfield",
+      "players": ["11583", "7594"],
+      "event": "",
+      "note": ""
+    }
+  ],
+  "pinned": []
+}

@@ -1,0 +1,902 @@
+{
+ "_schema": {
+  "fields": {
+   "id": "stable unique string",
+   "player": "{ sleeper_id (canonical), name }",
+   "date": "YYYY-MM-DD event date (PT)",
+   "category": "usage | injury | depth-chart | coaching | trade | other",
+   "summary": "one factual sentence (fantasy framing), grounded in the source",
+   "source_url": "real primary source: required",
+   "verified": "true means a human opened that source_url and confirmed both the event and its date. Nothing else sets this flag - not an agent's confidence, not the URL resolving. All 27 were human-verified on 2026-08-12. Only a verified entry dated inside the move window flips a signal to 'catalyst-confirmed'.",
+   "sample": "false = real event (all 27). true would render 'SAMPLE - not real'.",
+   "bench_reason": "present only on bench[] items: why the entry is held out of live entries. Two grounds only - dated outside the snapshot window, or the summary makes a price claim the first-party ADP contradicts.",
+   "sources": "array of independent reports of the SAME event. Each carries url, outlet, date_text (the publication date exactly as it appears on the fetched page), and kind (original or syndicated). Independence means a distinct newsroom doing its own write-up. Five sites republishing one RotoWire or AP blurb is ONE source, not five. An aggregator that credits another outlet points at that outlet and is not counted separately.",
+   "independent_source_count": "how many entries in sources[] are independent originators. This is a proxy for REACH, which is the actual mechanism by which news moves ADP: FFC ADP aggregates roughly 6,160 drafts, so an event has to reach drafters to move it. One beat writer's practice note does not reach them; a story carried across five newsrooms does. Published like every other threshold in this product.",
+   "date_confirmed_on_source": "true means at least one source in sources[] DISPLAYS a publication date that was read off the page. false means no source displays a date. unknown means the entry predates this rule and has not been audited. Added because real-002-diggs carried verified:true with a date six days wrong: its source_url renders 'Published:' and 'Updated:' with empty date fields, so the date it claimed was never confirmable from the source it cited. A dateless source cannot verify a date."
+  },
+  "provenance": "Entries dated inside the rolling window of the stored 08-10 to 08-12 snapshots. Entries outside it are held in bench[] with source_url intact rather than deleted. NOT ADDED: Darren Waller (CAR) and Deshaun Watson (CLE) are real and in-window but have no ffc_id in data/player_map.json, so they sit outside the draftable FFC pool and their player pages render 'not tracked', the same reason J.J. McCarthy was never added. Note Mike Evans is on SF in 2026, not TB. On 2026-08-14 the window was widened per the rolling-mean reasoning above, twelve eval-set events were sourced with corroboration counts, and real-002-diggs was corrected from 08-11 to 08-05 and its verification withdrawn. See VERIFY_CHECKLIST.md for what still needs a human.",
+  "rules": "Candidates may be sourced by research agents or by hand (ADR-004, amending ADR-002). Every entry carries a primary source_url, no entry without one. Every entry added after 2026-08-14 also carries sources[] with an on-page date read off each page. No scraper, no news API, no NLP pipeline. What an agent may NOT do is set verified:true.",
+  "counts": {
+   "live": 32,
+   "bench": 6
+  },
+  "window": "2026-08-04 .. 2026-08-12. Derived, not hand-picked. FFC ADP is a trailing ~7 day mean, so the 08-10 snapshot averages drafts from 08-04 to 08-10 and the 08-12 snapshot averages 08-06 to 08-12. The move between them is driven only by drafts ENTERING the newer mean (08-11 to 08-12) and drafts LEAVING the older one (08-04 to 08-05); the 08-06 to 08-10 overlap sits in both means and largely cancels. The lookback is therefore the OLDER mean's own start, computed in lib/evidence.ts catalystLookbackStart(). The previous rule, 'on or after the previous snapshot', discarded the entire leaving edge, which is the half whose sign is inverted: a catalyst on the leaving edge pushes the measured move AGAINST its own direction as the reaction ages out.",
+  "corroboration": "Reported at 1 to 2 independent sources. Corroborated at 3 or more. The tier is recorded, not yet enforced: no entry is excluded for a low count. The count is suppressed by the window boundary, so the two rules interact and cannot be set independently. Jauan Jennings is the worked example: his 08-12 depth chart event carries 1 in-window source because CBS Minnesota, Vikings Wire and The Viking Age all covered it on 08-13, one day outside. Extend the window a single day and the same event reads 4."
+ },
+ "entries": [
+  {
+   "id": "real-014-irving",
+   "player": {
+    "sleeper_id": "11584",
+    "name": "Bucky Irving"
+   },
+   "date": "2026-08-05",
+   "category": "usage",
+   "summary": "OC Zac Robinson says Irving remains the lead back while Kenny Gainwell is the change-of-pace and receiving weapon; Irving's every-down role holds, with only a modest cap on his passing-down ceiling.",
+   "source_url": "https://www.pewterreport.com/bucky-irving-kenny-gainwell-zac-robinson-bucs/",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown",
+   "unbenched": "Held out only for falling outside the old 08-10 to 08-12 rule. Inside the rolling window that actually governs the move, so it is live."
+  },
+  {
+   "id": "real-104-dowdle",
+   "player": {
+    "sleeper_id": "7021",
+    "name": "Rico Dowdle"
+   },
+   "date": "2026-08-05",
+   "category": "depth-chart",
+   "summary": "Listed as the No. 2 running back behind Jaylen Warren on Pittsburgh's initial 2026 preseason depth chart.",
+   "source_url": "https://www.steelers.com/news/steelers-release-initial-2026-depth-chart",
+   "originator": "Pittsburgh Steelers official depth chart release, 2026-08-05",
+   "sources": [
+    {
+     "url": "https://www.steelers.com/news/steelers-release-initial-2026-depth-chart",
+     "outlet": "Steelers.com",
+     "date_text": "August 5, 2026 at 04:30 PM",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-05/steelers-list-warren-as-rb1-on-first-depth-chart",
+     "outlet": "NBC Sports",
+     "date_text": "August 5, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://steelersdepot.com/2026/08/steelers-release-initial-preseason-depth-chart/",
+     "outlet": "Steelers Depot",
+     "date_text": "Posted on August 5, 2026 at 4:39 pm",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.cbssports.com/fantasy/football/news/steelers-rico-dowdle-listed-behind-warren-on-depth-chart/",
+     "outlet": "CBS Sports",
+     "date_text": "August 5, 2026 at 4:59 pm ET",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 4,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-108-doubs",
+   "player": {
+    "sleeper_id": "8121",
+    "name": "Romeo Doubs"
+   },
+   "date": "2026-08-05",
+   "category": "other",
+   "summary": "Missed the Wednesday and Thursday Patriots practices; head coach Mike Vrabel said on 2026-08-07 that it was a personal matter unrelated to injury and that Doubs had returned.",
+   "source_url": "https://www.patriots.com/news/transcript-head-coach-mike-vrabel-8-7",
+   "originator": "ESPN's Mike Reiss flagged the absence; confirmed in the team's own 08-07 Vrabel transcript",
+   "sources": [
+    {
+     "url": "https://www.patriots.com/news/transcript-head-coach-mike-vrabel-8-7",
+     "outlet": "Patriots.com transcript",
+     "date_text": "August 7, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.boston.com/sports/new-england-patriots/2026/08/07/new-england-patriots-training-camp-takeaways-drake-maye-tommy-devito-scrimmage/",
+     "outlet": "Boston.com",
+     "date_text": "August 7, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.clnsmedia.com/?p=154052",
+     "outlet": "CLNS Media",
+     "date_text": "August 5, 2026, updated August 6, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.audacy.com/weei/sports/patriots/romeo-doubs-big-catch-and-everything-else-that-happened-at-monday-s-closed-patriots-practice",
+     "outlet": "WEEI",
+     "date_text": "Aug 10, 2026, 01:16 PM ET",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 4,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-002-diggs",
+   "player": {
+    "sleeper_id": "2449",
+    "name": "Stefon Diggs"
+   },
+   "date": "2026-08-05",
+   "category": "trade",
+   "summary": "Agreed to a one-year deal with the Washington Commanders worth up to $12 million after being released by New England; the club formally announced the signing on 2026-08-07.",
+   "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/stefon-diggs-to-sign-with-the-commanders",
+   "verified": false,
+   "sample": false,
+   "date_confirmed_on_source": true,
+   "sources": [
+    {
+     "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/stefon-diggs-to-sign-with-the-commanders",
+     "outlet": "NBC Sports Pro Football Talk",
+     "date_text": "Published August 5, 2026 02:05 PM",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.cbssports.com/nfl/news/stefon-diggs-signing-with-commanders/",
+     "outlet": "CBS Sports",
+     "date_text": "August 5, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.notus.org/sports/commanders-sign-stefon-diggs-wide-receiver",
+     "outlet": "NOTUS",
+     "date_text": "August 5, 2026, 3:32 p.m.",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.commanders.com/news/commanders-sign-wr-stefon-diggs",
+     "outlet": "Commanders.com",
+     "date_text": "Aug 07, 2026 at 07:47 AM",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.si.com/onsi/fantasy/news/stefon-diggs-signs-with-washington-commanders-exploring-2026-fantasy-value",
+     "outlet": "SI",
+     "date_text": "August 5, 2026 at 18:36:44 UTC",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 5,
+   "correction": "Was dated 2026-08-11 with verified:true. The signing was reported 08-05 and announced by the club 08-07. The cited source (nfl.com) renders 'Published:' and 'Updated:' with empty date fields and says only that Rapoport reported it 'Wednesday'; 08-11 was a Tuesday, 08-05 a Wednesday. Verification withdrawn on 2026-08-14 because the date it asserted was never confirmable from the source it cited."
+  },
+  {
+   "id": "real-102-mcmillan",
+   "player": {
+    "sleeper_id": "11618",
+    "name": "Jalen McMillan"
+   },
+   "date": "2026-08-06",
+   "category": "injury",
+   "summary": "Held out of Buccaneers practice with a knee injury, with head coach Todd Bowles saying he was not sure how long McMillan would be out.",
+   "source_url": "https://www.rotowire.com/football/headlines/jalen-mcmillan-injury-remains-sidelined-at-practice-632775",
+   "originator": "RotoWire Buccaneers camp beat; Todd Bowles press conference, 2026-08-06",
+   "sources": [
+    {
+     "url": "https://www.rotowire.com/football/headlines/jalen-mcmillan-injury-remains-sidelined-at-practice-632775",
+     "outlet": "RotoWire",
+     "date_text": "August 6, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.joebucsfan.com/2026/08/injury-updates-on-jalen-mcmillan-tristan-wirfs/",
+     "outlet": "JoeBucsFan",
+     "date_text": "August 6, 2026 at 6:15 PM UTC",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 2,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-107-andrews",
+   "player": {
+    "sleeper_id": "5012",
+    "name": "Mark Andrews"
+   },
+   "date": "2026-08-06",
+   "category": "other",
+   "summary": "Had a drop and an on-field altercation with Trey Hendrickson at Baltimore's padded practice, described as a shoving match by one outlet and as jawing by two others.",
+   "source_url": "https://russellstreetreport.com/2026/08/07/camp-notes/training-camp-padded-practice/",
+   "originator": "Russell Street Report; covered same day by The Baltimore Banner and the team site",
+   "sources": [
+    {
+     "url": "https://russellstreetreport.com/2026/08/07/camp-notes/training-camp-padded-practice/",
+     "outlet": "Russell Street Report",
+     "date_text": "August 7, 2026 at 8:57 am",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.thebanner.com/sports/ravens-nfl/baltimore-ravens-training-camp-fight-observations-mike-green-Q232NNGNBRGRZLC6WU4YTNDGLI/",
+     "outlet": "The Baltimore Banner",
+     "date_text": "8/6/2026 5:01 p.m. EDT",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.baltimoreravens.com/news/practice-report-longest-hottest-chippiest-training-camp-2026",
+     "outlet": "BaltimoreRavens.com",
+     "date_text": "Aug 06, 2026 at 04:30 PM",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 3,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-012-downs",
+   "player": {
+    "sleeper_id": "9500",
+    "name": "Josh Downs"
+   },
+   "date": "2026-08-08",
+   "category": "injury",
+   "summary": "Missed a Colts practice in early August with a groin injury; expected back within days.",
+   "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/josh-downs-missed-saturdays-colts-practice-with-a-groin-injury",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown",
+   "unbenched": "Held out only for falling outside the old 08-10 to 08-12 rule. Inside the rolling window that actually governs the move, so it is live."
+  },
+  {
+   "id": "real-109-reed",
+   "player": {
+    "sleeper_id": "10222",
+    "name": "Jayden Reed"
+   },
+   "date": "2026-08-09",
+   "category": "injury",
+   "summary": "Missed back-to-back Packers practices on 2026-08-09 and 2026-08-10 with an ankle injury that head coach Matt LaFleur called day to day.",
+   "source_url": "https://www.packers.com/news/5-things-learned-at-packers-training-camp-aug-10-2026",
+   "originator": "Multiple Packers beat reporters following LaFleur's 08-09 comments",
+   "sources": [
+    {
+     "url": "https://www.packers.com/news/5-things-learned-at-packers-training-camp-aug-10-2026",
+     "outlet": "Packers.com",
+     "date_text": "Aug 10, 2026 at 05:12 PM",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.si.com/nfl/packers/onsi/what-happened-at-practice-9-of-packers-training-camp-key-injury-updates",
+     "outlet": "Packers on SI",
+     "date_text": "August 9, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://sports.yahoo.com/articles/green-bay-packers-training-camp-154854227.html",
+     "outlet": "Yahoo Sports",
+     "date_text": "Sun, August 9, 2026 at 3:48 PM UTC",
+     "kind": "original"
+    },
+    {
+     "url": "https://cheeseheadtv.com/blog/packers-practice-roundup-august-9-2026-day-8-725",
+     "outlet": "Cheesehead TV",
+     "date_text": "Aug 09, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://lombardiave.com/7-lessons-packers-most-newsworthy-training-camp-practice-yet",
+     "outlet": "Lombardi Ave",
+     "date_text": "August 10, 2026",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 5,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-020-mccaffrey",
+   "player": {
+    "sleeper_id": "4034",
+    "name": "Christian McCaffrey"
+   },
+   "date": "2026-08-10",
+   "category": "injury",
+   "summary": "Sat out Monday's 49ers practice with what the club termed 'tightness', with no specifics or timeline disclosed, a durability flag on a top-10 pick.",
+   "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/christian-mccaffrey-out-of-mondays-practice-with-tightness",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-103-kittle",
+   "player": {
+    "sleeper_id": "4217",
+    "name": "George Kittle"
+   },
+   "date": "2026-08-10",
+   "category": "injury",
+   "summary": "CBS Sports reported a high level of confidence that Kittle, working back from a January torn Achilles, will be able to play in Week 1 against the Rams.",
+   "source_url": "https://x.com/mzenitz/status/2086957892444295374",
+   "originator": "Matt Zenitz, CBS Sports, 2026-08-10",
+   "sources": [
+    {
+     "url": "https://x.com/mzenitz/status/2086957892444295374",
+     "outlet": "Matt Zenitz, CBS Sports",
+     "date_text": "August 10, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://sports.yahoo.com/articles/optimism-george-kittle-return-49ers-015425766.html",
+     "outlet": "Niners Wire, USA Today",
+     "date_text": "August 11, 2026 at 1:54 AM UTC",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 2,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-019-henry",
+   "player": {
+    "sleeper_id": "3214",
+    "name": "Hunter Henry"
+   },
+   "date": "2026-08-10",
+   "category": "other",
+   "summary": "Signed a two-year, $16 million extension with New England (reported up to $20M, $14.5M guaranteed), removing contract-year uncertainty from the Patriots' established starting tight end.",
+   "source_url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-10/patriots-sign-hunter-henry-to-two-year-extension",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-021-pacheco",
+   "player": {
+    "sleeper_id": "8205",
+    "name": "Isiah Pacheco"
+   },
+   "date": "2026-08-10",
+   "category": "injury",
+   "summary": "Dan Campbell disclosed an MCL sprain but said the Lions feel 'pretty good about him being ready to go' by the season, keeping the Jahmyr Gibbs committee back in play for Week 1.",
+   "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/isiah-pacheco-has-an-mcl-sprain-but-should-be-ready-for-week-1",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-013-burden",
+   "player": {
+    "sleeper_id": "12519",
+    "name": "Luther Burden"
+   },
+   "date": "2026-08-10",
+   "category": "injury",
+   "summary": "A groin injury is expected to sideline him for the preseason, with a Week 1 return targeted.",
+   "source_url": "https://chicago.suntimes.com/bears/2026/08/10/bears-luther-burden-groin-injury-preseason-miss-nfl-wide-receiver-practice-tyrique-stevenson",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-106-kelce",
+   "player": {
+    "sleeper_id": "1466",
+    "name": "Travis Kelce"
+   },
+   "date": "2026-08-10",
+   "category": "usage",
+   "summary": "Andy Reid said the Chiefs have to pull Kelce out of training camp reps because the 36-year-old declines the reduced veteran workload the team plans for him.",
+   "source_url": "https://sports.yahoo.com/articles/travis-kelce-refusing-chiefs-training-103000648.html",
+   "originator": "Steve Walls (@SteveWallsKC), 2026-08-10, capturing Reid's practice comments",
+   "sources": [
+    {
+     "url": "https://sports.yahoo.com/articles/travis-kelce-refusing-chiefs-training-103000648.html",
+     "outlet": "Yahoo Sports",
+     "date_text": "Tuesday, August 11, 2026 at 10:30 AM UTC",
+     "kind": "original"
+    },
+    {
+     "url": "https://heavy.com/sports/nfl/kansas-city-chiefs/andy-reid-travis-kelce-refuses-training-camp/",
+     "outlet": "Heavy",
+     "date_text": "August 11, 2026 at 1:17pm",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.hitc.com/what-travis-kelce-is-refusing-to-do-in-chiefs-training-camp-as-andy-reid-details-his-struggle/",
+     "outlet": "HITC",
+     "date_text": "Tue 11 August 2026 11:00, UK",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 3,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-026-tuten",
+   "player": {
+    "sleeper_id": "12490",
+    "name": "Bhayshul Tuten"
+   },
+   "date": "2026-08-11",
+   "category": "depth-chart",
+   "summary": "Jacksonville's first unofficial depth chart lists the lead back as 'Tuten or Rodriguez', formalising a committee rather than the clear lead role his July usage buzz implied.",
+   "source_url": "https://www.jaguars.com/news/jaguars-2026-training-camp-first-unofficial-depth-chart-released",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-006-hubbard",
+   "player": {
+    "sleeper_id": "7594",
+    "name": "Chuba Hubbard"
+   },
+   "date": "2026-08-11",
+   "category": "depth-chart",
+   "summary": "Slipping modestly (ADP 74.9 to 75.9 across the 08-10 to 08-12 window) as Jonathon Brooks flashes in his first padded practices off the 2024 ACL; the staff still frames Hubbard as the lead back.",
+   "source_url": "https://www.panthers.com/news/jonathon-brooks-passes-a-huge-benchmark-with-first-padded-practice-panthers-chuba-hubbard",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-101-djones",
+   "player": {
+    "sleeper_id": "5870",
+    "name": "Daniel Jones"
+   },
+   "date": "2026-08-11",
+   "category": "usage",
+   "summary": "Colts head coach Shane Steichen said Jones will not play in any 2026 preseason game as he works back from a torn Achilles, with Anthony Richardson Sr. and Riley Leonard starting the exhibitions instead.",
+   "source_url": "https://www.colts.com/news/anthony-richardson-sr-to-start-at-qb-for-colts-in-preseason-opener-vs-patriots-riley-leonard-to-start-vs-falcons",
+   "originator": "Shane Steichen, Colts press conference, 2026-08-11",
+   "sources": [
+    {
+     "url": "https://www.colts.com/news/anthony-richardson-sr-to-start-at-qb-for-colts-in-preseason-opener-vs-patriots-riley-leonard-to-start-vs-falcons",
+     "outlet": "Colts.com",
+     "date_text": "August 11, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.wrtv.com/sports/colts/shane-steichen-shares-who-will-start-for-colts-at-qb-in-first-two-preseason-games",
+     "outlet": "WRTV Indianapolis",
+     "date_text": "August 11, 2026 at 5:07 PM ET",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.foxsports.com/articles/nfl/qbs-drake-maye-daniel-jones-to-sit-for-patriotscolts-preseason-matchup",
+     "outlet": "Associated Press",
+     "date_text": "August 11, 2026 at 4:06 p.m. ET",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 3,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-009-boston",
+   "player": {
+    "sleeper_id": "13346",
+    "name": "Denzel Boston"
+   },
+   "date": "2026-08-11",
+   "category": "usage",
+   "summary": "Rookie WR turned heads on Day 12 of Browns camp and was elevated to first-team reps.",
+   "source_url": "https://www.clevelandbrowns.com/news/denzel-boston-posts-standout-performance-on-day-12-training-camp-observations",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-024-egbuka",
+   "player": {
+    "sleeper_id": "12514",
+    "name": "Emeka Egbuka"
+   },
+   "date": "2026-08-11",
+   "category": "depth-chart",
+   "summary": "Listed as a starting wide receiver on Tampa Bay's first unofficial 2026 depth chart alongside Jalen McMillan and Chris Godwin, with Mike Evans off the roster for the first time in 13 years.",
+   "source_url": "https://www.buccaneers.com/news/looming-preseason-opener-means-first-bucs-depth-chart-2026",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-008-blue",
+   "player": {
+    "sleeper_id": "12457",
+    "name": "Jaydon Blue"
+   },
+   "date": "2026-08-11",
+   "category": "depth-chart",
+   "summary": "Listed RB2 behind Javonte Williams on the Cowboys' first unofficial 2026 depth chart; ADP slipped about five picks (150.1 to 155.2) across the 08-10 to 08-12 window.",
+   "source_url": "https://www.on3.com/pro/news/dallas-cowboys-release-first-unofficial-depth-chart-ahead-2026-season/",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-007-brooks",
+   "player": {
+    "sleeper_id": "11583",
+    "name": "Jonathon Brooks"
+   },
+   "date": "2026-08-11",
+   "category": "depth-chart",
+   "summary": "Flashing in his first padded practices off the December 2024 ACL; ADP ticked up from 111.1 to 109.4 across the 08-10 to 08-12 window, the inverse of Hubbard's slip on the same dates.",
+   "source_url": "https://www.panthers.com/news/jonathon-brooks-passes-a-huge-benchmark-with-first-padded-practice-panthers-chuba-hubbard",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-018-kyler",
+   "player": {
+    "sleeper_id": "5849",
+    "name": "Kyler Murray"
+   },
+   "date": "2026-08-11",
+   "category": "depth-chart",
+   "summary": "Kevin O'Connell named Murray the Vikings' starting quarterback over J.J. McCarthy on Tuesday after a camp-long competition, locking in QB1 snaps in Minnesota.",
+   "source_url": "https://www.vikings.com/news/kyler-murray-quarterback-starting-2026-nfl-season",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-001-nabers",
+   "player": {
+    "sleeper_id": "11632",
+    "name": "Malik Nabers"
+   },
+   "date": "2026-08-11",
+   "category": "injury",
+   "summary": "Back at practice off his December 2024 ACL and tracking for Week 1; ADP climbed from 33.2 to 31.9 across the 08-10 to 08-12 snapshot window as the market priced in the return.",
+   "source_url": "https://www.si.com/nfl/giants/onsi/giants-malik-nabers-practice-return-acl-recovery-01kytbm81h02",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-023-evans",
+   "player": {
+    "sleeper_id": "2216",
+    "name": "Mike Evans"
+   },
+   "date": "2026-08-11",
+   "category": "injury",
+   "summary": "Suited up for Tuesday's 49ers practice after missing the previous week with a quad strain, a return-to-work signal in his first season away from Tampa Bay.",
+   "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/christian-mccaffrey-remains-out-of-practice-tuesday-mike-evans-suits-up",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-022-nacua",
+   "player": {
+    "sleeper_id": "9493",
+    "name": "Puka Nacua"
+   },
+   "date": "2026-08-11",
+   "category": "injury",
+   "summary": "Pulled from the Rams' joint practice with Dallas with what Ian Rapoport described as 'minor soreness in his groin', reported as precautionary, with no Week 1 doubt attached.",
+   "source_url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-11/puka-nacua-groin-dealing-with-minor-soreness",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": true,
+   "sources": [
+    {
+     "url": "https://www.si.com/nfl/rams/onsi/rams-puka-nacua-myles-garrett-injury-updates",
+     "outlet": "Rams on SI",
+     "date_text": "August 12, 2026, published 12:40 AM",
+     "kind": "original"
+    },
+    {
+     "url": "https://heavy.com/sports/nfl/los-angeles-rams/rams-puka-nacua-injury-severity-update/",
+     "outlet": "Heavy",
+     "date_text": "updated on August 11, 2026, at 11:11 p.m.",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-11/puka-nacua-groin-dealing-with-minor-soreness",
+     "outlet": "NBC Sports",
+     "date_text": "August 11, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.aol.com/articles/puka-nacua-injury-know-rams-200641000.html",
+     "outlet": "USA TODAY",
+     "date_text": "Tuesday, August 11, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://sports.yahoo.com/articles/puka-nacua-left-rams-cowboys-130000840.html",
+     "outlet": "SB Nation",
+     "date_text": "Wednesday, August 12, 2026 at 1:00 PM UTC",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 5
+  },
+  {
+   "id": "real-025-hunter",
+   "player": {
+    "sleeper_id": "12530",
+    "name": "Travis Hunter"
+   },
+   "date": "2026-08-11",
+   "category": "depth-chart",
+   "summary": "Jacksonville's first unofficial depth chart lists him as a starting cornerback and second-team wide receiver, behind Brian Thomas Jr. on his receiver line, a cap on projected offensive snaps.",
+   "source_url": "https://www.jaguars.com/news/jaguars-2026-training-camp-first-unofficial-depth-chart-released",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-027-ajones",
+   "player": {
+    "sleeper_id": "4199",
+    "name": "Aaron Jones"
+   },
+   "date": "2026-08-12",
+   "category": "depth-chart",
+   "summary": "Minnesota's first unofficial 2026 depth chart lists the backfield as 'Aaron Jones, Sr. OR Jordan Mason', an unresolved committee rather than a lead back.",
+   "source_url": "https://www.vikings.com/news/preseason-2026-depth-chart-unofficial-nfl",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-110-jennings",
+   "player": {
+    "sleeper_id": "7049",
+    "name": "Jauan Jennings"
+   },
+   "date": "2026-08-12",
+   "category": "depth-chart",
+   "summary": "Listed as the starting WR3 behind Justin Jefferson and Jordan Addison on Minnesota's first unofficial 2026 depth chart.",
+   "source_url": "https://www.vikings.com/news/preseason-2026-depth-chart-unofficial-nfl",
+   "originator": "Vikings.com official depth chart release, 2026-08-12",
+   "sources": [
+    {
+     "url": "https://www.vikings.com/news/preseason-2026-depth-chart-unofficial-nfl",
+     "outlet": "Vikings.com",
+     "date_text": "August 12, 2026 at 08:00 PM",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 1,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-112-dart",
+   "player": {
+    "sleeper_id": "12508",
+    "name": "Jaxson Dart"
+   },
+   "date": "2026-08-12",
+   "category": "coaching",
+   "summary": "Completed 2 of 8 passes with an interception in a red-zone seven-on-seven period, after which Giants offensive coordinator Matt Nagy publicly called the practice average, maybe below average, and not good enough.",
+   "source_url": "https://sports.yahoo.com/articles/jaxson-dart-takes-lumps-tough-012928242.html",
+   "originator": "Zach Braziller, New York Post, broke the stat line; Nagy's quotes captured at the practice-day podium",
+   "sources": [
+    {
+     "url": "https://sports.yahoo.com/articles/jaxson-dart-takes-lumps-tough-012928242.html",
+     "outlet": "New York Post",
+     "date_text": "Wednesday, August 12, 2026 at 1:29 AM UTC",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.yardbarker.com/nfl/articles/giants_oc_matt_nagy_sends_clear_message_to_jaxson_dart_after_ugly_practice/s1_13132_44166462",
+     "outlet": "Yardbarker",
+     "date_text": "August 12, 2026, 8:17 AM ET",
+     "kind": "original"
+    },
+    {
+     "url": "https://fansided.com/nfl/giants-are-quickly-learning-about-matt-nagy-what-chiefs-and-bears-fans-already-knew",
+     "outlet": "FanSided",
+     "date_text": "2026-08-12T21:23:20Z",
+     "kind": "original"
+    },
+    {
+     "url": "https://sports.yahoo.com/articles/giants-coach-sounds-off-jaxson-100212269.html",
+     "outlet": "NJ.com",
+     "date_text": "Wednesday, August 12, 2026 at 5:58 PM UTC",
+     "kind": "original"
+    },
+    {
+     "url": "https://athlonsports.com/nfl/new-york-giants/jaxson-dart-slow-start-matt-nagy-giants",
+     "outlet": "Athlon Sports",
+     "date_text": "August 12, 2026",
+     "kind": "original"
+    }
+   ],
+   "independent_source_count": 5,
+   "verified": false,
+   "date_confirmed_on_source": true,
+   "sample": false
+  },
+  {
+   "id": "real-028-brooks-game",
+   "player": {
+    "sleeper_id": "11583",
+    "name": "Jonathon Brooks"
+   },
+   "date": "2026-08-12",
+   "category": "coaching",
+   "summary": "Dave Canales said Brooks 'will play with the first group, he'll mix in and out with Chuba' at Buffalo, his first game action since 2024 and a direct signal of a real committee share.",
+   "source_url": "https://www.panthers.com/news/training-camp-observations-jonathon-brooks-to-play-with-ones-in-buffalo",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-005-rice",
+   "player": {
+    "sleeper_id": "10229",
+    "name": "Rashee Rice"
+   },
+   "date": "2026-08-12",
+   "category": "other",
+   "summary": "The NFL is not expected to pursue further discipline in his probation case, easing his suspension risk for 2026.",
+   "source_url": "https://heavy.com/sports/nfl/kansas-city-chiefs/rashee-rice-unlikely-further-suspension-jail/",
+   "verified": true,
+   "sample": false,
+   "date_confirmed_on_source": "unknown"
+  },
+  {
+   "id": "real-032-tyson",
+   "player": {
+    "sleeper_id": "13281",
+    "name": "Jordyn Tyson"
+   },
+   "date": "2026-08-13",
+   "category": "injury",
+   "summary": "Left the joint practice with Jacksonville on Aug 13 with a hamstring injury; the Saints said the following day he will miss time and that his Week 1 availability is uncertain. Kellen Moore said the mechanism was a slip and a shove from behind and that it has nothing to do with Tyson's hamstring history at Arizona State.",
+   "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/jordyn-tyson-will-miss-time-with-hamstring-injury-could-linger-into-regular-season",
+   "verified": false,
+   "sample": false,
+   "date_confirmed_on_source": true,
+   "sources": [
+    {
+     "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/jordyn-tyson-exited-thursdays-practice-early-with-hamstring-issue",
+     "outlet": "NBC Sports / ProFootballTalk",
+     "date_text": "August 13, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/jordyn-tyson-will-miss-time-with-hamstring-injury-could-linger-into-regular-season",
+     "outlet": "NBC Sports / ProFootballTalk",
+     "date_text": "August 14, 2026",
+     "kind": "original"
+    },
+    {
+     "url": "https://sports.yahoo.com/articles/jordyn-tyson-injury-saints-wr-211657580.html",
+     "outlet": "USA TODAY Sports (Nick Brinkerhoff), carried by Yahoo Sports",
+     "date_text": "Fri, August 14, 2026 at 9:16 PM UTC",
+     "kind": "original"
+    },
+    {
+     "url": "https://www.fantasypros.com/nfl/news/602190/jordyn-tyson-exits-practice-thursday-with-minor-hamstring-injury.php",
+     "outlet": "FantasyPros (credits Mike Triplett)",
+     "date_text": "Thu, Aug 13th 2026, 12:34pm EDT",
+     "kind": "syndicated"
+    },
+    {
+     "url": "https://www.wbrz.com/news/report-saints-rookie-wide-receiver-jordyn-tyson-leaves-practice-with-injury/",
+     "outlet": "WBRZ (credits ESPN)",
+     "date_text": "August 13, 2026",
+     "kind": "syndicated"
+    },
+    {
+     "url": "https://www.si.com/onsi/fantasy/injuries/jordyn-tyson-injures-hamstring-and-leaves-practice-fantasy-football-impact",
+     "outlet": "Sports Illustrated / onsi Fantasy (credits ESPN Schefter and Terrell)",
+     "date_text": "Aug 14, 2026 | Modified Aug 14, 2026",
+     "kind": "syndicated"
+    }
+   ],
+   "independent_source_count": 2
+  }
+ ],
+ "bench": [
+  {
+   "id": "real-010-rhamondre",
+   "player": {
+    "sleeper_id": "7611",
+    "name": "Rhamondre Stevenson"
+   },
+   "date": "2026-08-11",
+   "category": "depth-chart",
+   "summary": "Rising as rookie TreVeyon Henderson continues to struggle in pass protection.",
+   "source_url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-04/henderson-still-struggling-with-pass-protection",
+   "verified": true,
+   "sample": false,
+   "bench_reason": "Price claim 'rising' contradicted by first-party ADP (71.8 -> 72.3, slightly down). Event (Henderson pass-pro struggles) is real; re-check after refresh."
+  },
+  {
+   "id": "real-003-deebo",
+   "player": {
+    "sleeper_id": "5872",
+    "name": "Deebo Samuel"
+   },
+   "date": "2026-08-03",
+   "category": "trade",
+   "summary": "Re-signed by the 49ers to address receiver injuries, lifting his draft stock.",
+   "source_url": "https://www.espn.com/nfl/story/_/id/49493047/sources-deebo-samuel-returning-49ers-1-year-deal",
+   "verified": true,
+   "sample": false,
+   "bench_reason": "Event dated 2026-08-03, outside the Aug 10-12 stored snapshot window, there is no snapshot on that date, so it can render no chart marker and can never satisfy the evidence-tier in-window test. Source kept; restore if earlier snapshot history is ever backfilled."
+  },
+  {
+   "id": "real-004-pearsall",
+   "player": {
+    "sleeper_id": "11638",
+    "name": "Ricky Pearsall"
+   },
+   "date": "2026-08-03",
+   "category": "injury",
+   "summary": "Placed on season-ending IR with a knee issue, opening 49ers receiving snaps behind him.",
+   "source_url": "https://www.nfl.com/news/niners-wr-ricky-pearsall-knee-surgery-will-miss-2026-season",
+   "verified": true,
+   "sample": false,
+   "bench_reason": "Event dated 2026-08-03, outside the Aug 10-12 stored snapshot window, there is no snapshot on that date, so it can render no chart marker and can never satisfy the evidence-tier in-window test. Source kept; restore if earlier snapshot history is ever backfilled."
+  },
+  {
+   "id": "real-015-tuten",
+   "player": {
+    "sleeper_id": "12490",
+    "name": "Bhayshul Tuten"
+   },
+   "date": "2026-07-30",
+   "category": "usage",
+   "summary": "HC Liam Coen expects a 'big year'; with Travis Etienne gone to New Orleans, Tuten profiles as the lead back, though free-agent addition Chris Rodriguez Jr. will share early-down work.",
+   "source_url": "https://www.nfl.com/news/liam-coen-hypes-bhayshul-tuten-jags-expecting-rb-to-have-a-big-year",
+   "verified": true,
+   "sample": false,
+   "bench_reason": "Event dated 2026-07-30, outside the Aug 10-12 stored snapshot window, there is no snapshot on that date, so it can render no chart marker and can never satisfy the evidence-tier in-window test. Source kept; restore if earlier snapshot history is ever backfilled."
+  },
+  {
+   "id": "real-016-kamara",
+   "player": {
+    "sleeper_id": "4035",
+    "name": "Alvin Kamara"
+   },
+   "date": "2026-07-30",
+   "category": "usage",
+   "summary": "Re-signed with New Orleans on a restructured deal and keeps a real role in a 'one-two punch' with new arrival Travis Etienne, capping the workload some expected Etienne to own.",
+   "source_url": "https://www.nfl.com/news/saints-five-time-pro-bowl-rb-alvin-kamara-finalizing-restructured-contract-to-stay-in-new-orleans",
+   "verified": true,
+   "sample": false,
+   "bench_reason": "Event dated 2026-07-30, outside the Aug 10-12 stored snapshot window, there is no snapshot on that date, so it can render no chart marker and can never satisfy the evidence-tier in-window test. Source kept; restore if earlier snapshot history is ever backfilled."
+  },
+  {
+   "id": "real-017-etienne",
+   "player": {
+    "sleeper_id": "7543",
+    "name": "Travis Etienne"
+   },
+   "date": "2026-07-30",
+   "category": "trade",
+   "summary": "Signed a four-year deal with the Saints and profiles as the primary ground-game back, but Kamara's re-signing turns it into a committee that caps Etienne's ceiling and third-down work.",
+   "source_url": "https://www.cbssports.com/fantasy/football/news/saints-travis-etienne-set-to-combine-with-kamara/",
+   "verified": true,
+   "sample": false,
+   "bench_reason": "Event dated 2026-07-30, outside the Aug 10-12 stored snapshot window, there is no snapshot on that date, so it can render no chart marker and can never satisfy the evidence-tier in-window test. Source kept; restore if earlier snapshot history is ever backfilled."
+  }
+ ]
+}

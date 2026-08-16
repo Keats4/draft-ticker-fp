@@ -1,0 +1,216 @@
+{
+ "_schema": {
+  "phases": "ordered list of fantasy-calendar phases",
+  "fields": {
+   "key": "stable slug",
+   "title": "display name",
+   "window": "approximate calendar window, display only",
+   "current": "true for the phase we're in now (drives the timeline highlight, the 'how to read this phase' panel, and the homepage hero's phase strip)",
+   "signal_level": "one of low | med | high | vhigh | null - drives the signal-quality meter; null renders 'pending'. Split ratings from the source doc are rounded DOWN to the more cautious level and the nuance is kept in how_to_read.",
+   "card_line": "one sentence, the lead line on the phase card AND the line the homepage hero shows next to the phase name. Keep it short.",
+   "how_to_read": "the TRUST WHY prose: why movement in this phase deserves the trust level it has. Renders in the gold panel on the current phase. Empty = pending.",
+   "sections": "what_appears | player_types | signal_strength | watching - authored by Navi and rendered VERBATIM. signal_strength is driven by signal_level, not by this string."
+  },
+  "rules": "Reader-facing page content, rendered word for word on /calendar - not summarised, not paraphrased. Phase name and signal_level double as structured inputs for the AI notes layer; the prose is written for people. Empty strings render as 'Content pending'.",
+  "voice": "Matter-of-fact. Teaches a reader how to weigh movement in each phase.",
+  "counts": {
+   "phases": 12,
+   "authored": 12
+  },
+  "dates": "start and end are inclusive YYYY-MM-DD and are the ONLY thing that decides which phase is current; there is no hand set current flag. Ranges are contiguous and non-overlapping so exactly one phase is current on any covered date. Sourced anchors: Hall of Fame Game 2026-08-06, Week 1 kickoff 2026-09-09, regular season ends 2027-01-10, Labor Day 2026-09-07. Where a range and its display `window` string disagree, the window string is the human label and the dates are the machine boundary; trade-deadlines and stretch-run both claim in-season weeks, so the dates split them at 2026-11-24 rather than overlapping. 2027-01-11 to 2026-04-22 is uncovered offseason: lib/phases.ts currentPhase() returns the most recently ended phase and flags inGap."
+ },
+ "phases": [
+  {
+   "key": "nfl-draft",
+   "title": "NFL Draft",
+   "window": "late April",
+   "start": "2026-04-23",
+   "end": "2026-04-30",
+   "signal_level": "med",
+   "card_line": "Draft capital reprices whole depth charts overnight.",
+   "how_to_read": "Draft capital is real information, but the prices that follow it usually are not. Rookies get drafted early on landing-spot excitement and shiny-new-toy hype, and the actual role does not exist until the season starts.",
+   "sections": {
+    "what_appears": "Teams show you what they think of their own rosters. A second-round running back tells you more about the incumbent than any offseason quote will.",
+    "player_types": "Rookie WR · Rookie RB · Ambiguous-Backfield RB · unsettled TE rooms",
+    "signal_strength": "",
+    "watching": "This year that was Jeremiyah Love, taken third overall into Arizona's backfield, with James Conner taking the corresponding hit. The board still shows the split: Love at ADP 26.2, Conner at 183.1."
+   }
+  },
+  {
+   "key": "rookie-minicamp",
+   "title": "Rookie Minicamp",
+   "window": "early May",
+   "start": "2026-05-01",
+   "end": "2026-05-17",
+   "signal_level": "low",
+   "card_line": "Highlight clips, no defense, no signal.",
+   "how_to_read": "There is no contact and no competition, so there is nothing to confirm. Price spikes from minicamp reports reverse more often than they hold.",
+   "sections": {
+    "what_appears": "Rookies in helmets and shorts, no defense, and a round of positive first-look reports.",
+    "player_types": "Rookie WR · Rookie RB · Rookie TE",
+    "signal_strength": "",
+    "watching": "This year's minicamp riser was Emmett Johnson, who drew a LeSean McCoy comparison from Andy Reid after a single practice. He is no longer in the draftable pool, which is this phase's point made for it."
+   }
+  },
+  {
+   "key": "otas",
+   "title": "OTAs",
+   "window": "May–June",
+   "start": "2026-05-18",
+   "end": "2026-06-08",
+   "signal_level": "low",
+   "card_line": "Coach-speak season. Most June risers give it back.",
+   "how_to_read": "Most June risers give the gain back by mid-August. Movement in this phase is mostly narrative, and the market knows it, which is why it drifts instead of jumps.",
+   "sections": {
+    "what_appears": "Unpadded practices and optimistic coach quotes. The first “running with the first team” reports show up here, months before they can be tested.",
+    "player_types": "Rookie WR · Injury-Return Vet · Camp-Hype Breakout",
+    "signal_strength": "",
+    "watching": "This year's June riser was Rachaad White, who took lead-back reps in Washington while Jacory Croskey-Merritt was hurt. It has held in this market: White sits at ADP 99.9, Croskey-Merritt at 111.3."
+   }
+  },
+  {
+   "key": "mandatory-minicamp",
+   "title": "Mandatory Minicamp",
+   "window": "mid-June",
+   "start": "2026-06-09",
+   "end": "2026-07-21",
+   "signal_level": "low",
+   "card_line": "Believe the contract news, not the practice notes.",
+   "how_to_read": "The contract information is real and worth pricing. The football information still is not. Trust sits at the low end of low-to-medium: one half of what this phase produces is worth acting on, the other half is not.",
+   "sections": {
+    "what_appears": "Attendance is required, so contract situations surface. Holdouts, hold-ins, and absences become visible. The practice reports are still unpadded.",
+    "player_types": "Injury-Return Vet · Ambiguous-Backfield RB · contract situations",
+    "signal_strength": "",
+    "watching": "This year's contract situation was George Pickens, whose attendance became the headline at Dallas' minicamp after the club said it would not negotiate long-term. The July 15 deadline passed with no deal, so he plays 2026 on the franchise tag."
+   }
+  },
+  {
+   "key": "training-camp",
+   "title": "Training Camp",
+   "window": "late July–early Aug",
+   "start": "2026-07-22",
+   "end": "2026-08-05",
+   "signal_level": "high",
+   "card_line": "First-team reps in pads: the first signal that sticks.",
+   "how_to_read": "First-team reps in pads are the first signal that tends to hold. A player who takes a starter's reps for two weeks of camp usually keeps the role, and the market is right to pay for it. The caveat: coaches rotate packages all camp, so a raw rep count without package context can overstate a role.",
+   "sections": {
+    "what_appears": "Padded practices begin and beat reporters chart first-team reps daily. This is the first usage data of the year that involves contact.",
+    "player_types": "Camp-Hype Breakout · Ambiguous-Backfield RB · Rookie WR · Injury-Return Vet (PUP decisions land here)",
+    "signal_strength": "",
+    "watching": "From the catalyst file: the Brooks/Hubbard backfield shift, Nabers back at practice off the ACL, and Jaydon Blue listed RB2 behind Javonte Williams. Blue's entry is a slip, not a rise: ADP 150.1 to 155.2."
+   }
+  },
+  {
+   "key": "preseason",
+   "title": "Preseason Games",
+   "window": "August",
+   "start": "2026-08-06",
+   "end": "2026-08-24",
+   "signal_level": "vhigh",
+   "card_line": "Starter snaps in real games. The gold standard of August.",
+   "how_to_read": "Starter snaps in a live game are the strongest evidence available before Week 1. Prices that move on real preseason usage rarely come back.",
+   "sections": {
+    "what_appears": "Game snaps. Who plays with the starters, for how many series, and in which packages.",
+    "player_types": "Camp-Hype Breakout · Rookie WR/RB · Ambiguous-Backfield RB",
+    "signal_strength": "",
+    "watching": "Populates after the first preseason weekend."
+   }
+  },
+  {
+   "key": "cutdowns",
+   "title": "Roster Cutdowns",
+   "window": "late August",
+   "start": "2026-08-25",
+   "end": "2026-08-31",
+   "signal_level": "high",
+   "card_line": "90 to 53. Cuts are facts, and facts reprice instantly.",
+   "how_to_read": "A cut is a fact, not a projection. The repricing that follows is immediate and it holds.",
+   "sections": {
+    "what_appears": "Rosters go from 90 to 53. Depth charts become transactions instead of reports, and a surprise cut reprices everyone behind it the same day.",
+    "player_types": "Ambiguous-Backfield RB · deep-league WRs · handcuffs",
+    "signal_strength": "",
+    "watching": "Jacksonville's backfield. Their own first depth chart lists six backs and hedges the top with “Tuten or Rodriguez.” Six will not survive to 53. Arizona is second to watch: Conner at 183.1 and Allgeier at 164.3 are both priced like men fighting for one complementary role behind Jeremiyah Love."
+   }
+  },
+  {
+   "key": "final-draft-weekends",
+   "title": "Final Draft Weekends",
+   "window": "Labor Day window",
+   "start": "2026-09-01",
+   "end": "2026-09-08",
+   "signal_level": "high",
+   "card_line": "Peak volume, short shelf life. Last week's mock is stale.",
+   "how_to_read": "The information is accurate and it ages in days. A mock draft from last week no longer reflects current cost. Tracking that gap is the reason this product exists. Trust is high, but the shelf life is the shortest of any phase.",
+   "sections": {
+    "what_appears": "The heaviest draft volume of the year, priced on the most recent preseason games. Late injury news lands after many leagues have already drafted.",
+    "player_types": "Everyone, especially late-August injury discounts and camp risers at their season-high price.",
+    "signal_strength": "",
+    "watching": "Whatever the Move column shows this week."
+   }
+  },
+  {
+   "key": "week-1",
+   "title": "Week 1",
+   "window": "early September",
+   "start": "2026-09-09",
+   "end": "2026-09-15",
+   "signal_level": "low",
+   "card_line": "The box score is fact. The conclusion is the trap.",
+   "how_to_read": "The box score is fact. The conclusion drawn from one week usually is not, and overpaying for Week 1 is the most common early-season mistake. Trust what happened; distrust what one week is said to mean. The meter reflects the second half of that, because that is where the money is lost.",
+   "sections": {
+    "what_appears": "Real snap counts, routes, and target shares. The draft market closes and the waiver market opens.",
+    "player_types": "Everyone. The patterns shift to in-season behavior: overreaction to one game, discounts on slow starts.",
+    "signal_strength": "",
+    "watching": "The first waiver cycle after Week 1."
+   }
+  },
+  {
+   "key": "long-middle",
+   "title": "The Long Middle",
+   "window": "Weeks 2–9",
+   "start": "2026-09-16",
+   "end": "2026-11-10",
+   "signal_level": "med",
+   "card_line": "Injuries and signings move rooms. Trends beat spikes.",
+   "how_to_read": "Multi-week usage trends are the most reliable information of the year. One-week spikes are not a trend, and bye-week adds are rentals, not repricings. The meter is set for the spikes, not the trends, because the spikes are what you will be tempted to pay for.",
+   "sections": {
+    "what_appears": "The in-season market runs on transactions now. Injuries reprice a depth chart in an afternoon. Teams sign street veterans when a room gets thin. Snap and target shares drift as coaches settle rotations, and byes force short-term churn that looks like real movement but is not.",
+    "player_types": "Injury replacements · Ambiguous-Backfield RB · mid-season vet signings · bye-week churn",
+    "signal_strength": "",
+    "watching": "The next backfield to lose its starter for a month."
+   }
+  },
+  {
+   "key": "trade-deadlines",
+   "title": "Trade Deadlines",
+   "window": "NFL early Nov · leagues mid–late Nov",
+   "start": "2026-11-11",
+   "end": "2026-11-24",
+   "signal_level": "high",
+   "card_line": "Two deadlines. One closes a market entirely.",
+   "how_to_read": "An NFL trade is a fact with an immediate role change attached. The fantasy deadline is a structural event: the same player is worth different amounts the day before and the day after, because one of the ways to acquire him just closed.",
+   "sections": {
+    "what_appears": "Two deadlines a few weeks apart. NFL trades reprice players on both teams the day they happen, target vacancies included. Then fantasy deadlines close the trade market in most leagues, and every roster decision after that runs through waivers only.",
+    "player_types": "Traded veterans and the teammates behind them · buy-low candidates ahead of the fantasy deadline · contenders' handcuffs",
+    "signal_strength": "",
+    "watching": "Chuba Hubbard, and the room he would leave to Jonathon Brooks. Carolina is not built to contend, Hubbard is a starting-caliber back on a team with no reason to keep one, and Brooks is already taking first-group reps behind him."
+   }
+  },
+  {
+   "key": "stretch-run",
+   "title": "Stretch Run & Fantasy Playoffs",
+   "window": "Weeks 10–17",
+   "start": "2026-11-25",
+   "end": "2027-01-10",
+   "signal_level": "vhigh",
+   "card_line": "Rookies take over. Averages stop describing roles.",
+   "how_to_read": "Late-season role changes are usually permanent for the year, and the sample behind them is large. The main trap is paying for a season-long average that no longer describes the player's current role.",
+   "sections": {
+    "what_appears": "Rookies who opened the year buried start taking over backfields and target shares, the classic second-half emergence. IR returns land in time for the playoff push. Eliminated NFL teams shut veterans down, and playoff schedules start mattering more than season-long averages.",
+    "player_types": "Second-half rookie risers · IR returns · shutdown-risk veterans on eliminated teams · playoff-schedule targets",
+    "signal_strength": "",
+    "watching": "Nicholas Singleton in Tennessee. A 2026 rookie behind Tony Pollard and Tyjae Spears on a team unlikely to be playing for anything in December, which is the exact setup that produces a second-half takeover."
+   }
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# builds
+.next/
+out/
+dist/
+
+# env — secrets never committed
+.env
+.env.local
+.env*.local
+
+# vercel
+.vercel
+
+# misc
+.DS_Store
+*.log
+
+# private notes — never committed
+PRIVATE_NOTES.md
+.env*

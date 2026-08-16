@@ -1,0 +1,21 @@
+{
+ "generated_at": null,
+ "fp_unmatched": [
+  "Tommy Myers (TE FA)"
+ ],
+ "fp_ambiguous": [],
+ "ffc_unmatched": [],
+ "ffc_ambiguous": [],
+ "team_mismatch": [
+  {
+   "source": "fp",
+   "name": "Najee Harris (RB LAC)",
+   "sleeper_team": null
+  },
+  {
+   "source": "fp",
+   "name": "Jermaine Burton (WR FA)",
+   "sleeper_team": null
+  }
+ ]
+}

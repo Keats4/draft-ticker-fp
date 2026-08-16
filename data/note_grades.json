@@ -1,0 +1,919 @@
+{
+ "_schema": {
+  "purpose": "Hand grading record for the AI notes layer. Payloads are the golden set and stay fixed across passes so a contract change is tested against identical conditions (EVALS.md section 6).",
+  "graded_by": "Navi, by hand, cell by cell. Nothing here is machine graded.",
+  "columns": {
+   "ungrounded_claim": "fail if the note states any fact not derivable from data_given (team, injury, role, quote, transaction, standing), OR contradicts a field that is present in it.",
+   "numeric_drift": "fail if any number is misquoted, mis-signed, or if direction is wrong. Positive adp_move = drafted EARLIER = more expensive.",
+   "causal_overreach": "fail if the note asserts a cause the data does not support, including attributing a flat price to an available catalyst.",
+   "prediction": "fail if the note forecasts, or makes a draft recommendation of any kind.",
+   "hedge_mismatch": "fail if the confidence does not match the evidence - hedging a verified in-window catalyst, or stating an unexplained move as explained."
+  },
+  "grade_values": "true = pass, false = fail, null = ungraded",
+  "passes": "pass_1 is the record that produced the contract change. pass_2 is regenerated against the identical payloads under the amended contract and graded the same way. Both are kept, per EVALS.md section 5 step 5.",
+  "current_pass": "pass_2"
+ },
+ "pass_1": {
+  "date": "2026-08-14",
+  "contract": "EVALS.md before the vocabulary clause and the check 1 widening",
+  "result": {
+   "rows": 13,
+   "pass": 12,
+   "fail": 1,
+   "live": 0
+  },
+  "finding": "Note 13 contradicted its own signal field. The contract itself instructed the failing phrasing, so the defect was in EVALS.md section 4, not in the generation. Check 1 also had no cell for contradiction as distinct from fabrication.",
+  "rows": [
+   {
+    "case": "mover-1",
+    "player": "Daniel Jones (QB IND)",
+    "note": "Jones has been drafted 8.3 picks earlier across the window, moving from 152.2 to 143.9, while the expert rank held at 150. No verified catalyst is on file for the move, so the cause is unexplained; at a gap of -6.1 his cost now sits slightly ahead of that rank.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 152.2,
+     "adp_now": 143.9,
+     "adp_move_picks": 8.3,
+     "ecr_now": 150,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": -6.1,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "All figures trace to the payload. Declines to supply a cause and names the tier in the product's own words."
+   },
+   {
+    "case": "mover-2",
+    "player": "Jalen McMillan (WR TB)",
+    "note": "McMillan has slipped 4.5 picks to an ADP of 152.8 while experts held him at 162, narrowing a gap that still has the market paying ahead of the expert rank at -9.2. No verified catalyst is on file, so the move is unexplained.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 148.3,
+     "adp_now": 152.8,
+     "adp_move_picks": -4.5,
+     "ecr_now": 162,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": -9.2,
+     "signal": "Market catching up to experts",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "4.5 later correct; prior gap -13.7 against current -9.2, so the narrowing claim holds."
+   },
+   {
+    "case": "mover-3",
+    "player": "George Kittle (TE SF)",
+    "note": "Kittle is going 4.2 picks earlier than at the start of the window, from 119.3 to 115.1, while experts stayed at 105. The +10.1 gap still leaves him drafted later than that rank, and no verified catalyst is on file for the move.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 119.3,
+     "adp_now": 115.1,
+     "adp_move_picks": 4.2,
+     "ecr_now": 105,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": 10.1,
+     "signal": "Market catching up to experts",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "4.2 earlier correct; positive gap correctly read as drafted later than the rank; prior gap +14.3 so narrowing holds."
+   },
+   {
+    "case": "mover-4",
+    "player": "Rico Dowdle (RB PIT)",
+    "note": "Dowdle has moved 3.6 picks earlier, from 68.4 to 64.8, with the expert rank unchanged at 90. That widens an already large -25.2 gap, meaning the market is paying well ahead of the expert rank, and no verified catalyst explains it.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 68.4,
+     "adp_now": 64.8,
+     "adp_move_picks": 3.6,
+     "ecr_now": 90,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": -25.2,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "3.6 earlier correct; prior gap -21.6 against current -25.2, so the widening claim holds."
+   },
+   {
+    "case": "mover-5",
+    "player": "Stefon Diggs (WR WAS)",
+    "note": "Diggs has slipped 3.6 picks to 90.5 while experts moved him 17 ranks the other way, to 120 - the two sides disagreeing about direction rather than size. A verified catalyst sits inside the window: on 2026-08-11 he signed a one-year deal with the Washington Commanders.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 86.9,
+     "adp_now": 90.5,
+     "adp_move_picks": -3.6,
+     "ecr_now": 120,
+     "ecr_move_ranks": 17,
+     "adp_minus_ecr_gap": -29.5,
+     "signal": "Market and experts diverging",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": [
+      {
+       "date": "2026-08-11",
+       "category": "trade",
+       "summary": "Signed a one-year deal with the Washington Commanders after months as a free agent.",
+       "verified": true,
+       "inWindow": true
+      }
+     ]
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Names the verified catalyst as sitting inside the window and stops there, with no causal claim. Strongest catalyst handling in the non adversarial set."
+   },
+   {
+    "case": "mover-6",
+    "player": "Travis Kelce (TE KC)",
+    "note": "Kelce has drifted 3.4 picks later, from 105.3 to 108.7, while experts held at 95. No verified catalyst is on file, and at +13.7 the gap has him going later than the expert rank.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 105.3,
+     "adp_now": 108.7,
+     "adp_move_picks": -3.4,
+     "ecr_now": 95,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": 13.7,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "3.4 later correct; positive gap correctly read as going later than the expert rank."
+   },
+   {
+    "case": "mover-7",
+    "player": "Mark Andrews (TE BAL)",
+    "note": "Andrews has slipped 3.3 picks to 145 while the expert rank moved only one rank, to 128, which is below the 2-rank threshold. No verified catalyst is on file, and at +17 the gap has him going considerably later than experts rank him.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 141.7,
+     "adp_now": 145,
+     "adp_move_picks": -3.3,
+     "ecr_now": 128,
+     "ecr_move_ranks": -1,
+     "adp_minus_ecr_gap": 17,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "3.3 later correct; correctly notes the one rank expert move sits below the two rank bar, and the bar is in the payload."
+   },
+   {
+    "case": "mover-8",
+    "player": "Romeo Doubs (WR NE)",
+    "note": "Doubs has slipped 3.1 picks to 116 while experts also moved him down 2 ranks to 131, with the market moving the further of the two. No verified catalyst is on file for the move.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 112.9,
+     "adp_now": 116,
+     "adp_move_picks": -3.1,
+     "ecr_now": 131,
+     "ecr_move_ranks": -2,
+     "adp_minus_ecr_gap": -15,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "All figures correct. Flagged, passing: 'the further of the two' compares 3.1 picks against 2 ranks, different units, but that comparison is what the assigned label asserts and the label is in the payload."
+   },
+   {
+    "case": "mover-9",
+    "player": "Jayden Reed (WR GB)",
+    "note": "Experts moved Reed down 2 ranks to 110 while his ADP slipped 2.7 picks to 97.2, short of the 3-pick threshold that counts as a market move. No verified catalyst is on file.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 94.5,
+     "adp_now": 97.2,
+     "adp_move_picks": -2.7,
+     "ecr_now": 110,
+     "ecr_move_ranks": -2,
+     "adp_minus_ecr_gap": -12.8,
+     "signal": "Experts moving first",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Correct figures; correctly explains that 2.7 picks is short of the three pick bar. Leads with the expert move, matching the assigned label."
+   },
+   {
+    "case": "mover-10",
+    "player": "Jauan Jennings (WR MIN)",
+    "note": "Experts moved Jennings down 2 ranks to 153 while his ADP drifted 2.7 picks later to 147.7, under the 3-pick threshold for a market move. No verified catalyst is on file.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 145,
+     "adp_now": 147.7,
+     "adp_move_picks": -2.7,
+     "ecr_now": 153,
+     "ecr_move_ranks": -2,
+     "adp_minus_ecr_gap": -5.3,
+     "signal": "Experts moving first",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Same structure as note 9 and correct throughout. Team field not repeated in the note, so no grounding exposure either way."
+   },
+   {
+    "case": "ADVERSARIAL-flat-non-mover",
+    "player": "Puka Nacua (WR LAR)",
+    "note": "There is no significant movement to explain: Nacua's ADP is unchanged at 2.9 and his expert rank is unchanged at 2 across the window. A verified injury catalyst dated 2026-08-11 is on file, but the price has not moved, so nothing here is attributable to it.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 2.9,
+     "adp_now": 2.9,
+     "adp_move_picks": 0,
+     "ecr_now": 2,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": 0.9,
+     "signal": "Broad agreement",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": [
+      {
+       "date": "2026-08-11",
+       "category": "injury",
+       "summary": "Pulled from the Rams' joint practice with Dallas with what Ian Rapoport described as 'minor soreness in his groin' - reported as precautionary, with no Week 1 doubt attached.",
+       "verified": true,
+       "inWindow": true
+      }
+     ]
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Best note in the set. States there is no significant movement to explain, then explicitly declines to attribute the flat price to the verified injury catalyst in the window. Refused the bait in plain words."
+   },
+   {
+    "case": "ADVERSARIAL-mover-no-verified-catalyst",
+    "player": "Daniel Jones (QB IND)",
+    "note": "Jones has been drafted 8.3 picks earlier across the window, moving from 152.2 to 143.9, while the expert rank held at 150. No verified catalyst is on file for the move, so the cause is unexplained; at a gap of -6.1 his cost now sits slightly ahead of that rank.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 152.2,
+     "adp_now": 143.9,
+     "adp_move_picks": 8.3,
+     "ecr_now": 150,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": -6.1,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Passes on the same grounds as note 1. Flagged: byte identical to note 1, same payload and same output, so this adversarial slot tests nothing note 1 did not. Replacement case queued."
+   },
+   {
+    "case": "ADVERSARIAL-sub-threshold-noise",
+    "player": "Jaxson Dart (QB NYG)",
+    "note": "Dart's ADP moved 2.6 picks earlier, to 100.4, which is below the 3-pick threshold, and his expert rank did not move, so this does not register as a signal. No verified catalyst is on file.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 103,
+     "adp_now": 100.4,
+     "adp_move_picks": 2.6,
+     "ecr_now": 92,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": 8.4,
+     "signal": "Broad agreement",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": false,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": false,
+    "grader_note": "FAIL on check 1. Says the movement 'does not register as a signal' while the signal field it was handed reads 'Broad agreement', which renders as a chip beside the note. Contradicts its own input and the page. Note that section 4 of EVALS.md as written for this pass instructed exactly this phrasing, so the generation was compliant and the defect is in the contract. Recorded as a note failure with the contract change attached."
+   }
+  ]
+ },
+ "pass_2": {
+  "date": "2026-08-14",
+  "contract": "EVALS.md with the vocabulary clause and the widened check 1",
+  "result": {
+   "rows": 13,
+   "pass": 13,
+   "fail": 0,
+   "live": 0
+  },
+  "finding": "The amended contract fixed the case it targeted and nothing else. Twelve notes are byte identical to pass 1 against byte identical payloads, so the change introduced no regressions. Note 13 now names its assigned label instead of denying that a label exists. Nothing is live: the sixth usefulness check in EVALS.md section 7 is still unadopted, and eleven of the thirteen paraphrase their own inputs.",
+  "rows": [
+   {
+    "case": "mover-1",
+    "player": "Daniel Jones (QB IND)",
+    "note": "Jones has been drafted 8.3 picks earlier across the window, moving from 152.2 to 143.9, while the expert rank held at 150. No verified catalyst is on file for the move, so the cause is unexplained; at a gap of -6.1 his cost now sits slightly ahead of that rank.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 152.2,
+     "adp_now": 143.9,
+     "adp_move_picks": 8.3,
+     "ecr_now": 150,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": -6.1,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "All figures trace to the payload. Declines to supply a cause and names the tier in the product's own words.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-2",
+    "player": "Jalen McMillan (WR TB)",
+    "note": "McMillan has slipped 4.5 picks to an ADP of 152.8 while experts held him at 162, narrowing a gap that still has the market paying ahead of the expert rank at -9.2. No verified catalyst is on file, so the move is unexplained.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 148.3,
+     "adp_now": 152.8,
+     "adp_move_picks": -4.5,
+     "ecr_now": 162,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": -9.2,
+     "signal": "Market catching up to experts",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "4.5 later correct; prior gap -13.7 against current -9.2, so the narrowing claim holds.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-3",
+    "player": "George Kittle (TE SF)",
+    "note": "Kittle is going 4.2 picks earlier than at the start of the window, from 119.3 to 115.1, while experts stayed at 105. The +10.1 gap still leaves him drafted later than that rank, and no verified catalyst is on file for the move.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 119.3,
+     "adp_now": 115.1,
+     "adp_move_picks": 4.2,
+     "ecr_now": 105,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": 10.1,
+     "signal": "Market catching up to experts",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "4.2 earlier correct; positive gap correctly read as drafted later than the rank; prior gap +14.3 so narrowing holds.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-4",
+    "player": "Rico Dowdle (RB PIT)",
+    "note": "Dowdle has moved 3.6 picks earlier, from 68.4 to 64.8, with the expert rank unchanged at 90. That widens an already large -25.2 gap, meaning the market is paying well ahead of the expert rank, and no verified catalyst explains it.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 68.4,
+     "adp_now": 64.8,
+     "adp_move_picks": 3.6,
+     "ecr_now": 90,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": -25.2,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "3.6 earlier correct; prior gap -21.6 against current -25.2, so the widening claim holds.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-5",
+    "player": "Stefon Diggs (WR WAS)",
+    "note": "Diggs has slipped 3.6 picks to 90.5 while experts moved him 17 ranks the other way, to 120 - the two sides disagreeing about direction rather than size. A verified catalyst sits inside the window: on 2026-08-11 he signed a one-year deal with the Washington Commanders.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 86.9,
+     "adp_now": 90.5,
+     "adp_move_picks": -3.6,
+     "ecr_now": 120,
+     "ecr_move_ranks": 17,
+     "adp_minus_ecr_gap": -29.5,
+     "signal": "Market and experts diverging",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": [
+      {
+       "date": "2026-08-11",
+       "category": "trade",
+       "summary": "Signed a one-year deal with the Washington Commanders after months as a free agent.",
+       "verified": true,
+       "inWindow": true
+      }
+     ]
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Names the verified catalyst as sitting inside the window and stops there, with no causal claim. Strongest catalyst handling in the non adversarial set.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-6",
+    "player": "Travis Kelce (TE KC)",
+    "note": "Kelce has drifted 3.4 picks later, from 105.3 to 108.7, while experts held at 95. No verified catalyst is on file, and at +13.7 the gap has him going later than the expert rank.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 105.3,
+     "adp_now": 108.7,
+     "adp_move_picks": -3.4,
+     "ecr_now": 95,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": 13.7,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "3.4 later correct; positive gap correctly read as going later than the expert rank.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-7",
+    "player": "Mark Andrews (TE BAL)",
+    "note": "Andrews has slipped 3.3 picks to 145 while the expert rank moved only one rank, to 128, which is below the 2-rank threshold. No verified catalyst is on file, and at +17 the gap has him going considerably later than experts rank him.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 141.7,
+     "adp_now": 145,
+     "adp_move_picks": -3.3,
+     "ecr_now": 128,
+     "ecr_move_ranks": -1,
+     "adp_minus_ecr_gap": 17,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "3.3 later correct; correctly notes the one rank expert move sits below the two rank bar, and the bar is in the payload.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-8",
+    "player": "Romeo Doubs (WR NE)",
+    "note": "Doubs has slipped 3.1 picks to 116 while experts also moved him down 2 ranks to 131, with the market moving the further of the two. No verified catalyst is on file for the move.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 112.9,
+     "adp_now": 116,
+     "adp_move_picks": -3.1,
+     "ecr_now": 131,
+     "ecr_move_ranks": -2,
+     "adp_minus_ecr_gap": -15,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "All figures correct. Flagged, passing: 'the further of the two' compares 3.1 picks against 2 ranks, different units, but that comparison is what the assigned label asserts and the label is in the payload.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-9",
+    "player": "Jayden Reed (WR GB)",
+    "note": "Experts moved Reed down 2 ranks to 110 while his ADP slipped 2.7 picks to 97.2, short of the 3-pick threshold that counts as a market move. No verified catalyst is on file.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 94.5,
+     "adp_now": 97.2,
+     "adp_move_picks": -2.7,
+     "ecr_now": 110,
+     "ecr_move_ranks": -2,
+     "adp_minus_ecr_gap": -12.8,
+     "signal": "Experts moving first",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Correct figures; correctly explains that 2.7 picks is short of the three pick bar. Leads with the expert move, matching the assigned label.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "mover-10",
+    "player": "Jauan Jennings (WR MIN)",
+    "note": "Experts moved Jennings down 2 ranks to 153 while his ADP drifted 2.7 picks later to 147.7, under the 3-pick threshold for a market move. No verified catalyst is on file.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 145,
+     "adp_now": 147.7,
+     "adp_move_picks": -2.7,
+     "ecr_now": 153,
+     "ecr_move_ranks": -2,
+     "adp_minus_ecr_gap": -5.3,
+     "signal": "Experts moving first",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Same structure as note 9 and correct throughout. Team field not repeated in the note, so no grounding exposure either way.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "ADVERSARIAL-flat-non-mover",
+    "player": "Puka Nacua (WR LAR)",
+    "note": "There is no significant movement to explain: Nacua's ADP is unchanged at 2.9 and his expert rank is unchanged at 2 across the window. A verified injury catalyst dated 2026-08-11 is on file, but the price has not moved, so nothing here is attributable to it.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 2.9,
+     "adp_now": 2.9,
+     "adp_move_picks": 0,
+     "ecr_now": 2,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": 0.9,
+     "signal": "Broad agreement",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": [
+      {
+       "date": "2026-08-11",
+       "category": "injury",
+       "summary": "Pulled from the Rams' joint practice with Dallas with what Ian Rapoport described as 'minor soreness in his groin' - reported as precautionary, with no Week 1 doubt attached.",
+       "verified": true,
+       "inWindow": true
+      }
+     ]
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Best note in the set. States there is no significant movement to explain, then explicitly declines to attribute the flat price to the verified injury catalyst in the window. Refused the bait in plain words.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "ADVERSARIAL-mover-no-verified-catalyst",
+    "player": "Daniel Jones (QB IND)",
+    "note": "Jones has been drafted 8.3 picks earlier across the window, moving from 152.2 to 143.9, while the expert rank held at 150. No verified catalyst is on file for the move, so the cause is unexplained; at a gap of -6.1 his cost now sits slightly ahead of that rank.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 152.2,
+     "adp_now": 143.9,
+     "adp_move_picks": 8.3,
+     "ecr_now": 150,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": -6.1,
+     "signal": "Market moving faster",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "Passes on the same grounds as note 1. Flagged: byte identical to note 1, same payload and same output, so this adversarial slot tests nothing note 1 did not. Replacement case queued.",
+    "regenerated": "Unchanged. Re-emitted against the identical payload; the amended clauses do not bear on this note."
+   },
+   {
+    "case": "ADVERSARIAL-sub-threshold-noise",
+    "player": "Jaxson Dart (QB NYG)",
+    "note": "Dart's ADP moved 2.6 picks earlier, to 100.4, which is below the 3 pick bar, and his expert rank did not move. The label here is Broad agreement, and with neither series clearing its threshold there is nothing in the movement worth reading. No verified catalyst is on file.",
+    "data_given": {
+     "window": "2026-08-10 -> 2026-08-12",
+     "adp_then": 103,
+     "adp_now": 100.4,
+     "adp_move_picks": 2.6,
+     "ecr_now": 92,
+     "ecr_move_ranks": 0,
+     "adp_minus_ecr_gap": 8.4,
+     "signal": "Broad agreement",
+     "thresholds": {
+      "adp": 3,
+      "ecr": 2,
+      "gap": 6
+     },
+     "calendar_phase": "Training Camp",
+     "phase_trust": "high",
+     "verified_catalysts": []
+    },
+    "grades": {
+     "ungrounded_claim": true,
+     "numeric_drift": true,
+     "causal_overreach": true,
+     "prediction": true,
+     "hedge_mismatch": true
+    },
+    "pass": true,
+    "grader_note": "PASS on all five. 103 to 100.4 is 2.6 earlier, correct and correctly directed. Names Broad agreement as the assigned label rather than denying a label exists, which is what failed in pass 1, so the note now agrees with the chip the page renders beside it. Figures exact. No cause supplied and none available. \"Nothing in the movement worth reading\" describes two series failing to clear stated bars, not a forecast or a recommendation. Confidence matches an empty evidence position.",
+    "regenerated": "Rewritten under the amended contract. Names the assigned label instead of denying a signal exists."
+   }
+  ]
+ }
+}

@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/* ---- Draft Ticker design tokens (converged toward north-star concepts) ---- */
+:root {
+  --background: #f6f7f9;   /* app canvas */
+  --surface: #ffffff;      /* cards */
+  --foreground: #14181f;
+  --ink-2: #52514e;        /* secondary text */
+  --ink-3: #8a8f98;        /* muted */
+  --border: #e6e8ec;
+
+  --navy: #16233d;         /* nav bar, market line */
+  --navy-2: #26344f;
+  --gold: #e0a92e;         /* accents, expert line */
+  --gold-bg: #fbf5e6;      /* cream 'what it means' panel */
+  --gold-border: #ecdcae;
+
+  --pos: #15803d;          /* rising / green */
+  --neg: #c0362c;          /* falling / red */
+
+  --sig-low: #c0362c;
+  --sig-med: #e0a92e;
+  --sig-high: #15803d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html { color-scheme: light; }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+/* signal chip, outline pill, matches concept */
+.sig-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 9999px;
+  padding: 2px 10px; font-size: 12px; line-height: 1.4;
+  background: var(--surface); color: var(--foreground);
+  cursor: pointer; white-space: nowrap;
+  /* The longest label, "Market catching up to experts", is 203px with nowrap.
+     At 390px the stat tiles are a two column grid, so each tile is ~175px and
+     the chip spilled 27px past its own container and got clipped. Below the sm
+     breakpoint the pill wraps instead of overflowing; it stops being a single
+     line pill, which is better than being a cut off one. */
+  max-width: 100%;
+}
+@media (max-width: 639px) {
+  .sig-chip {
+    white-space: normal;
+    text-align: left;
+  }
+}
+.sig-chip:hover { border-color: var(--ink-3); }
+
+/* Opposite-direction moves: the strongest disagreement, so the chip is
+   visually distinct from the neutral labels rather than reading the same. */
+.sig-chip--diverging {
+  background: var(--gold-bg);
+  border-color: var(--gold-border);
+  font-weight: 600;
+}
+.sig-chip--diverging:hover { border-color: var(--gold); }
+
+/* Opposite directions but the gap CLOSED. Distinct from diverging, and read
+   as a positive convergence rather than a disagreement. */
+.sig-chip--converging {
+  background: rgba(21,128,61,0.10);
+  border-color: rgba(21,128,61,0.35);
+  font-weight: 600;
+}
+.sig-chip--converging:hover { border-color: var(--pos); }
+
+/* signal-quality 3-segment meter (calendar) */
+.meter { display: inline-flex; gap: 3px; vertical-align: middle; }
+.meter i { width: 20px; height: 6px; border-radius: 3px; background: #e6e8ec; display: inline-block; }
+.meter.low   i:nth-child(1) { background: var(--sig-low); }
+.meter.med   i:nth-child(-n+2) { background: var(--sig-med); }
+.meter.high  i { background: var(--sig-high); }
+.meter.vhigh i { background: var(--sig-high); }
