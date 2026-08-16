@@ -1,17 +1,31 @@
 import { list, put } from "@vercel/blob";
 import type { EcrSnapshot, Snapshot } from "@/lib/types";
-import type { FpAdpRaw } from "@/lib/sources/fantasypros-adp";
 
-export type HistoryRow = {
+/**
+ * Blob layout.
+ *
+ *   host-rank/<date>.json      primary price series (FantasyPros average host rank)
+ *   host-rank-history.json     flat per player per day rows of the primary series
+ *   ecr/<date>.json            expert consensus rank series (untouched)
+ *
+ * `snapshots/`, `history.json` and `adp-fp/` hold the retired FFC series and the
+ * old raw capture. They are left in place and are neither read nor written.
+ */
+const HOST_RANK_PREFIX = "host-rank/";
+const HOST_RANK_HISTORY_PATH = "host-rank-history.json";
+
+/** One player on one day in the primary series. */
+export type HostRankHistoryRow = {
   date: string;
   player_id: number;
-  name: string;
-  position: string;
-  team: string;
-  adp: number;
+  player_name: string;
+  player_position_id: string;
+  player_team_id: string;
+  /** Average host rank for that day. */
+  rank_ave: number;
+  /** Number of hosts ranking the player that day. */
+  source_count: number;
 };
-
-const HISTORY_PATH = "history.json";
 
 /** Today's date string (YYYY-MM-DD) in America/Los_Angeles. */
 export function laDate(d: Date = new Date()): string {
@@ -43,39 +57,41 @@ async function readJsonBlob<T>(pathname: string): Promise<T | null> {
   }
 }
 
-/** Save the daily snapshot file AND append the day's rows to history.json.
- *  Idempotent: re-running on the same date replaces that date's entries. */
+/** Save the daily primary snapshot AND append the day's rows to
+ *  host-rank-history.json. Idempotent: re-running on the same date replaces
+ *  that date's entries. */
 export async function saveSnapshot(snapshot: Snapshot): Promise<string> {
-  const url = await putJson(`snapshots/${snapshot.date}.json`, snapshot);
+  const url = await putJson(`${HOST_RANK_PREFIX}${snapshot.date}.json`, snapshot);
 
-  const existing = (await readJsonBlob<HistoryRow[]>(HISTORY_PATH)) ?? [];
+  const existing = (await readJsonBlob<HostRankHistoryRow[]>(HOST_RANK_HISTORY_PATH)) ?? [];
   const kept = existing.filter((r) => r.date !== snapshot.date);
-  const todays: HistoryRow[] = snapshot.rows.map((p) => ({
+  const todays: HostRankHistoryRow[] = snapshot.rows.map((p) => ({
     date: snapshot.date,
     player_id: p.player_id,
-    name: p.name,
-    position: p.position,
-    team: p.team,
-    adp: p.adp,
+    player_name: p.player_name,
+    player_position_id: p.player_position_id,
+    player_team_id: p.player_team_id,
+    rank_ave: p.rank_ave,
+    source_count: p.source_count,
   }));
-  await putJson(HISTORY_PATH, [...kept, ...todays]);
+  await putJson(HOST_RANK_HISTORY_PATH, [...kept, ...todays]);
 
   return url;
 }
 
-/** Newest stored snapshot, or null if none / blob unavailable. */
+/** Newest stored primary snapshot, or null if none / blob unavailable. */
 export async function loadLatestSnapshot(): Promise<Snapshot | null> {
   const { latest } = await loadLatestTwoSnapshots();
   return latest;
 }
 
-/** Newest and second-newest snapshots (previous is null on day one). */
+/** Newest and second-newest primary snapshots (previous is null on day one). */
 export async function loadLatestTwoSnapshots(): Promise<{
   latest: Snapshot | null;
   previous: Snapshot | null;
 }> {
   try {
-    const { blobs } = await list({ prefix: "snapshots/" });
+    const { blobs } = await list({ prefix: HOST_RANK_PREFIX });
     if (blobs.length === 0) return { latest: null, previous: null };
     const sorted = [...blobs].sort((a, b) =>
       a.pathname < b.pathname ? 1 : -1
@@ -90,15 +106,15 @@ export async function loadLatestTwoSnapshots(): Promise<{
   }
 }
 
-/** OLDEST and NEWEST stored ADP snapshots. The move window spans these two, so
- *  a delta covers all tracked history rather than a single overlapping day.
- *  Returns first === null when only one date is stored (no window yet). */
+/** OLDEST and NEWEST stored primary snapshots. The move window spans these
+ *  two, so a delta covers all tracked history rather than a single overlapping
+ *  day. Returns first === null when only one date is stored (no window yet). */
 export async function loadFirstAndLatestSnapshots(): Promise<{
   first: Snapshot | null;
   latest: Snapshot | null;
 }> {
   try {
-    const { blobs } = await list({ prefix: "snapshots/" });
+    const { blobs } = await list({ prefix: HOST_RANK_PREFIX });
     if (blobs.length === 0) return { first: null, latest: null };
     const sorted = [...blobs].sort((a, b) => (a.pathname < b.pathname ? -1 : 1));
     const [first, latest] = await Promise.all([
@@ -125,47 +141,14 @@ async function fetchSnapshot(url?: string): Promise<Snapshot | null> {
   }
 }
 
-/** Full accumulated history (all dates, all players), or empty array. */
-export async function loadHistory(): Promise<HistoryRow[]> {
-  return (await readJsonBlob<HistoryRow[]>(HISTORY_PATH)) ?? [];
+/** Full accumulated primary series history (all dates, all players), or
+ *  empty array. */
+export async function loadHostRankHistory(): Promise<HostRankHistoryRow[]> {
+  return (await readJsonBlob<HostRankHistoryRow[]>(HOST_RANK_HISTORY_PATH)) ?? [];
 }
 
 export async function saveEcrSnapshot(snapshot: EcrSnapshot): Promise<string> {
   return putJson(`ecr/${snapshot.date}.json`, snapshot);
-}
-
-/**
- * The parallel FantasyPros composite ADP series.
- *
- * Stored under its own prefix, `adp-fp/`, alongside `snapshots/` (FFC) and
- * `ecr/`. Nothing in the product reads it; it exists so a second series
- * accumulates from tonight rather than from whenever we decide we want one.
- *
- * The envelope is deliberately thin. `payload` is the vendor response exactly
- * as received, all players, every field, nothing trimmed or renamed, because
- * what gets stored tonight bounds every decision that can be made later.
- */
-export type FpAdpSnapshot = {
-  date: string;
-  captured_at: string;
-  source: string;
-  payload: FpAdpRaw;
-};
-
-export async function saveFpAdpSnapshot(snapshot: FpAdpSnapshot): Promise<string> {
-  return putJson(`adp-fp/${snapshot.date}.json`, snapshot);
-}
-
-/** Newest stored FantasyPros ADP snapshot, or null. Read by /adp-sources only. */
-export async function loadLatestFpAdpSnapshot(): Promise<FpAdpSnapshot | null> {
-  try {
-    const { blobs } = await list({ prefix: "adp-fp/" });
-    if (blobs.length === 0) return null;
-    const sorted = [...blobs].sort((a, b) => (a.pathname < b.pathname ? 1 : -1));
-    return await fetchJson<FpAdpSnapshot>(sorted[0]?.url);
-  } catch {
-    return null;
-  }
 }
 
 /** Newest and second-newest ECR snapshots (either may be null). */
@@ -228,11 +211,34 @@ async function fetchJson<T>(url?: string): Promise<T | null> {
   }
 }
 
-/** Stable value signature of an ADP snapshot (player_id:adp pairs, sorted).
- *  Two days with the same signature carry identical data, used to detect
- *  a stale/cached source pull. */
-export function signatureAdp(rows: { player_id: number; adp: number }[]): string {
-  return rows.map((r) => `${r.player_id}:${r.adp}`).sort().join("|");
+/** Stable value signature of a primary snapshot (player_id:rank_ave pairs,
+ *  sorted). Two days with the same signature carry identical data. */
+export function signatureHostRank(rows: { player_id: number; rank_ave: number }[]): string {
+  return rows.map((r) => `${r.player_id}:${r.rank_ave}`).sort().join("|");
+}
+
+/**
+ * Staleness of a fresh primary pull against the prior stored day, keyed off
+ * the LATEST host publish time rather than our own captured-at. A pull is
+ * stale when no host has published since the prior day's latest publish, or
+ * when the values are identical anyway (a source serving cached data with a
+ * bumped timestamp still shows up).
+ */
+export function hostRankStaleness(
+  fresh: Pick<Snapshot, "meta" | "rows">,
+  prior: Pick<Snapshot, "date" | "meta" | "rows"> | null
+): { stale: boolean; reason: string | null } {
+  if (!prior) return { stale: false, reason: null };
+  if (fresh.meta.latest_pub_at <= prior.meta.latest_pub_at) {
+    return {
+      stale: true,
+      reason: `latest host publish ${fresh.meta.latest_pub_at} is not after ${prior.date}'s ${prior.meta.latest_pub_at}`,
+    };
+  }
+  if (signatureHostRank(fresh.rows) === signatureHostRank(prior.rows)) {
+    return { stale: true, reason: `values identical to ${prior.date} despite a newer publish time` };
+  }
+  return { stale: false, reason: null };
 }
 
 /** Stable value signature of an ECR snapshot (player_id:rank_ecr pairs). */
