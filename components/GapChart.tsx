@@ -1,5 +1,5 @@
 /**
- * The gap over time: ADP minus ECR on one line, against a zero baseline.
+ * The gap over time: average host rank minus ECR on one line, against a zero baseline.
  * This is the product's actual subject. The two-series chart below it is the
  * working that produces this line.
  *
@@ -47,14 +47,14 @@ export default function GapChart({
   trackingSince: string;
 }) {
   const days: Day[] = points
-    .filter((p) => p.adp != null && p.ecr != null)
-    .map((p) => ({ date: p.date, gap: Math.round((p.adp! - p.ecr!) * 10) / 10 }));
+    .filter((p) => p.hostRank != null && p.ecr != null)
+    .map((p) => ({ date: p.date, gap: Math.round((p.hostRank! - p.ecr!) * 10) / 10 }));
 
   if (days.length === 0) {
     return (
       <figure className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
         <p className="text-sm text-[var(--ink-3)]">
-          No gap to chart yet. A gap needs a stored ADP and a matched expert rank
+          No gap to chart yet. A gap needs a stored average host rank and a matched expert rank
           on the same day, and this player has no day with both.
         </p>
       </figure>
@@ -120,7 +120,7 @@ export default function GapChart({
               : now > 0
                 ? `${roundsPhrase(picksToRounds(now))} later than ranked`
                 : "cost matches the rank"}
-            {` (${fmt(now)} picks)`}
+            {` (${fmt(now)} spots)`}
           </p>
         </div>
         <div>
@@ -256,7 +256,7 @@ export default function GapChart({
         <span>
           {single
             ? `Tracking since ${trackingSince}, one day with both series stored; no history is implied before it.`
-            : `Tracking daily since ${trackingSince}. Gap is ADP minus ECR on days where both exist.`}
+            : `Tracking daily since ${trackingSince}. Gap is average host rank minus ECR on days where both exist.`}
         </span>
         {markers.length > 0 && (
           <span className="flex items-center gap-1.5">
@@ -273,7 +273,7 @@ export default function GapChart({
             <tr>
               <th className="pr-4">Date</th>
               <th className="pr-4">Rounds</th>
-              <th className="pr-4">Picks</th>
+              <th className="pr-4">Spots</th>
               <th>Side</th>
             </tr>
           </thead>

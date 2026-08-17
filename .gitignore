@@ -21,3 +21,6 @@ dist/
 # private notes — never committed
 PRIVATE_NOTES.md
 .env*
+
+*.patch
+*.tgz

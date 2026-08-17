@@ -8,17 +8,20 @@ import InfoDot from "@/components/InfoDot";
 import { valueTone, valueWord } from "@/lib/story";
 
 export type RowLite = {
+  /** hostRankOrdinal: our ordinal among tracked players. */
   rank: number;
   href: string;
   name: string;
   position: string;
+  /** Positional rank from the source payload (e.g. RB4 → 4). */
+  posRank: number;
   team: string;
-  adp: number;
+  hostRank: number;
   ecr: number | null;
   gap: number | null;
   gapReason: string | null;
   gapNotable: boolean;
-  adpDelta: number | null;
+  hostRankDelta: number | null;
   signal: Signal | null;
   whatItMeans: string;
 };
@@ -48,7 +51,7 @@ function Gap({ v, notable, reason }: { v: number | null; notable: boolean; reaso
 }
 
 /**
- * Movement is NOT coloured. A falling ADP is a falling price, so red here
+ * Movement is NOT coloured. A falling host rank is a falling price, so red here
  * would contradict the value rule one column to the left. Direction is the
  * arrow, which only ever marks a change.
  */
@@ -71,10 +74,10 @@ function Move({ v }: { v: number | null }) {
 }
 
 const H = {
-  adp: "Average Draft Position: the average pick number he's drafted at in real mock drafts. Lower = drafted earlier.",
+  hostRank: "Average host rank: the mean of his rank across the contributing league host boards. A rank position, not a pick number. Lower = ranked earlier.",
   ecr: "Expert Consensus Rank: FantasyPros' aggregated expert ranking. Lower = ranked higher.",
-  gap: "ADP minus ECR, shown only inside the comparison universe (top 200 by both ADP and ECR, drafted in enough leagues). Positive = experts rank him ahead of his cost (value). Negative = market pays ahead of experts.",
-  move: "Change in ADP vs the previous daily snapshot. Positive = rising (drafted earlier now).",
+  gap: "Average host rank minus ECR, in rank spots, shown only inside the comparison universe (top 200 by both, ranked by enough host boards). Positive = experts rank him ahead of his cost (value). Negative = market pays ahead of experts.",
+  move: "Change in average host rank since the oldest stored snapshot, in spots. Positive = rising (ranked earlier now).",
   signal: "A rule-based label comparing market movement with expert movement. Click any chip for the exact rule.",
 };
 
@@ -90,7 +93,7 @@ export default function MarketTable({ rows, moveLabel = "Move" }: { rows: RowLit
             <th className="px-3 py-2.5">Player</th>
             <th className="px-3 py-2.5">Pos</th>
             <th className="hidden px-3 py-2.5 sm:table-cell">Team</th>
-            <th className="px-3 py-2.5 text-right">ADP<InfoDot text={H.adp} /></th>
+            <th className="px-3 py-2.5 text-right">Host rank<InfoDot text={H.hostRank} /></th>
             <th className="px-3 py-2.5 text-right">ECR<InfoDot text={H.ecr} /></th>
             <th className="px-3 py-2.5 text-right">Gap<InfoDot text={H.gap} /></th>
             <th className="hidden px-3 py-2.5 text-right sm:table-cell">{moveLabel}<InfoDot text={H.move} /></th>
@@ -113,9 +116,9 @@ export default function MarketTable({ rows, moveLabel = "Move" }: { rows: RowLit
                       {r.name}
                     </Link>
                   </td>
-                  <td className="px-3 py-2.5">{r.position}</td>
+                  <td className="px-3 py-2.5">{r.position}{r.posRank}</td>
                   <td className="hidden px-3 py-2.5 text-[var(--ink-2)] sm:table-cell">{r.team}</td>
-                  <td className="px-3 py-2.5 text-right tabular-nums">{r.adp}</td>
+                  <td className="px-3 py-2.5 text-right tabular-nums">{r.hostRank}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums">
                     {r.ecr ?? <span className="text-[var(--ink-3)]">, </span>}
                   </td>
@@ -123,7 +126,7 @@ export default function MarketTable({ rows, moveLabel = "Move" }: { rows: RowLit
                     <Gap v={r.gap} notable={r.gapNotable} reason={r.gapReason} />
                   </td>
                   <td className="hidden px-3 py-2.5 text-right sm:table-cell">
-                    <Move v={r.adpDelta} />
+                    <Move v={r.hostRankDelta} />
                   </td>
                   <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                     <SignalChip signal={r.signal} />

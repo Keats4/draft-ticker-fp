@@ -38,9 +38,10 @@ export default function HeroStory({
   markers,
   trackingSince,
   catalyst,
-  adp,
+  hostRank,
   ecr,
   gap,
+  posRank,
 }: {
   href: string;
   name: string;
@@ -58,9 +59,11 @@ export default function HeroStory({
   markers: ChartMarker[];
   trackingSince: string;
   catalyst: HeroCatalyst | null;
-  adp: number;
+  hostRank: number;
   ecr: number | null;
   gap: number | null;
+  /** Positional rank from the source payload (e.g. RB4 → 4). */
+  posRank: number;
 }) {
   return (
     <section
@@ -100,7 +103,7 @@ export default function HeroStory({
           <Link href={href} className="text-2xl font-bold tracking-tight hover:underline">
             {name}
           </Link>
-          <span className="text-sm text-[var(--ink-2)]">{position} · {team}</span>
+          <span className="text-sm text-[var(--ink-2)]">{position}{posRank} · {team}</span>
           {archetypeTag && (
             <span
               className="rounded-full border px-2.5 py-0.5 text-xs font-medium"
@@ -129,7 +132,7 @@ export default function HeroStory({
             </span>
           )}
           <span className="ml-auto flex items-center gap-3 text-xs tabular-nums text-[var(--ink-3)]">
-            <span>ADP {adp}</span>
+            <span>Host rank {hostRank}</span>
             <span>ECR {ecr ?? ", "}</span>
             {/* The value read: the only coloured number in the hero, and the
                 word carries the same meaning without colour. */}

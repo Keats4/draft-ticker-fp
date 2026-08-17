@@ -3,11 +3,12 @@ import EvalScorecard from "@/components/EvalScorecard";
 import { THRESHOLDS, type FpLite } from "@/lib/math";
 import { loadAllEcrSnapshots, loadFirstAndLatestSnapshots } from "@/lib/snapshot";
 import { CATALYST_LOOKBACK_DAYS } from "@/lib/evidence";
-import { buildMarketRows, type MapByFfc } from "@/lib/market";
+import { buildMarketRows, type SleeperByFpId } from "@/lib/market";
 import playerMap from "@/data/player_map.json";
-import ffcFixture from "@/fixtures/ffc_adp.json";
+import fpHostRankFixture from "@/fixtures/fp_host_rank.json";
 import fpEcr from "@/fixtures/fp_ecr.json";
-import type { FfcPlayer } from "@/lib/types";
+import type { FpHostRankPlayer } from "@/lib/types";
+import { toHostRankPlayers, type RawHostRankRow } from "@/lib/sources/fantasypros-host-rank";
 
 export const metadata = { title: "Methodology · Draft Ticker" };
 export const dynamic = "force-dynamic";
@@ -25,23 +26,42 @@ export default async function Methodology() {
     loadFirstAndLatestSnapshots(),
     loadAllEcrSnapshots(),
   ]);
-  const adpRows: FfcPlayer[] = latest ? latest.rows : (ffcFixture.players as FfcPlayer[]);
-  // Read live rather than hardcoded: the sample size moves every day.
-  const draftCount = latest?.meta?.total_drafts ?? null;
-  const mapByFfc: MapByFfc = {};
+  const priceRows: FpHostRankPlayer[] = latest
+    ? latest.rows
+    : toHostRankPlayers(fpHostRankFixture.players as RawHostRankRow[]);
+  // SESSION FOUR: the host rank payload carries no draft count, so the FFC
+  // sample-size sentence below has nothing to read. Held at null so the FFC
+  // paragraphs render unchanged until they are rewritten.
+  const draftCount = null as number | null;
+  const sleeperByFpId: SleeperByFpId = {};
   for (const e of Object.values(
-    playerMap as Record<string, { sleeper_id: string; ffc_id?: number; fp_id?: number }>
+    playerMap as Record<string, { sleeper_id: string; fp_id?: number }>
   )) {
-    if (e.ffc_id != null) mapByFfc[e.ffc_id] = { sleeper_id: e.sleeper_id, fp_id: e.fp_id };
+    if (e.fp_id != null) sleeperByFpId[e.fp_id] = e.sleeper_id;
   }
   const ecrLatest = ecrSnaps[ecrSnaps.length - 1] ?? null;
-  const { review } = buildMarketRows(
-    adpRows,
+  // buildMarketRows now returns MarketRow[]; the join review it used to
+  // return no longer exists because price and ECR share FantasyPros
+  // player_id and need no cross-source join. Rows are still computed here so
+  // this page runs the same pipeline as the Market page.
+  const rows = buildMarketRows(
+    priceRows,
     first?.rows ?? null,
     ecrLatest ? ecrLatest.rows : (fpEcr as { players: FpLite[] }).players,
-    mapByFfc,
+    sleeperByFpId,
     null
   );
+  void rows;
+  // SESSION FOUR: the cross-source join review section below is left
+  // verbatim. There is no review object any more, so it is fed an explicitly
+  // empty one rather than fabricated counts.
+  const review = {
+    viaMap: 0,
+    viaFallback: 0,
+    unmatched: [] as string[],
+    ambiguous: [] as string[],
+    teamMismatch: [] as string[],
+  };
   const joined = review.viaMap + review.viaFallback;
   const flagged =
     review.unmatched.length + review.ambiguous.length + review.teamMismatch.length;
@@ -206,7 +226,7 @@ export default async function Methodology() {
         <h2 className="text-xl font-semibold">Signal thresholds</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
           <li>
-            ADP move counts as real at ≥ {THRESHOLDS.ADP_MOVE} picks.
+            ADP move counts as real at ≥ {THRESHOLDS.HOST_RANK_MOVE} picks.
           </li>
           <li>ECR move counts as real at ≥ {THRESHOLDS.ECR_MOVE} ranks.</li>
           <li>
@@ -241,7 +261,7 @@ export default async function Methodology() {
             <strong>ADP alone cleared its threshold</strong>: “Market catching
             up to experts” if the move shrank |Gap|, otherwise “Market moving
             faster”. <em>No 1.5× test applies on this path</em>: an ADP-only
-            move of {THRESHOLDS.ADP_MOVE} picks that widens the gap is labelled
+            move of {THRESHOLDS.HOST_RANK_MOVE} picks that widens the gap is labelled
             “Market moving faster” regardless of how far ECR drifted below its
             own threshold.
           </li>

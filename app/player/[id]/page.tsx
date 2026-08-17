@@ -1,16 +1,16 @@
 import Link from "next/link";
 import {
-  loadHistory,
+  loadHostRankHistory,
   loadAllEcrSnapshots,
   ecrSeriesFor,
   loadFirstAndLatestSnapshots,
 } from "@/lib/snapshot";
-import { buildMarketRows, type MapByFfc } from "@/lib/market";
+import { buildMarketRows, type SleeperByFpId } from "@/lib/market";
 import { type FpLite } from "@/lib/math";
 import { whatItMeans } from "@/lib/signals";
 import { evidenceFor, inMoveWindow } from "@/lib/evidence";
 import { archetype, archetypePlain } from "@/lib/archetype";
-import type { FfcPlayer } from "@/lib/types";
+import type { FpHostRankPlayer } from "@/lib/types";
 import PlayerChart, {
   type ChartMarker,
   type ChartPoint,
@@ -20,7 +20,8 @@ import { currentPhase, trustReading, type Phase as LibPhase } from "@/lib/phases
 import GapChart from "@/components/GapChart";
 import SignalChip from "@/components/SignalChip";
 import AiTrace from "@/components/AiTrace";
-import ffcFixture from "@/fixtures/ffc_adp.json";
+import fpHostRankFixture from "@/fixtures/fp_host_rank.json";
+import { toHostRankPlayers, type RawHostRankRow } from "@/lib/sources/fantasypros-host-rank";
 import fpEcr from "@/fixtures/fp_ecr.json";
 import playerMap from "@/data/player_map.json";
 import catalystsFile from "@/data/catalysts.json";
@@ -46,7 +47,6 @@ type MapEntry = {
   name: string;
   team: string | null;
   pos: string;
-  ffc_id?: number;
   fp_id?: number;
   years_exp?: number | null;
   age?: number | null;
@@ -84,8 +84,8 @@ function NotTracked({ id }: { id: string }) {
       <h1 className="text-2xl font-bold">Player not tracked</h1>
       <p className="mt-3 text-sm text-[var(--ink-2)]">
         No market data is stored for “{id}”. Draft Ticker tracks the players
-        appearing in Fantasy Football Calculator PPR drafts; players outside
-        that pool have no honest numbers to show, so nothing is shown.
+        on the FantasyPros PPR host rank board; players outside that pool have
+        no honest numbers to show, so nothing is shown.
       </p>
       <Link href="/" className="mt-6 inline-block text-sm underline">
         ← Back to the Market
@@ -103,7 +103,7 @@ export default async function PlayerPage({
   const [{ first, latest }, ecrSnaps, history] = await Promise.all([
     loadFirstAndLatestSnapshots(),
     loadAllEcrSnapshots(),
-    loadHistory(),
+    loadHostRankHistory(),
   ]);
   const previous = first;
   // newest two are still what movement/signal compare; the CHART uses all of them
@@ -111,19 +111,21 @@ export default async function PlayerPage({
   const ecrPrev =
     ecrSnaps.length > 1 && ecrSnaps[0].date !== ecrLatest?.date ? ecrSnaps[0] : null;
   const live = latest !== null;
-  const adpRows: FfcPlayer[] = live ? latest.rows : (ffcFixture.players as FfcPlayer[]);
+  const priceRows: FpHostRankPlayer[] = live
+    ? latest.rows
+    : toHostRankPlayers(fpHostRankFixture.players as RawHostRankRow[]);
 
   const entries = Object.values(playerMap as Record<string, MapEntry>);
-  const mapByFfc: MapByFfc = {};
+  const sleeperByFpId: SleeperByFpId = {};
   for (const e of entries) {
-    if (e.ffc_id != null) mapByFfc[e.ffc_id] = { sleeper_id: e.sleeper_id, fp_id: e.fp_id };
+    if (e.fp_id != null) sleeperByFpId[e.fp_id] = e.sleeper_id;
   }
 
-  const { rows } = buildMarketRows(
-    adpRows,
+  const rows = buildMarketRows(
+    priceRows,
     previous?.rows ?? null,
     ecrLatest ? ecrLatest.rows : (fpEcr as { players: FpLite[] }).players,
-    mapByFfc,
+    sleeperByFpId,
     ecrPrev ? Object.fromEntries(ecrPrev.rows.map((r) => [r.player_id, r.rank_ecr])) : null
   );
 
@@ -132,8 +134,9 @@ export default async function PlayerPage({
     : null;
   const moveWindow = prevDateLabel ? `since ${prevDateLabel}` : "since tracking began";
 
-  const row = id.startsWith("ffc-")
-    ? rows.find((r) => r.ffcId === Number(id.slice(4)))
+  // playerHref() emits the Sleeper id when mapped, else `fp-<player_id>`.
+  const row = id.startsWith("fp-")
+    ? rows.find((r) => r.fpId === Number(id.slice(3)))
     : rows.find((r) => r.sleeperId === id);
   if (!row) return <NotTracked id={id} />;
 
@@ -148,12 +151,14 @@ export default async function PlayerPage({
     : null;
 
   // chart points
-  const ecrByDate = ecrSeriesFor(ecrSnaps, entry?.fp_id);
-  const playerHistory = history.filter((h) => h.player_id === row.ffcId);
+  // Both series key on the FantasyPros player_id, so the row's own id is used
+  // for the ECR series too; entry.fp_id would be the same number when mapped.
+  const ecrByDate = ecrSeriesFor(ecrSnaps, row.fpId);
+  const playerHistory = history.filter((h) => h.player_id === row.fpId);
   const dates = [...new Set(playerHistory.map((h) => h.date))].sort();
   const points: ChartPoint[] = dates.map((d) => ({
     date: d,
-    adp: playerHistory.find((h) => h.date === d)?.adp ?? null,
+    hostRank: playerHistory.find((h) => h.date === d)?.rank_ave ?? null,
     ecr: ecrByDate.get(d) ?? null,
   }));
 
@@ -166,8 +171,9 @@ export default async function PlayerPage({
     sample: c.sample,
   }));
   const verifiedCatalysts = catalysts.filter((c) => c.verified && !c.sample);
-  // ADP is a trailing mean, so the lookback is the older mean's own window,
-  // not the gap between snapshots. See lib/evidence.ts.
+  // The lookback reaches CATALYST_LOOKBACK_DAYS before the older snapshot,
+  // not just the gap between snapshots. See lib/evidence.ts. The homepage
+  // uses the SAME predicate, so the two surfaces cannot disagree.
   const verifiedInWindow =
     previous && latest
       ? verifiedCatalysts.some((c) => inMoveWindow(c.date, previous.date, latest.date))
@@ -265,7 +271,7 @@ export default async function PlayerPage({
                 it.
               </p>
               <p className="mt-1 text-sm text-[var(--ink-2)]">
-                {whatItMeans(row.signal, row.gap, row.adpDelta, row.gapReason)} Catalysts are
+                {whatItMeans(row.signal, row.gap, row.hostRankDelta, row.gapReason)} Catalysts are
                 hand-curated with a source and a verified flag, never scraped,
                 never guessed.
               </p>
@@ -305,12 +311,12 @@ export default async function PlayerPage({
               {`${row.position}${row.posRank}`}
             </p>
             <p className="text-xs text-[var(--ink-3)]">
-              round {Math.ceil(row.adp / LEAGUE_SIZE)} · pick {row.adp}
+              round {Math.ceil(row.hostRank / LEAGUE_SIZE)} · host rank {row.hostRank}
             </p>
             <p className="text-xs text-[var(--ink-3)]">
-              {row.adpDelta == null
+              {row.hostRankDelta == null
                 ? `tracking since ${TRACKING_SINCE}`
-                : `${row.adpDelta > 0 ? "+" : ""}${row.adpDelta} ${moveWindow}`}
+                : `${row.hostRankDelta > 0 ? "+" : ""}${row.hostRankDelta} ${moveWindow}`}
             </p>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
@@ -334,7 +340,7 @@ export default async function PlayerPage({
             <p className="text-xs text-[var(--ink-3)]">
               {row.gap == null
                 ? (row.gapReason ?? "not comparable")
-                : `${row.gap > 0 ? "+" : ""}${row.gap} picks · ${row.gap < 0 ? "you pay early" : "cheaper than ranked"}`}
+                : `${row.gap > 0 ? "+" : ""}${row.gap} spots · ${row.gap < 0 ? "you pay early" : "cheaper than ranked"}`}
             </p>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
@@ -350,7 +356,7 @@ export default async function PlayerPage({
               markers={markers}
               trackingSince={TRACKING_SINCE}
               signal={row.signal}
-              interpretation={whatItMeans(row.signal, row.gap, row.adpDelta, row.gapReason)}
+              interpretation={whatItMeans(row.signal, row.gap, row.hostRankDelta, row.gapReason)}
               evidence={evidence}
             />
           </div>
@@ -358,10 +364,11 @@ export default async function PlayerPage({
           <div className="mt-4">
         <AiTrace
           inputs={[
-            `Player: ${row.name} (${row.position} ${row.team})`,
-            `Current ADP: ${row.adp}${row.adpDelta != null ? `, change ${row.adpDelta > 0 ? "+" : ""}${row.adpDelta}` : " (no prior day yet)"}`,
+            `Player: ${row.name} (${row.position}${row.posRank} ${row.team})`,
+            `Current average host rank: ${row.hostRank}${row.hostRankDelta != null ? `, change ${row.hostRankDelta > 0 ? "+" : ""}${row.hostRankDelta}` : " (no prior day yet)"}`,
+            `Host boards ranking him: ${row.sourceCount}`,
             `ECR: ${row.ecr ?? "unmatched"}${row.ecrDelta != null ? `, change ${row.ecrDelta > 0 ? "+" : ""}${row.ecrDelta}` : ""}`,
-            `ADP−ECR gap: ${row.gap ?? "n/a"}`,
+            `Host rank−ECR gap: ${row.gap ?? "n/a"}`,
             `Verified catalysts: ${verifiedCatalysts.length}`,
             `Calendar phase: ${CURRENT_PHASE.title} (trust: ${CURRENT_PHASE.signal_level})`,
           ]}
@@ -399,7 +406,7 @@ export default async function PlayerPage({
       )}
 
       <footer className="mt-8 text-xs text-[var(--ink-3)]">
-        ADP: FFC (PPR, 12-team){live ? `, snapshot ${latest.date}` : " fixture"} · ECR:{" "}
+        Price: FantasyPros average host rank (PPR){live ? `, snapshot ${latest.date}` : ", fixture"} · ECR:{" "}
         {ecrLatest ? `FantasyPros API (${ecrLatest.date})` : "capture Aug 10 (static)"} ·{" "}
         <Link href="/methodology" className="underline">Methodology</Link>
       </footer>

@@ -27,17 +27,19 @@ export type MirrorSide = {
   signal: Signal | null;
   points: ChartPoint[];
   markers: ChartMarker[];
-  adp: number;
+  hostRank: number;
   ecr: number | null;
   gap: number | null;
-  adpDelta: number | null;
+  hostRankDelta: number | null;
+  /** Positional rank from the source payload (e.g. RB4 → 4). */
+  posRank: number;
 };
 
 function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: string; trackingSince: string }) {
-  const up = (s.adpDelta ?? 0) > 0;
+  const up = (s.hostRankDelta ?? 0) > 0;
   // Movement is neutral by rule. The arrow carries the direction; painting a
   // faller red would say "bad price" about a price that just got cheaper.
-  const arrow = s.adpDelta == null || s.adpDelta === 0 ? null : up ? "▲" : "▼";
+  const arrow = s.hostRankDelta == null || s.hostRankDelta === 0 ? null : up ? "▲" : "▼";
   return (
     <div className="flex flex-col gap-2 p-4">
       <div className="flex items-start justify-between gap-2">
@@ -45,19 +47,19 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
           <Link href={s.href} className="text-lg font-bold tracking-tight hover:underline">
             {s.name}
           </Link>
-          <p className="text-xs text-[var(--ink-3)]">{s.position} · {s.team}</p>
+          <p className="text-xs text-[var(--ink-3)]">{s.position}{s.posRank} · {s.team}</p>
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold tabular-nums text-[var(--foreground)]">
             {arrow && <span aria-hidden className="text-[var(--ink-2)]">{arrow} </span>}
-            {s.adpDelta === null ? ", " : `${s.adpDelta > 0 ? "+" : ""}${s.adpDelta}`}
+            {s.hostRankDelta === null ? ", " : `${s.hostRankDelta > 0 ? "+" : ""}${s.hostRankDelta}`}
           </div>
           <p className="text-[11px] text-[var(--ink-3)]">
-            {s.adpDelta === null
+            {s.hostRankDelta === null
               ? `no movement stored yet`
-              : s.adpDelta === 0
+              : s.hostRankDelta === 0
                 ? `unmoved ${moveWindow}`
-                : `picks ${up ? "gained" : "lost"} ${moveWindow}`}
+                : `spots ${up ? "gained" : "lost"} ${moveWindow}`}
           </p>
         </div>
       </div>
@@ -91,8 +93,8 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
 
       <dl className="grid grid-cols-3 gap-1 text-center text-xs">
         <div>
-          <dt className="text-[var(--ink-3)]">ADP</dt>
-          <dd className="tabular-nums font-medium">{s.adp}</dd>
+          <dt className="text-[var(--ink-3)]">Host rank</dt>
+          <dd className="tabular-nums font-medium">{s.hostRank}</dd>
         </div>
         <div>
           <dt className="text-[var(--ink-3)]">ECR</dt>

@@ -18,7 +18,7 @@ export const FP_HOST_RANK_URL =
 export const FP_HOST_RANK_TIMEOUT_MS = 15_000;
 
 /** Raw row shape as received. Numerics arrive as strings. */
-type RawRow = {
+export type RawHostRankRow = {
   player_id: number;
   player_name: string;
   player_position_id: string;
@@ -33,7 +33,7 @@ type RawRow = {
 };
 
 type RawPayload = {
-  players: RawRow[];
+  players: RawHostRankRow[];
   expert_pub?: Record<string, string>;
   expert_names?: Record<string, string>;
 };
@@ -46,7 +46,7 @@ const num = (v: string | number | null | undefined): number | null => {
 
 /** Map one raw row to the typed row, or null if it has no usable average host
  *  rank. Rows without a price are dropped rather than stored as NaN. */
-export function toHostRankPlayer(raw: RawRow): FpHostRankPlayer | null {
+export function toHostRankPlayer(raw: RawHostRankRow): FpHostRankPlayer | null {
   const rank_ave = num(raw.rank_ave);
   if (rank_ave === null) return null;
   const experts: Record<string, number> = {};
@@ -68,6 +68,14 @@ export function toHostRankPlayer(raw: RawRow): FpHostRankPlayer | null {
     experts,
     source_count: Object.keys(experts).length,
   };
+}
+
+/** Typed rows from a raw payload's `players` array. Used by the pages for the
+ *  NOT LIVE fixture fallback (fixtures/fp_host_rank.json is the raw payload). */
+export function toHostRankPlayers(players: RawHostRankRow[]): FpHostRankPlayer[] {
+  return players
+    .map(toHostRankPlayer)
+    .filter((p): p is FpHostRankPlayer => p !== null);
 }
 
 /** Build the board metadata from the payload's own fields only. */
@@ -109,8 +117,6 @@ export async function fetchFpHostRank(): Promise<{
     throw new Error("FantasyPros host rank unexpected payload: players missing");
   }
   const meta = toHostRankMeta(data);
-  const players = data.players
-    .map(toHostRankPlayer)
-    .filter((p): p is FpHostRankPlayer => p !== null);
+  const players = toHostRankPlayers(data.players);
   return { meta, players };
 }

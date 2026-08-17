@@ -6,12 +6,12 @@ export const metadata = { title: "Inside FP · Draft Ticker" };
 
 // Illustrative series for the section-1 demo (NOT live data).
 const DEMO_POINTS: ChartPoint[] = [
-  { date: "07-03", adp: 95, ecr: 92 },
-  { date: "07-10", adp: 94, ecr: 92 },
-  { date: "07-17", adp: 80, ecr: 90 },
-  { date: "07-24", adp: 80, ecr: 89 },
-  { date: "07-31", adp: 79, ecr: 88 },
-  { date: "08-07", adp: 78, ecr: 88 },
+  { date: "07-03", hostRank: 95, ecr: 92 },
+  { date: "07-10", hostRank: 94, ecr: 92 },
+  { date: "07-17", hostRank: 80, ecr: 90 },
+  { date: "07-24", hostRank: 80, ecr: 89 },
+  { date: "07-31", hostRank: 79, ecr: 88 },
+  { date: "08-07", hostRank: 78, ecr: 88 },
 ];
 const DEMO_MARKERS: ChartMarker[] = [
   { date: "07-17", label: "First-team reps reported (illustrative)", sample: true },

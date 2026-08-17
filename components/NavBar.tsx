@@ -61,7 +61,7 @@ export default function NavBar({
                 : "rgba(224,169,46,0.18)",
               color: "#eafaf0",
             }}
-            title="When the newest stored snapshot was captured."
+            title="Latest publish time across the contributing host boards, as sent by the source (timezone not stated), and how many boards contributed."
           >
             <span
               aria-hidden

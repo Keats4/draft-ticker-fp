@@ -12,26 +12,28 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Draft Ticker",
   description:
-    "How fantasy football player values are changing: ADP movement vs expert consensus.",
+    "How fantasy football player values are changing: average host rank movement vs expert consensus.",
 };
 
-function fmtFresh(iso: string, drafts?: number): string {
-  const t = new Date(iso).toLocaleString("en-US", {
-    timeZone: "America/Los_Angeles",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-  return drafts
-    ? `Updated ${t} PT · ${drafts.toLocaleString()} drafts`
-    : `Updated ${t} PT`;
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** Latest host publish time and the number of contributing host boards.
+ *  `latest_pub_at` is "YYYY-MM-DD HH:MM:SS" exactly as the source sends it,
+ *  with no stated timezone, so it is rendered as sent and NOT converted to
+ *  PT. There is no draft count in this payload and none is shown. The
+ *  publish skew across hosts is not surfaced here (methodology, session four). */
+function fmtFresh(latestPubAt: string, sourceCount: number): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/.exec(latestPubAt);
+  const t = m
+    ? `${MONTHS[Number(m[2]) - 1]} ${Number(m[3])}, ${m[4]}:${m[5]}`
+    : latestPubAt;
+  return `Latest board ${t} · ${sourceCount} host board${sourceCount === 1 ? "" : "s"}`;
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const snap = await loadLatestSnapshot();
   const freshness = snap
-    ? { label: fmtFresh(snap.captured_at, snap.meta?.total_drafts), live: true }
+    ? { label: fmtFresh(snap.meta.latest_pub_at, snap.meta.source_count), live: true }
     : { label: "Fixture data, not live", live: false };
 
   return (

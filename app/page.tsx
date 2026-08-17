@@ -1,11 +1,11 @@
 import Link from "next/link";
 import {
-  loadHistory,
+  loadHostRankHistory,
   loadAllEcrSnapshots,
   ecrSeriesFor,
   loadFirstAndLatestSnapshots,
 } from "@/lib/snapshot";
-import { buildMarketRows, type MapByFfc, type MarketRow } from "@/lib/market";
+import { buildMarketRows, playerHref, type SleeperByFpId, type MarketRow } from "@/lib/market";
 import { THRESHOLDS, type FpLite } from "@/lib/math";
 import { UNIVERSE } from "@/lib/universe";
 import { whatItMeans } from "@/lib/signals";
@@ -18,9 +18,10 @@ import {
   valueWord,
   valueTone,
 } from "@/lib/story";
-import { evidenceFor } from "@/lib/evidence";
+import { evidenceFor, inMoveWindow } from "@/lib/evidence";
 import { archetype } from "@/lib/archetype";
-import ffcFixture from "@/fixtures/ffc_adp.json";
+import fpHostRankFixture from "@/fixtures/fp_host_rank.json";
+import { toHostRankPlayers, type RawHostRankRow } from "@/lib/sources/fantasypros-host-rank";
 import fpEcr from "@/fixtures/fp_ecr.json";
 import playerMap from "@/data/player_map.json";
 import catalystsFile from "@/data/catalysts.json";
@@ -34,21 +35,20 @@ import MirrorHero, { type MirrorSide } from "@/components/MirrorHero";
 import type { PhaseLevel } from "@/components/PhaseMeter";
 import type { ChartMarker, ChartPoint } from "@/components/PlayerChart";
 import MarketTable, { type RowLite } from "@/components/MarketTable";
-import type { FfcPlayer } from "@/lib/types";
+import type { FpHostRankPlayer } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 /** The homepage curates; the full universe lives on /players. */
 const HOME_TABLE_ROWS = 25;
 const TRACKING_SINCE = "Aug 10, 2026";
-const hrefFor = (r: MarketRow) => `/player/${r.sleeperId ?? `ffc-${r.ffcId}`}`;
+const hrefFor = (r: MarketRow) => playerHref(r);
 
 type MapEntry = {
   sleeper_id: string;
   name: string;
   team: string | null;
   pos: string;
-  ffc_id?: number;
   fp_id?: number;
   years_exp?: number | null;
   age?: number | null;
@@ -130,7 +130,7 @@ export default async function Home() {
   const [{ first, latest }, ecrSnaps, history] = await Promise.all([
     loadFirstAndLatestSnapshots(),
     loadAllEcrSnapshots(),
-    loadHistory(),
+    loadHostRankHistory(),
   ]);
   // The move window is the FULL tracked span: oldest stored snapshot -> newest.
   const previous = first;
@@ -138,20 +138,21 @@ export default async function Home() {
   const ecrPrev =
     ecrSnaps.length > 1 && ecrSnaps[0].date !== ecrLatest?.date ? ecrSnaps[0] : null;
   const live = latest !== null;
-  const adpRows: FfcPlayer[] = live ? latest.rows : (ffcFixture.players as FfcPlayer[]);
+  const priceRows: FpHostRankPlayer[] = live
+    ? latest.rows
+    : toHostRankPlayers(fpHostRankFixture.players as RawHostRankRow[]);
 
   const entries = Object.values(playerMap as Record<string, MapEntry>);
-  const mapByFfc: MapByFfc = {};
+  const sleeperByFpId: SleeperByFpId = {};
   for (const e of entries) {
-    if (e.ffc_id != null)
-      mapByFfc[e.ffc_id] = { sleeper_id: e.sleeper_id, fp_id: e.fp_id };
+    if (e.fp_id != null) sleeperByFpId[e.fp_id] = e.sleeper_id;
   }
 
-  const { rows } = buildMarketRows(
-    adpRows,
+  const rows: MarketRow[] = buildMarketRows(
+    priceRows,
     previous?.rows ?? null,
     ecrLatest ? ecrLatest.rows : (fpEcr as { players: FpLite[] }).players,
-    mapByFfc,
+    sleeperByFpId,
     ecrPrev
       ? Object.fromEntries(ecrPrev.rows.map((r) => [r.player_id, r.rank_ecr]))
       : null
@@ -171,9 +172,9 @@ export default async function Home() {
   const comparableCount = rows.filter((r) => r.gap !== null).length;
 
   const widest = [...withGap].sort((a, b) => Math.abs(b.gap!) - Math.abs(a.gap!))[0];
-  const movers = rows.filter((r) => r.adpDelta !== null && r.inUniverse);
-  const riser = [...movers].sort((a, b) => b.adpDelta! - a.adpDelta!)[0];
-  const faller = [...movers].sort((a, b) => a.adpDelta! - b.adpDelta!)[0];
+  const movers = rows.filter((r) => r.hostRankDelta !== null && r.inUniverse);
+  const riser = [...movers].sort((a, b) => b.hostRankDelta! - a.hostRankDelta!)[0];
+  const faller = [...movers].sort((a, b) => a.hostRankDelta! - b.hostRankDelta!)[0];
 
   const forYourDraft = [...withGap]
     .sort((a, b) => Math.abs(b.gap!) - Math.abs(a.gap!))
@@ -213,12 +214,13 @@ export default async function Home() {
           injury_status: entry.injury_status ?? null,
         })
       : null;
-    const ecrByDate = ecrSeriesFor(ecrSnaps, entry?.fp_id);
-    const hist = history.filter((h) => h.player_id === row.ffcId);
+    // Both series key on the FantasyPros player_id.
+    const ecrByDate = ecrSeriesFor(ecrSnaps, row.fpId);
+    const hist = history.filter((h) => h.player_id === row.fpId);
     const dates = [...new Set(hist.map((h) => h.date))].sort();
     const points: ChartPoint[] = dates.map((d) => ({
       date: d,
-      adp: hist.find((h) => h.date === d)?.adp ?? null,
+      hostRank: hist.find((h) => h.date === d)?.rank_ave ?? null,
       ecr: ecrByDate.get(d) ?? null,
     }));
     const cats = catalystsFor(row.sleeperId);
@@ -230,9 +232,14 @@ export default async function Home() {
     const verified = cats
       .filter((c) => c.verified && !c.sample)
       .sort((x, y) => (x.date < y.date ? 1 : -1));
-    const inWindow = previous
-      ? verified.some((c) => c.date >= previous.date)
-      : verified.length > 0;
+    // Same predicate as the player page (lib/evidence.ts inMoveWindow), so
+    // the two surfaces cannot disagree about whether a catalyst backs a
+    // signal. The old test here was `c.date >= previous.date`, which dropped
+    // events inside the lookback before the older snapshot.
+    const inWindow =
+      previous && latest
+        ? verified.some((c) => inMoveWindow(c.date, previous.date, latest.date))
+        : verified.length > 0;
     return {
       arch,
       points,
@@ -248,16 +255,17 @@ export default async function Home() {
       href: hrefFor(row),
       name: row.name,
       position: row.position,
+      posRank: row.posRank,
       team: row.team,
       archetypeTag: x.arch?.tag ?? null,
       archetypeReason: x.arch?.reason ?? null,
       signal: row.signal,
       points: x.points,
       markers: x.markers,
-      adp: row.adp,
+      hostRank: row.hostRank,
       ecr: row.ecr,
       gap: row.gap,
-      adpDelta: row.adpDelta,
+      hostRankDelta: row.hostRankDelta,
     };
   };
 
@@ -288,9 +296,9 @@ export default async function Home() {
 
   const singleHero = ranked[0] ?? null;
   const leadIds = new Set<number>(
-    bestPair ? [bestPair.a.ffcId, bestPair.b.ffcId] : singleHero ? [singleHero.ffcId] : []
+    bestPair ? [bestPair.a.fpId, bestPair.b.fpId] : singleHero ? [singleHero.fpId] : []
   );
-  const stories = ranked.filter((r) => !leadIds.has(r.ffcId)).slice(0, 3);
+  const stories = ranked.filter((r) => !leadIds.has(r.fpId)).slice(0, 3);
 
   // shared-event headline for the pair: the catalyst both players point at
   const sharedCatalyst = bestPair?.shared
@@ -298,10 +306,12 @@ export default async function Home() {
         .filter((c) => c.source_url === bestPair.shared && c.verified && !c.sample)
         .sort((x, y) => (x.date < y.date ? 1 : -1))[0] ?? null
     : null;
+  // Same inMoveWindow predicate as everywhere else.
   const pairEvidence = bestPair
     ? evidenceFor(
-        previous
-          ? (sharedCatalyst?.date ?? "") >= previous.date
+        previous && latest
+          ? sharedCatalyst !== null &&
+              inMoveWindow(sharedCatalyst.date, previous.date, latest.date)
           : sharedCatalyst !== null
       )
     : null;
@@ -317,19 +327,20 @@ export default async function Home() {
     : null;
 
   const tableRows: RowLite[] = rows.slice(0, HOME_TABLE_ROWS).map((r) => ({
-    rank: r.adpRank,
+    rank: r.hostRankOrdinal,
     href: hrefFor(r),
     name: r.name,
     position: r.position,
+    posRank: r.posRank,
     team: r.team,
-    adp: r.adp,
+    hostRank: r.hostRank,
     ecr: r.ecr,
     gap: r.gap,
     gapReason: r.gapReason,
     gapNotable: r.gap !== null && Math.abs(r.gap) >= THRESHOLDS.GAP_NOTABLE,
-    adpDelta: r.adpDelta,
+    hostRankDelta: r.hostRankDelta,
     signal: r.signal,
-    whatItMeans: whatItMeans(r.signal, r.gap, r.adpDelta, r.gapReason),
+    whatItMeans: whatItMeans(r.signal, r.gap, r.hostRankDelta, r.gapReason),
   }));
 
   return (
@@ -373,15 +384,15 @@ export default async function Home() {
           sentence={
             isOpposed(bestPair.a, bestPair.b)
               ? `One event, two prices, opposite directions ${moveWindow}: ${bestPair.a.name} ${
-                  (bestPair.a.adpDelta ?? 0) > 0 ? "up" : "down"
-                } ${Math.abs(bestPair.a.adpDelta ?? 0)} while ${bestPair.b.name} goes ${
-                  (bestPair.b.adpDelta ?? 0) > 0 ? "up" : "down"
-                } ${Math.abs(bestPair.b.adpDelta ?? 0)}. ADP is an average of real drafts, so the two sides are not an exact mirror and are not expected to be, what matters is that one backfield's gain is showing up as the other's loss.`
+                  (bestPair.a.hostRankDelta ?? 0) > 0 ? "up" : "down"
+                } ${Math.abs(bestPair.a.hostRankDelta ?? 0)} while ${bestPair.b.name} goes ${
+                  (bestPair.b.hostRankDelta ?? 0) > 0 ? "up" : "down"
+                } ${Math.abs(bestPair.b.hostRankDelta ?? 0)}. The price is an average across host boards, so the two sides are not an exact mirror and are not expected to be, what matters is that one backfield's gain is showing up as the other's loss.`
               : `Both halves of this backfield moved the SAME way ${moveWindow} (${bestPair.a.name} ${
-                  (bestPair.a.adpDelta ?? 0) > 0 ? "+" : ""
-                }${bestPair.a.adpDelta}, ${bestPair.b.name} ${
-                  (bestPair.b.adpDelta ?? 0) > 0 ? "+" : ""
-                }${bestPair.b.adpDelta}), so the mirror is not showing in the price today. Shown as measured, not as a story it is not telling.`
+                  (bestPair.a.hostRankDelta ?? 0) > 0 ? "+" : ""
+                }${bestPair.a.hostRankDelta}, ${bestPair.b.name} ${
+                  (bestPair.b.hostRankDelta ?? 0) > 0 ? "+" : ""
+                }${bestPair.b.hostRankDelta}), so the mirror is not showing in the price today. Shown as measured, not as a story it is not telling.`
           }
           moveWindow={moveWindow}
           trackingSince={TRACKING_SINCE}
@@ -391,6 +402,7 @@ export default async function Home() {
           href={hrefFor(singleHero)}
           name={singleHero.name}
           position={singleHero.position}
+          posRank={singleHero.posRank}
           team={singleHero.team}
           phaseTitle={phase?.title ?? null}
           phaseLevel={phase?.signal_level ?? null}
@@ -399,12 +411,12 @@ export default async function Home() {
           archetypeReason={heroX?.arch?.reason ?? null}
           signal={singleHero.signal}
           evidence={heroX?.evidence ?? null}
-          sentence={whatItMeans(singleHero.signal, singleHero.gap, singleHero.adpDelta, singleHero.gapReason)}
+          sentence={whatItMeans(singleHero.signal, singleHero.gap, singleHero.hostRankDelta, singleHero.gapReason)}
           points={heroX?.points ?? []}
           markers={heroX?.markers ?? []}
           trackingSince={TRACKING_SINCE}
           catalyst={heroCatalyst}
-          adp={singleHero.adp}
+          hostRank={singleHero.hostRank}
           ecr={singleHero.ecr}
           gap={singleHero.gap}
         />
@@ -440,7 +452,7 @@ export default async function Home() {
               const cat = topCatalystFor(r.sleeperId);
               return (
                 <div
-                  key={r.ffcId}
+                  key={r.fpId}
                   className="relative rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 transition-colors hover:border-[var(--ink-3)]"
                 >
                   <div className="flex items-baseline justify-between gap-2">
@@ -454,7 +466,7 @@ export default async function Home() {
                       {r.name}
                     </Link>
                     <span className="text-xs text-[var(--ink-3)]">
-                      {r.position} · {r.team}
+                      {r.position}{r.posRank} · {r.team}
                     </span>
                   </div>
 
@@ -524,17 +536,17 @@ export default async function Home() {
         </p>
         <p className="mt-0.5 text-sm text-[var(--ink-2)]">
           The three prices most likely to be wrong when you draft, chosen from
-          players drafted in most leagues, never the thin tail.
+          players ranked by enough host boards, never the thin tail.
         </p>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
           {forYourDraft.map((r, i) => (
-            <div key={r.ffcId} className="rounded-lg border border-[var(--border)] p-3">
+            <div key={r.fpId} className="rounded-lg border border-[var(--border)] p-3">
               <div className="flex items-start justify-between">
                 <div>
                   <Link href={hrefFor(r)} className="font-semibold hover:underline">
                     {r.name}
                   </Link>
-                  <p className="text-xs text-[var(--ink-3)]">{r.position} · {r.team}</p>
+                  <p className="text-xs text-[var(--ink-3)]">{r.position}{r.posRank} · {r.team}</p>
                 </div>
                 <span className="text-xs text-[var(--ink-3)]">{i + 1}</span>
               </div>
@@ -552,22 +564,22 @@ export default async function Home() {
                 {/* Movement: neutral text, direction in the arrow. */}
                 <span className="text-[var(--ink-3)]">
                   ·{" "}
-                  {r.adpDelta === null
+                  {r.hostRankDelta === null
                     ? "no movement data yet"
-                    : r.adpDelta === 0
+                    : r.hostRankDelta === 0
                       ? `unmoved ${moveWindow}`
-                      : `${r.adpDelta > 0 ? "▲" : "▼"} ${r.adpDelta > 0 ? "+" : ""}${r.adpDelta} ${moveWindow}`}
+                      : `${r.hostRankDelta > 0 ? "▲" : "▼"} ${r.hostRankDelta > 0 ? "+" : ""}${r.hostRankDelta} ${moveWindow}`}
                 </span>
               </p>
               <div className="mt-2">
                 <SignalChip signal={r.signal} />
               </div>
               <p className="mt-2 text-xs text-[var(--ink-2)]">
-                {whatItMeans(r.signal, r.gap, r.adpDelta)}
+                {whatItMeans(r.signal, r.gap, r.hostRankDelta)}
               </p>
               <p className="mt-2 border-t border-[var(--border)] pt-2 text-[11px] text-[var(--ink-3)]">
                 How we chose this: #{i + 1} widest market-vs-expert gap among
-                players drafted in most leagues.
+                players ranked by enough host boards.
               </p>
             </div>
           ))}
@@ -577,13 +589,13 @@ export default async function Home() {
       <section className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {/* Movement tiles: neutral, arrow carries direction. Colouring a riser
             green and a faller red is the exact contradiction the single colour
-            semantic removes, a falling ADP is a falling price. */}
+            semantic removes, a falling host rank is a falling price. */}
         {riser ? (
           <StatCard
             label={riserLabel}
             name={riser.name}
-            value={`▲ +${riser.adpDelta}`}
-            sub={`${riser.position} · ${riser.team} · picks gained ${moveWindow}`}
+            value={`▲ +${riser.hostRankDelta}`}
+            sub={`${riser.position}${riser.posRank} · ${riser.team} · spots gained ${moveWindow}`}
             tone="neutral"
             href={hrefFor(riser)}
           />
@@ -594,8 +606,8 @@ export default async function Home() {
           <StatCard
             label={fallerLabel}
             name={faller.name}
-            value={`▼ ${faller.adpDelta}`}
-            sub={`${faller.position} · ${faller.team} · picks lost ${moveWindow}`}
+            value={`▼ ${faller.hostRankDelta}`}
+            sub={`${faller.position}${faller.posRank} · ${faller.team} · spots lost ${moveWindow}`}
             tone="neutral"
             href={hrefFor(faller)}
           />
@@ -609,7 +621,7 @@ export default async function Home() {
             label="Widest expert gap"
             name={widest.name}
             value={`${widest.gap! > 0 ? "+" : ""}${widest.gap}${valueWord(widest.gap) ? ` ${valueWord(widest.gap)}` : ""}`}
-            sub={`${widest.position} · ${widest.team} · ADP minus expert rank`}
+            sub={`${widest.position}${widest.posRank} · ${widest.team} · average host rank minus expert rank`}
             tone={widest.gap! < 0 ? "expensive" : "cheap"}
             href={hrefFor(widest)}
           />
@@ -620,12 +632,12 @@ export default async function Home() {
 
       <p className="mb-3 rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--ink-2)]">
         <span className="font-medium">Thresholds:</span> Move counts at ≥
-        {THRESHOLDS.ADP_MOVE} picks · Expert move at ≥{THRESHOLDS.ECR_MOVE} ranks
+        {THRESHOLDS.HOST_RANK_MOVE} spots · Expert move at ≥{THRESHOLDS.ECR_MOVE} ranks
         · Notable gap at ≥{THRESHOLDS.GAP_NOTABLE} · Both sides clearing their
         threshold in opposite directions is labelled “Market and experts
         diverging” when the gap grew and “Market and experts converging” when it
         shrank · Gaps only inside the top{" "}
-        {UNIVERSE.TOP_N} (both ADP &amp; ECR), drafted in ≥{UNIVERSE.MIN_TIMES_DRAFTED} leagues
+        {UNIVERSE.TOP_N} (both average host rank &amp; ECR), ranked by ≥{UNIVERSE.MIN_SOURCE_COUNT} host boards
         {!hasMovement && " · Movement begins once a second daily snapshot exists"}
       </p>
 
@@ -640,17 +652,18 @@ export default async function Home() {
           View all {UNIVERSE.TOP_N} →
         </Link>{" "}
         <span className="text-[var(--ink-3)]">
-          Showing the top {Math.min(HOME_TABLE_ROWS, rows.length)} by ADP here; the
+          Showing the top {Math.min(HOME_TABLE_ROWS, rows.length)} by average host rank here; the
           full pool lives on Players.
         </span>
       </p>
 
       <footer className="mt-6 text-xs text-[var(--ink-3)]">
-        ADP: Fantasy Football Calculator (PPR, 12-team), a rolling ~7-day average.
+        Price: FantasyPros average host rank (PPR), the mean of each contributing
+        host board&rsquo;s rank{live ? ` across ${latest.meta.source_count} boards` : " (fixture, static)"}.
         ECR:{" "}
         {ecrLatest ? "FantasyPros official API, daily" : "FantasyPros capture Aug 10 (static)"}.
         A gap is computed for {comparableCount} players inside the comparison
-        universe, the rest show “, ” (thin draft data or an expert rank outside
+        universe, the rest show “, ” (too few host boards or an expert rank outside
         the top {UNIVERSE.TOP_N}), never a fabricated gap.{" "}
         <Link href="/methodology" className="underline">Methodology</Link>
       </footer>
