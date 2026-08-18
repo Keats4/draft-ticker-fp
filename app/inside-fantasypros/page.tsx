@@ -166,6 +166,45 @@ export default function InsideFP() {
         </p>
       </section>
 
+      {/* Scale: how the catalyst layer runs inside FantasyPros rather than as a prototype */}
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold">How this works at FantasyPros scale</h2>
+        <p className="mt-2 text-sm text-[var(--ink-2)]">
+          <span className="font-medium text-[var(--foreground)]">What was manual, and why.</span>{" "}
+          Every catalyst on this site was opened, dated, and confirmed against a
+          primary source by a human. That was the right cost for a prototype,
+          twice over: one wrong attribution costs the trust the whole layer runs
+          on, and the prototype existed to prove the layer is valuable, not to
+          prove ingestion is possible.
+        </p>
+        <p className="mt-2 text-sm text-[var(--ink-2)]">
+          <span className="font-medium text-[var(--foreground)]">What gets automated inside your stack.</span>{" "}
+          For FantasyPros this is not a news search problem. You already run
+          Fantasy Feed, and every item in it carries a player id and a
+          timestamp. That makes a catalyst a join between two things you already
+          own: a movement threshold fires, the pipeline looks up your own feed
+          for that player in the window of the move, and your editorial team has
+          already decided what counts as news. No scraping, and no judgment call
+          about newsworthiness.
+        </p>
+        <p className="mt-2 text-sm text-[var(--ink-2)]">
+          <span className="font-medium text-[var(--foreground)]">What stays human, permanently.</span>{" "}
+          The verification standard. Applied to a sample rather than to every
+          entry, with a published precision target and a measured hit rate
+          against it.
+        </p>
+        <p className="mt-2 text-sm text-[var(--ink-2)]">
+          <span className="font-medium text-[var(--foreground)]">Why the measurement matters.</span>{" "}
+          A blind matched test on this data found that 68 percent of comparable
+          players carry a qualifying news event in any twelve-day window, and
+          that movers were statistically indistinguishable from non-movers. News
+          presence alone is nearly worthless as a filter. Any automated catalyst
+          pipeline therefore needs a precision bar rather than a volume target,
+          and the levers that clear that bar, recency and event category, are
+          both fields the feed already carries.
+        </p>
+      </section>
+
       <p className="mt-8 text-xs text-[var(--ink-3)]">
         Draft Ticker is a working prototype on the FantasyPros API. <Link href="/methodology" className="underline">Methodology</Link>.
       </p>
