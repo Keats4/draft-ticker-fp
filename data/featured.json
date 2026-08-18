@@ -4,9 +4,22 @@
     {
       "id": "car-backfield",
       "title": "Carolina backfield",
-      "players": ["11583", "7594"],
+      "players": [
+        "11583",
+        "7594"
+      ],
       "event": "",
       "note": ""
+    },
+    {
+      "id": "ne-backfield",
+      "title": "New England backfield",
+      "players": [
+        "12529",
+        "7611"
+      ],
+      "event": "The Athletic's Chad Graff reports the backfield 'will be a 50-50 split' (Aug 17)",
+      "note": "Stevenson gets early downs and the goal line, Henderson second down and third-and-long provided his pass blocking holds up. One report, two prices."
     }
   ],
   "pinned": []

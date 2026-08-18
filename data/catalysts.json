@@ -133,42 +133,30 @@
       "category": "trade",
       "summary": "Agreed to a one-year deal with the Washington Commanders worth up to $12 million after being released by New England; the club formally announced the signing on 2026-08-07.",
       "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/stefon-diggs-to-sign-with-the-commanders",
-      "verified": false,
+      "verified": true,
       "sample": false,
       "date_confirmed_on_source": true,
       "sources": [
         {
+          "url": "https://www.washingtonpost.com/sports/2026/08/05/washington-commanders-sign-wide-receiver-stefon-diggs/",
+          "outlet": "The Washington Post",
+          "date_text": "August 5, 2026 (URL-dated)",
+          "kind": "original"
+        },
+        {
+          "url": "https://www.wflx.com/2026/08/05/stefon-diggs-is-signing-with-washington-commanders-ap-source-says/",
+          "outlet": "Associated Press (carried by WFLX)",
+          "date_text": "August 5, 2026 (URL-dated)",
+          "kind": "original"
+        },
+        {
           "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/stefon-diggs-to-sign-with-the-commanders",
-          "outlet": "NBC Sports Pro Football Talk",
-          "date_text": "Published August 5, 2026 02:05 PM",
-          "kind": "original"
-        },
-        {
-          "url": "https://www.cbssports.com/nfl/news/stefon-diggs-signing-with-commanders/",
-          "outlet": "CBS Sports",
-          "date_text": "August 5, 2026",
-          "kind": "original"
-        },
-        {
-          "url": "https://www.notus.org/sports/commanders-sign-stefon-diggs-wide-receiver",
-          "outlet": "NOTUS",
-          "date_text": "August 5, 2026, 3:32 p.m.",
-          "kind": "original"
-        },
-        {
-          "url": "https://www.commanders.com/news/commanders-sign-wr-stefon-diggs",
-          "outlet": "Commanders.com",
-          "date_text": "Aug 07, 2026 at 07:47 AM",
-          "kind": "original"
-        },
-        {
-          "url": "https://www.si.com/onsi/fantasy/news/stefon-diggs-signs-with-washington-commanders-exploring-2026-fantasy-value",
-          "outlet": "SI",
-          "date_text": "August 5, 2026 at 18:36:44 UTC",
-          "kind": "original"
+          "outlet": "NBC Sports / ProFootballTalk",
+          "date_text": "August 2026",
+          "kind": "syndicated"
         }
       ],
-      "independent_source_count": 5,
+      "independent_source_count": 2,
       "correction": "Was dated 2026-08-11 with verified:true. The signing was reported 08-05 and announced by the club 08-07. The cited source (nfl.com) renders 'Published:' and 'Updated:' with empty date fields and says only that Rapoport reported it 'Wednesday'; 08-11 was a Tuesday, 08-05 a Wednesday. Verification withdrawn on 2026-08-14 because the date it asserted was never confirmable from the source it cited."
     },
     {
@@ -976,6 +964,35 @@
           "outlet": "NBC Sports player news (credits Ian Rapoport)",
           "date_text": "August 17, 2026 (URL-dated)",
           "kind": "original"
+        }
+      ],
+      "independent_source_count": 1
+    },
+    {
+      "id": "real-039-djones-environment",
+      "player": {
+        "sleeper_id": "5870",
+        "name": "Daniel Jones"
+      },
+      "date": "2026-08-17",
+      "category": "environment",
+      "summary": "The Colts signed Keenan Allen to a one-year deal worth up to $8.32M, handing Jones a six-time Pro Bowl target who already knows Shane Steichen's system from their Chargers days. A player-environment catalyst: Jones's own situation improved without him taking a snap, amid concern about Alec Pierce's availability.",
+      "source_url": "https://www.profootballrumors.com/2026/08/colts-to-sign-wr-keenan-allen",
+      "verified": true,
+      "sample": false,
+      "date_confirmed_on_source": true,
+      "sources": [
+        {
+          "url": "https://x.com/Schultz_Report/status/2089541981819052087",
+          "outlet": "Jordan Schultz on X",
+          "date_text": "August 17, 2026",
+          "kind": "original"
+        },
+        {
+          "url": "https://www.profootballrumors.com/2026/08/colts-to-sign-wr-keenan-allen",
+          "outlet": "Pro Football Rumors",
+          "date_text": "August 2026 (URL-dated)",
+          "kind": "syndicated"
         }
       ],
       "independent_source_count": 1
