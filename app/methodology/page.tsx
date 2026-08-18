@@ -145,12 +145,9 @@ export default async function Methodology() {
           Roadmap: comparing this mock draft crowd against a platform composite
           would show where the sharp market and the general market disagree,
           which is a second gap and a better one. That second source is now
-          being captured daily in parallel, stored but not used:{" "}
-          <Link href="/adp-sources" className="underline">
-            see the two sources side by side
-          </Link>
-          . It feeds nothing on this site, and it will not until there is enough
-          stored history to say anything honest about it.
+          being captured daily in parallel, stored but not used. It feeds
+          nothing on this site, and it will not until there is enough stored
+          history to say anything honest about it.
         </p>
       </section>
 
@@ -182,11 +179,7 @@ export default async function Methodology() {
             own path. It is <em>not</em> used in any gap, signal, threshold,
             chart, story card or evidence tier, and it is not the ADP shown
             anywhere on this site. It exists so a second series accumulates,
-            because ADP history cannot be bought after the fact. Compare them on{" "}
-            <Link href="/adp-sources" className="underline">
-              ADP sources
-            </Link>
-            .
+            because ADP history cannot be bought after the fact.
           </li>
           <li>
             <strong>Player identity</strong>: Sleeper player database is the
