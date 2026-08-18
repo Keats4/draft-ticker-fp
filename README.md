@@ -25,7 +25,9 @@ scraped.
   with a coverage bar of at least four of the five host boards.
 - **Dated, sourced catalysts** with an evidence tier that says plainly when
   a move has no documented cause: catalyst-confirmed when a verified event
-  sits in the window of the move, unexplained otherwise (watch, don't act).
+  sits in the window of the move, which also reaches back seven days before
+  the window opens, a stated assumption in `lib/evidence.ts`, unexplained
+  otherwise (watch, don't act).
 - **A twelve-phase market calendar** weighting how much movement is worth by
   time of year.
 - **Player archetypes** as context alongside the signal.
