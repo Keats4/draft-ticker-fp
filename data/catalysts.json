@@ -25,6 +25,41 @@
   },
   "entries": [
     {
+      "id": "real-042-brooks-debut",
+      "player": {
+        "sleeper_id": "11583",
+        "name": "Jonathon Brooks"
+      },
+      "date": "2026-08-15",
+      "category": "usage",
+      "summary": "First game action in 20 months: played into the second quarter at Buffalo with the starters, touching the ball on four of the first offense's nine snaps (three carries plus a nine-yard catch) and walking off healthy. Canales credited his resiliency after the game.",
+      "source_url": "https://www.panthers.com/news/jonathon-brooks-plays-into-the-second-quarter-in-his-preseason-debut-chuba-hubbard",
+      "verified": true,
+      "sample": false,
+      "date_confirmed_on_source": true,
+      "sources": [
+        {
+          "url": "https://www.panthers.com/news/jonathon-brooks-plays-into-the-second-quarter-in-his-preseason-debut-chuba-hubbard",
+          "outlet": "Panthers.com",
+          "date_text": "August 15, 2026 (game night)",
+          "kind": "original"
+        },
+        {
+          "url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-16/jonathon-brooks-takes-four-touches-for-14-yards",
+          "outlet": "NBC Sports player news",
+          "date_text": "August 16, 2026 (URL-dated)",
+          "kind": "syndicated"
+        },
+        {
+          "url": "https://www.panthers.com/news/for-jonathon-brooks-his-return-was-an-emotional-one-acl-rehab-first-game-back-buffalo",
+          "outlet": "Panthers.com",
+          "date_text": "August 2026",
+          "kind": "original"
+        }
+      ],
+      "independent_source_count": 2
+    },
+    {
       "id": "real-040-hubbard-hamstring",
       "player": {
         "sleeper_id": "7594",

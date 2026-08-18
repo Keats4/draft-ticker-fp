@@ -327,6 +327,24 @@ export default async function Home() {
       )
     : null;
 
+  // The pair box lists each side's newest verified event, newest first,
+  // deduped when both sides cite the same article: an injury on one side and
+  // the other side's response can appear together. Evidence above stays keyed
+  // to the shared-URL event.
+  type PairCatalyst = { date: string; summary: string; sourceUrl: string; player: string | null };
+  const pairCatalysts: PairCatalyst[] = bestPair
+    ? [topCatalystFor(bestPair.a.sleeperId), topCatalystFor(bestPair.b.sleeperId)]
+        .filter((c): c is NonNullable<typeof c> => c != null)
+        .filter((c, i, arr) => arr.findIndex((x) => x.source_url === c.source_url) === i)
+        .sort((x, y) => (x.date < y.date ? 1 : -1))
+        .map((c) => ({
+          date: c.date,
+          summary: c.summary,
+          sourceUrl: c.source_url,
+          player: c.player.name ?? null,
+        }))
+    : [];
+
   // single-hero extras (only used when no pair qualifies)
   const heroX = singleHero ? extrasFor(singleHero) : null;
   const heroCatalyst = heroX?.verified[0]
@@ -386,15 +404,7 @@ export default async function Home() {
           a={sideFor(bestPair.a)}
           b={sideFor(bestPair.b)}
           evidence={pairEvidence}
-          catalyst={
-            sharedCatalyst
-              ? {
-                  date: sharedCatalyst.date,
-                  summary: sharedCatalyst.summary,
-                  sourceUrl: sharedCatalyst.source_url,
-                }
-              : null
-          }
+          catalysts={pairCatalysts}
           sentence={
             isOpposed(bestPair.a, bestPair.b)
               ? `One event, two prices, opposite directions ${moveWindow}: ${bestPair.a.name} ${

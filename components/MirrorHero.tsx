@@ -126,7 +126,7 @@ export default function MirrorHero({
   a,
   b,
   evidence,
-  catalyst,
+  catalysts,
   sentence,
   moveWindow,
   trackingSince,
@@ -138,7 +138,9 @@ export default function MirrorHero({
   a: MirrorSide;
   b: MirrorSide;
   evidence: Evidence | null;
-  catalyst: { date: string; summary: string; sourceUrl: string } | null;
+  /** The pair's events, newest first: each side's newest verified catalyst,
+   *  deduped when both sides point at the same article. */
+  catalysts: { date: string; summary: string; sourceUrl: string; player: string | null }[];
   sentence: string;
   moveWindow: string;
   trackingSince: string;
@@ -205,18 +207,32 @@ export default function MirrorHero({
 
       <div className="border-t border-[var(--border)] px-4 py-3">
         <p className="text-sm">{sentence}</p>
-        {catalyst ? (
+        {catalysts.length > 0 ? (
           <div
             className="mt-2 rounded-lg border px-3 py-2"
             style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
           >
             <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--ink-3)]">
-              The shared event · {catalyst.date}
+              {catalysts.length > 1
+                ? "The pair's events"
+                : `The shared event · ${catalysts[0].date}`}
             </p>
-            <p className="mt-0.5 text-sm">{catalyst.summary}</p>
-            <a href={catalyst.sourceUrl} rel="noreferrer" className="mt-1 inline-block text-[11px] underline text-[var(--ink-3)]">
-              source
-            </a>
+            <ul className={catalysts.length > 1 ? "mt-1 list-disc space-y-1.5 pl-4" : "mt-0.5"}>
+              {catalysts.map((c) => (
+                <li key={c.sourceUrl + c.date} className="text-sm">
+                  {catalysts.length > 1 && (
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+                      {c.date}
+                      {c.player ? ` · ${c.player}` : ""}{" — "}
+                    </span>
+                  )}
+                  {c.summary}{" "}
+                  <a href={c.sourceUrl} rel="noreferrer" className="text-[11px] underline text-[var(--ink-3)]">
+                    source
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         ) : (
           <p className="mt-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--ink-3)]">
