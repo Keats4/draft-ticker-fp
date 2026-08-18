@@ -38,9 +38,7 @@ random order and nothing else. No repo access, no group labels, no move
 figures, no indication that a control group exists. The key is held back until
 the search is complete.
 
-**Protocol.** Date range 2026-08-03 to 2026-08-14. That range is derived rather
-than chosen: ADP is a seven day trailing mean, so an event as early as Aug 3 is
-still inside the support of a move observed on Aug 14. The same number of
+**Protocol.** Date range 2026-08-03 to 2026-08-14. The same number of
 queries, the same definition of a news event, and the same rule on syndicated
 reprints apply to every player, decided before the search starts and not varied
 by name.

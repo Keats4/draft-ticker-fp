@@ -5,7 +5,7 @@ Date: 2026-08-10 · Status: Accepted (approved by Navi)
 ## Context
 
 The product needs a dataset that grows by one row per player per day
-(date, player, ADP, ECR). Scale: ~260-520 players × ~100 days per season, a few MB per year. Reads are: latest day (Market page), latest two days
+(date, player, average host rank, ECR). Scale: ~550-700 players × ~100 days per season, a few MB per year. Reads are: latest day (Market page), latest two days
 (movement), and per-player series (charts).
 
 ## Decision
