@@ -56,7 +56,7 @@ export function gapReason(
 ): string | null {
   if (ecr == null) return "no expert rank for this player";
   if (hostRankOrdinal > UNIVERSE.TOP_N)
-    return `outside the top ${UNIVERSE.TOP_N} by average host rank`;
+    return `outside the top ${UNIVERSE.TOP_N} by ADP`;
   if (sourceCount < UNIVERSE.MIN_SOURCE_COUNT)
     return `below the liquidity bar (ranked by fewer than ${UNIVERSE.MIN_SOURCE_COUNT} host boards)`;
   if (ecr > UNIVERSE.TOP_N)

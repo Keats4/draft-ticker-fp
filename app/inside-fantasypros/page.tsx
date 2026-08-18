@@ -99,7 +99,7 @@ export default function InsideFP() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--pos)" }}>Buy, experts above market</p>
               <ul className="mt-2 space-y-2 text-sm">
-                <li>Player A · <span className="text-[var(--ink-3)]">experts 12 spots higher than his cost, a late-round value.</span></li>
+                <li>Player A · <span className="text-[var(--ink-3)]">experts 12 picks higher than his cost, a late-round value.</span></li>
                 <li>Player B · <span className="text-[var(--ink-3)]">rising 6 picks/week, experts holding, get ahead of it.</span></li>
                 <li>Player C · <span className="text-[var(--ink-3)]">ranked ahead of ADP three weeks running.</span></li>
               </ul>

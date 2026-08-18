@@ -90,7 +90,7 @@ function NotTracked({ id }: { id: string }) {
       <h1 className="text-2xl font-bold">Player not tracked</h1>
       <p className="mt-3 text-sm text-[var(--ink-2)]">
         No market data is stored for “{id}”. Draft Ticker tracks the players
-        on the FantasyPros PPR host rank board; players outside that pool have
+        on the FantasyPros PPR ADP board; players outside that pool have
         no honest numbers to show, so nothing is shown.
       </p>
       <Link href="/" className="mt-6 inline-block text-sm underline">
@@ -320,7 +320,7 @@ export default async function PlayerPage({
               {`${row.position}${row.posRank}`}
             </p>
             <p className="text-xs text-[var(--ink-3)]">
-              round {Math.ceil(row.hostRank / LEAGUE_SIZE)} · host rank {row.hostRank}
+              round {Math.ceil(row.hostRank / LEAGUE_SIZE)} · ADP {row.hostRank}
             </p>
             <p className="text-xs text-[var(--ink-3)]">
               {row.hostRankDelta == null
@@ -349,7 +349,7 @@ export default async function PlayerPage({
             <p className="text-xs text-[var(--ink-3)]">
               {row.gap == null
                 ? (row.gapReason ?? "not comparable")
-                : `${row.gap > 0 ? "+" : ""}${row.gap} spots · ${row.gap < 0 ? "you pay early" : "cheaper than ranked"}`}
+                : `${row.gap > 0 ? "+" : ""}${row.gap} picks · ${row.gap < 0 ? "you pay early" : "cheaper than ranked"}`}
             </p>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
@@ -374,10 +374,10 @@ export default async function PlayerPage({
         <AiTrace
           inputs={[
             `Player: ${row.name} (${row.position}${row.posRank} ${row.team})`,
-            `Current average host rank: ${row.hostRank}${row.hostRankDelta != null ? `, change ${row.hostRankDelta > 0 ? "+" : ""}${row.hostRankDelta}` : " (no prior day yet)"}`,
+            `Current ADP: ${row.hostRank}${row.hostRankDelta != null ? `, change ${row.hostRankDelta > 0 ? "+" : ""}${row.hostRankDelta}` : " (no prior day yet)"}`,
             `Host boards ranking him: ${row.sourceCount}`,
             `ECR: ${row.ecr ?? "unmatched"}${row.ecrDelta != null ? `, change ${row.ecrDelta > 0 ? "+" : ""}${row.ecrDelta}` : ""}`,
-            `Host rank−ECR gap: ${row.gap ?? "n/a"}`,
+            `ADP−ECR gap: ${row.gap ?? "n/a"}`,
             `Verified catalysts: ${verifiedCatalysts.length}`,
             `Calendar phase: ${CURRENT_PHASE.title} (trust: ${CURRENT_PHASE.signal_level})`,
           ]}
@@ -415,7 +415,7 @@ export default async function PlayerPage({
       )}
 
       <footer className="mt-8 text-xs text-[var(--ink-3)]">
-        Price: FantasyPros average host rank (PPR){live ? `, snapshot ${latest.date}` : ", fixture"} · ECR:{" "}
+        Price: FantasyPros ADP (PPR){live ? `, snapshot ${latest.date}` : ", fixture"} · ECR:{" "}
         {ecrLatest ? `FantasyPros API (${ecrLatest.date})` : "capture Aug 10 (static)"} ·{" "}
         <Link href="/methodology" className="underline">Methodology</Link>
       </footer>

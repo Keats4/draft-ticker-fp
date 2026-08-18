@@ -186,7 +186,7 @@ export function moveLine(r: StoryRow, moveWindow: string): MoveRead {
     headline = `${first} is unmoved ${moveWindow}`;
   } else {
     arrow = move > 0 ? "▲" : "▼";
-    headline = `${first} is ${move > 0 ? "up" : "down"} ${Math.abs(move).toFixed(1)} spots ${moveWindow}`;
+    headline = `${first} is ${move > 0 ? "up" : "down"} ${Math.abs(move).toFixed(1)} picks ${moveWindow}`;
   }
 
   let expert: string | null = null;

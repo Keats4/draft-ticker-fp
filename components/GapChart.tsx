@@ -54,7 +54,7 @@ export default function GapChart({
     return (
       <figure className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
         <p className="text-sm text-[var(--ink-3)]">
-          No gap to chart yet. A gap needs a stored average host rank and a matched expert rank
+          No gap to chart yet. A gap needs a stored ADP and a matched expert rank
           on the same day, and this player has no day with both.
         </p>
       </figure>
@@ -120,7 +120,7 @@ export default function GapChart({
               : now > 0
                 ? `${roundsPhrase(picksToRounds(now))} later than ranked`
                 : "cost matches the rank"}
-            {` (${fmt(now)} spots)`}
+            {` (${fmt(now)} picks)`}
           </p>
         </div>
         <div>
@@ -256,7 +256,7 @@ export default function GapChart({
         <span>
           {single
             ? `Tracking since ${trackingSince}, one day with both series stored; no history is implied before it.`
-            : `Tracking daily since ${trackingSince}. Gap is average host rank minus ECR on days where both exist.`}
+            : `Tracking daily since ${trackingSince}. Gap is ADP minus ECR on days where both exist.`}
         </span>
         {markers.length > 0 && (
           <span className="flex items-center gap-1.5">
@@ -273,7 +273,7 @@ export default function GapChart({
             <tr>
               <th className="pr-4">Date</th>
               <th className="pr-4">Rounds</th>
-              <th className="pr-4">Spots</th>
+              <th className="pr-4">Picks</th>
               <th>Side</th>
             </tr>
           </thead>

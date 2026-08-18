@@ -97,7 +97,7 @@ export default async function Methodology() {
           overall ECR across the players we successfully match, so they can
           differ by a place or two from the positional ranks published on their
           site. A player they rank whom we fail to join shifts every rank below
-          him. Price-side positional rank comes from the host rank
+          him. Price-side positional rank comes from the ADP
           payload&rsquo;s own pos_rank field; kickers and team defenses are
           excluded from the pipeline before ranking, so their removal does not
           distort the skill position ranks.
@@ -107,11 +107,11 @@ export default async function Methodology() {
       <section className="mt-8">
         <h2 className="text-xl font-semibold">Where the market number comes from</h2>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
-          The price is FantasyPros&rsquo; consensus average host rank for PPR:
-          the mean of a player&rsquo;s rank across up to five league host
-          boards, taken from the official API, which exposes each contributing
-          board&rsquo;s rank and publish time. It is an average rank, not a
-          draft position.
+          ADP on this site is FantasyPros&rsquo; consensus average host rank
+          for PPR: the mean of a player&rsquo;s rank across up to five league
+          host boards, taken from the official API, which exposes each
+          contributing board&rsquo;s rank and publish time. It is an average
+          rank, not a literal draft slot.
         </p>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
           That composite is a specific population, not the whole market. Only
@@ -135,8 +135,8 @@ export default async function Methodology() {
         <h2 className="text-xl font-semibold">Sources and capture times</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
           <li>
-            <strong>Average host rank</strong> (the price): FantasyPros&rsquo;
-            consensus composite of up to five league host boards (PPR),
+            <strong>ADP</strong> (the price): FantasyPros&rsquo;
+            consensus composite (PPR, defined above),
             captured automatically every day at 6:00 AM PT by a scheduled job.
             Each day is stored as an immutable dated snapshot alongside the
             raw payload exactly as received, so the typed series can always be
@@ -147,7 +147,7 @@ export default async function Methodology() {
             <strong>ECR</strong>: FantasyPros consensus rankings (Draft PPR),
             via the official FantasyPros API (limited public tier). Captured
             automatically every day at 6:00 AM PT by the same scheduled job
-            that pulls the host rank composite, and stored as its own dated
+            that pulls the ADP composite, and stored as its own dated
             snapshot alongside it.
             The capture date is shown wherever ECR appears. If no stored ECR
             snapshot can be read, the page falls back to the static Aug 10,
@@ -373,7 +373,7 @@ export default async function Methodology() {
             days, so someone drafting Thursday has heard Tuesday&rsquo;s news and
             someone who drafted Tuesday morning had not, and the five host
             boards refresh at different times, more than a day apart on some
-            days. A reaction therefore keeps entering the average host rank for
+            days. A reaction therefore keeps entering the ADP for
             days after the event, and a real repricing looks like a slope rather
             than a step. How many days that takes is not published by any host
             and has not yet been measured here {AWAITING}.

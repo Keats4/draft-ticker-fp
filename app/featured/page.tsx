@@ -31,7 +31,7 @@ function PlayerMini({ r, moveLabel }: { r: MarketRow; moveLabel: string }) {
       <Link href={href} className="font-semibold hover:underline">{r.name}</Link>
       <p className="text-xs text-[var(--ink-3)]">{r.position}{r.posRank} · {r.team}</p>
       <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
-        <dt className="text-[var(--ink-3)]">Host rank</dt>
+        <dt className="text-[var(--ink-3)]">ADP</dt>
         <dd className="text-right tabular-nums">{r.hostRank}</dd>
         <dt className="text-[var(--ink-3)]">{moveLabel}</dt>
         <dd className="text-right tabular-nums" style={{ color: moveColor(r.hostRankDelta) }}>{moveStr(r.hostRankDelta)}</dd>
@@ -114,7 +114,7 @@ export default async function Featured() {
             </div>
             <p className="mt-1 text-sm text-[var(--ink-2)]">
               Two players in one backfield: the same event tends to push their
-              average host ranks in opposite directions.
+              ADP in opposite directions.
             </p>
             <div className="mt-3 flex flex-col gap-3 sm:flex-row">
               <PlayerMini r={a} moveLabel={moveLabel} />
@@ -146,7 +146,7 @@ export default async function Featured() {
       <section className="mt-8">
         <h2 className="text-lg font-semibold">Genuine movers today</h2>
         <p className="mt-1 text-sm text-[var(--ink-2)]">
-          Players whose average host rank moved at least {THRESHOLDS.HOST_RANK_MOVE} spots since {prevDate ?? "the last snapshot"}, among players ranked by enough host boards, real moves, auto-detected.
+          Players whose ADP moved at least {THRESHOLDS.HOST_RANK_MOVE} picks since {prevDate ?? "the last snapshot"}, among players ranked widely enough to trust, real moves, auto-detected.
         </p>
         {movers.length === 0 ? (
           <p className="mt-3 rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--ink-3)]">
@@ -159,8 +159,8 @@ export default async function Featured() {
                 <Link href={playerHref(r)} className="font-semibold hover:underline">{r.name}</Link>
                 <p className="text-xs text-[var(--ink-3)]">{r.position}{r.posRank} · {r.team}</p>
                 <p className="mt-2 text-sm">
-                  <span className="tabular-nums font-medium" style={{ color: moveColor(r.hostRankDelta) }}>{moveStr(r.hostRankDelta)} spots</span>{" "}
-                  <span className="text-[var(--ink-3)]">· host rank {r.hostRank}</span>
+                  <span className="tabular-nums font-medium" style={{ color: moveColor(r.hostRankDelta) }}>{moveStr(r.hostRankDelta)} picks</span>{" "}
+                  <span className="text-[var(--ink-3)]">· ADP {r.hostRank}</span>
                 </p>
                 <div className="mt-2"><SignalChip signal={r.signal} /></div>
                 <p className="mt-2 text-xs text-[var(--ink-2)]">{whatItMeans(r.signal, r.gap, r.hostRankDelta, r.gapReason)}</p>
@@ -173,7 +173,7 @@ export default async function Featured() {
       <footer className="mt-8 text-xs text-[var(--ink-3)]">
         Pairs are curated in data/featured.json; movers are computed across the
         full stored window{prevDate ? ` (since ${prevDate})` : ""}. Price:{" "}
-        {live ? "FantasyPros average host rank (PPR)" : "FantasyPros host rank fixture (static)"}.
+        {live ? "FantasyPros ADP (PPR)" : "FantasyPros ADP fixture (static)"}.
         ECR:{" "}
         {ecrLatest ? `FantasyPros API (${ecrLatest.date})` : "FantasyPros capture Aug 10 (static)"}.{" "}
         <Link href="/methodology" className="underline">Methodology</Link>

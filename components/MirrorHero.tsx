@@ -59,7 +59,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
               ? `no movement stored yet`
               : s.hostRankDelta === 0
                 ? `unmoved ${moveWindow}`
-                : `spots ${up ? "gained" : "lost"} ${moveWindow}`}
+                : `picks ${up ? "gained" : "lost"} ${moveWindow}`}
           </p>
         </div>
       </div>
@@ -93,7 +93,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
 
       <dl className="grid grid-cols-3 gap-1 text-center text-xs">
         <div>
-          <dt className="text-[var(--ink-3)]">Host rank</dt>
+          <dt className="text-[var(--ink-3)]">ADP</dt>
           <dd className="tabular-nums font-medium">{s.hostRank}</dd>
         </div>
         <div>

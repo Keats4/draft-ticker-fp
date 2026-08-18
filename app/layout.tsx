@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Draft Ticker",
   description:
-    "How fantasy football player values are changing: average host rank movement vs expert consensus.",
+    "How fantasy football player values are changing: ADP movement vs expert consensus.",
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

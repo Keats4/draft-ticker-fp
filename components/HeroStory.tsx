@@ -132,7 +132,7 @@ export default function HeroStory({
             </span>
           )}
           <span className="ml-auto flex items-center gap-3 text-xs tabular-nums text-[var(--ink-3)]">
-            <span>Host rank {hostRank}</span>
+            <span>ADP {hostRank}</span>
             <span>ECR {ecr ?? "–"}</span>
             {/* The value read: the only coloured number in the hero, and the
                 word carries the same meaning without colour. */}

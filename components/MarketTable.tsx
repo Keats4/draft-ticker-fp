@@ -79,10 +79,10 @@ function Move({ v, trackingSince }: { v: number | null; trackingSince?: string |
 }
 
 const H = {
-  hostRank: "Average host rank: the mean of his rank across the contributing league host boards. A rank position, not a pick number. Lower = ranked earlier.",
+  hostRank: "ADP: the mean of his rank across the contributing league host boards. An average rank, not a literal draft slot. Lower = ranked earlier.",
   ecr: "Expert Consensus Rank: FantasyPros' aggregated expert ranking. Lower = ranked higher.",
-  gap: "Average host rank minus ECR, in rank spots, shown only inside the comparison universe (top 200 by both, ranked by enough host boards). Positive = experts rank him ahead of his cost (value). Negative = market pays ahead of experts.",
-  move: "Change in average host rank since the oldest stored snapshot, in spots. Positive = rising (ranked earlier now).",
+  gap: "ADP minus ECR, in picks, shown only inside the comparison universe (top 200 by both, ranked widely enough to trust). Positive = experts rank him ahead of his cost (value). Negative = market pays ahead of experts.",
+  move: "Change in ADP over the move window, in picks. Positive = rising (ranked earlier now).",
   signal: "A rule-based label comparing market movement with expert movement. Click any chip for the exact rule.",
 };
 
@@ -108,7 +108,7 @@ export default function MarketTable({
             <th className="px-3 py-2.5">Player</th>
             <th className="px-3 py-2.5">Pos</th>
             <th className="hidden px-3 py-2.5 sm:table-cell">Team</th>
-            <th className="px-3 py-2.5 text-right">Host rank<InfoDot text={H.hostRank} /></th>
+            <th className="px-3 py-2.5 text-right">ADP<InfoDot text={H.hostRank} /></th>
             <th className="px-3 py-2.5 text-right">ECR<InfoDot text={H.ecr} /></th>
             <th className="px-3 py-2.5 text-right">Gap<InfoDot text={H.gap} /></th>
             <th className="hidden px-3 py-2.5 text-right sm:table-cell">{moveLabel}<InfoDot text={H.move} /></th>

@@ -560,7 +560,7 @@ export default async function Home() {
         </p>
         <p className="mt-0.5 text-sm text-[var(--ink-2)]">
           The three prices most likely to be wrong when you draft, chosen from
-          players ranked by enough host boards, never the thin tail.
+          players ranked widely enough to trust, never the thin tail.
         </p>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
           {forYourDraft.map((r, i) => (
@@ -602,8 +602,8 @@ export default async function Home() {
                 {whatItMeans(r.signal, r.gap, r.hostRankDelta)}
               </p>
               <p className="mt-2 border-t border-[var(--border)] pt-2 text-[11px] text-[var(--ink-3)]">
-                How we chose this: #{i + 1} widest market-vs-expert gap among
-                players ranked by enough host boards.
+                How we chose this: #{i + 1} widest market-vs-expert gap, chosen
+                from players ranked widely enough to trust, never the thin tail.
               </p>
             </div>
           ))}
@@ -619,7 +619,7 @@ export default async function Home() {
             label={riserLabel}
             name={riser.name}
             value={`▲ +${riser.hostRankDelta}`}
-            sub={`${riser.position}${riser.posRank} · ${riser.team} · spots gained ${moveWindow}`}
+            sub={`${riser.position}${riser.posRank} · ${riser.team} · picks gained ${moveWindow}`}
             tone="neutral"
             href={hrefFor(riser)}
           />
@@ -631,7 +631,7 @@ export default async function Home() {
             label={fallerLabel}
             name={faller.name}
             value={`▼ ${faller.hostRankDelta}`}
-            sub={`${faller.position}${faller.posRank} · ${faller.team} · spots lost ${moveWindow}`}
+            sub={`${faller.position}${faller.posRank} · ${faller.team} · picks lost ${moveWindow}`}
             tone="neutral"
             href={hrefFor(faller)}
           />
@@ -645,7 +645,7 @@ export default async function Home() {
             label="Widest expert gap"
             name={widest.name}
             value={`${widest.gap! > 0 ? "+" : ""}${widest.gap}${valueWord(widest.gap) ? ` ${valueWord(widest.gap)}` : ""}`}
-            sub={`${widest.position}${widest.posRank} · ${widest.team} · average host rank minus expert rank`}
+            sub={`${widest.position}${widest.posRank} · ${widest.team} · ADP minus expert rank`}
             tone={widest.gap! < 0 ? "expensive" : "cheap"}
             href={hrefFor(widest)}
           />
@@ -656,12 +656,12 @@ export default async function Home() {
 
       <p className="mb-3 rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--ink-2)]">
         <span className="font-medium">Thresholds:</span> Move counts at ≥
-        {THRESHOLDS.HOST_RANK_MOVE} spots · Expert move at ≥{THRESHOLDS.ECR_MOVE} ranks
+        {THRESHOLDS.HOST_RANK_MOVE} picks · Expert move at ≥{THRESHOLDS.ECR_MOVE} ranks
         · Notable gap at ≥{THRESHOLDS.GAP_NOTABLE} · Both sides clearing their
         threshold in opposite directions is labelled “Market and experts
         diverging” when the gap grew and “Market and experts converging” when it
         shrank · Gaps only inside the top{" "}
-        {UNIVERSE.TOP_N} (both average host rank &amp; ECR), ranked by ≥{UNIVERSE.MIN_SOURCE_COUNT} host boards
+        {UNIVERSE.TOP_N} (both ADP &amp; ECR), ranked by ≥{UNIVERSE.MIN_SOURCE_COUNT} host boards
         {!hasMovement && " · Movement begins once a second daily snapshot exists"}
       </p>
 
@@ -676,15 +676,15 @@ export default async function Home() {
           View the full tracked pool ({rows.length} players) →
         </Link>{" "}
         <span className="text-[var(--ink-3)]">
-          Showing the top {Math.min(HOME_TABLE_ROWS, rows.length)} by average host rank here.
+          Showing the top {Math.min(HOME_TABLE_ROWS, rows.length)} by ADP here.
           Gaps and signals are computed only inside the comparison universe, the top{" "}
-          {UNIVERSE.TOP_N} by average host rank; the Players page lists every tracked
+          {UNIVERSE.TOP_N} by ADP; the Players page lists every tracked
           player, comparable or not.
         </span>
       </p>
 
       <footer className="mt-6 text-xs text-[var(--ink-3)]">
-        Price: FantasyPros average host rank (PPR), the mean of each contributing
+        Price: FantasyPros ADP (PPR), the mean of each contributing
         host board&rsquo;s rank{live ? ` across ${latest.meta.source_count} boards` : " (fixture, static)"}.
         ECR:{" "}
         {ecrLatest ? "FantasyPros official API, daily" : "FantasyPros capture Aug 10 (static)"}.

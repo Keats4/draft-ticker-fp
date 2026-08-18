@@ -38,7 +38,7 @@ export default function HowToReadCard() {
       </button>
       <p>
         <span className="font-semibold">Numbers</span> = where the league host
-        boards rank him (average host rank) vs. where experts rank him (ECR).
+        boards rank him (ADP) vs. where experts rank him (ECR).
       </p>
       <p className="mt-1">
         <span className="font-semibold" style={{ color: "var(--pos)" }}>
@@ -53,7 +53,7 @@ export default function HowToReadCard() {
       </p>
       <p className="mt-1">
         <span className="font-semibold">Movement is neutral.</span> An arrow
-        shows the direction, because a falling host rank is a falling price, not a bad
+        shows the direction, because a falling ADP is a falling price, not a bad
         one. Every green or red figure carries a word too, so nothing depends on
         colour alone.
       </p>

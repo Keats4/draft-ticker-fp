@@ -38,7 +38,7 @@ export default async function Players() {
       <h1 className="text-3xl font-bold tracking-tight">Players</h1>
       <p className="mt-1 text-[var(--ink-2)]">
         Every player currently in the tracked pool ({rows.length}), by average
-        host rank.
+        ADP.
       </p>
       {!live && (
         <p className="mt-2 inline-block rounded border border-[var(--gold-border)] bg-[var(--gold-bg)] px-2 py-1 text-xs">

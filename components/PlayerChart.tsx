@@ -94,7 +94,7 @@ export default function PlayerChart({
   const markerByDate = new Map(markers.map((m) => [m.date, m]));
 
   const plot = (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Average host rank and ECR by date" className="w-full">
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="ADP and ECR by date" className="w-full">
       {[lo, Math.round((lo + hi) / 2), hi].map((t) => (
         <g key={t}>
           <line x1={M.left} x2={W - M.right} y1={y(t)} y2={y(t)} stroke="#eceef1" strokeWidth="1" />
@@ -113,7 +113,7 @@ export default function PlayerChart({
           )}
           {p.hostRank != null && (
             <circle cx={x(i)} cy={y(p.hostRank)} r="4" fill="var(--navy)" stroke="var(--surface)" strokeWidth="1.5">
-              <title>{`${p.date}, host rank ${p.hostRank}`}</title>
+              <title>{`${p.date}, ADP ${p.hostRank}`}</title>
             </circle>
           )}
           {markerByDate.has(p.date) && (
@@ -127,7 +127,7 @@ export default function PlayerChart({
         </g>
       ))}
       {days.length === 1 && days[0].hostRank != null && (
-        <text x={x(0)} y={y(days[0].hostRank) - 12} textAnchor="middle" fontSize="11" fill="var(--ink-2)">Host rank {days[0].hostRank}</text>
+        <text x={x(0)} y={y(days[0].hostRank) - 12} textAnchor="middle" fontSize="11" fill="var(--ink-2)">ADP {days[0].hostRank}</text>
       )}
     </svg>
   );
@@ -201,7 +201,7 @@ export default function PlayerChart({
       <div className="mb-2 flex gap-4 text-xs">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-0.5 w-5" style={{ background: "var(--navy)" }} />
-          Market (avg host rank)
+          Market (ADP)
         </span>
         <span className="flex items-center gap-1.5">
           <span
@@ -237,7 +237,7 @@ export default function PlayerChart({
       <details className="mt-2 text-xs text-[var(--ink-3)]">
         <summary className="cursor-pointer">Data table</summary>
         <table className="mt-1 w-full text-left">
-          <thead><tr><th className="pr-4">Date</th><th className="pr-4">Host rank</th><th>ECR</th></tr></thead>
+          <thead><tr><th className="pr-4">Date</th><th className="pr-4">ADP</th><th>ECR</th></tr></thead>
           <tbody>
             {days.map((p) => (
               <tr key={p.date}><td className="pr-4">{p.date}</td><td className="pr-4">{p.hostRank ?? "–"}</td><td>{p.ecr ?? "–"}</td></tr>
