@@ -100,6 +100,11 @@ export function toHostRankMeta(raw: RawPayload): FpHostRankMeta {
 export async function fetchFpHostRank(): Promise<{
   meta: FpHostRankMeta;
   players: FpHostRankPlayer[];
+  /** The payload EXACTLY as received, untouched by the converters. Stored
+   *  under adp-fp/<date>.json so the typed series can always be rebuilt from
+   *  source (scripts/backfill_host_rank.mjs) if a converter bug or a stall
+   *  corrupts it. */
+  payload: RawPayload;
 }> {
   const key = process.env.FANTASYPROS_API_KEY;
   if (!key) throw new Error("FANTASYPROS_API_KEY is not set");
@@ -118,5 +123,5 @@ export async function fetchFpHostRank(): Promise<{
   }
   const meta = toHostRankMeta(data);
   const players = toHostRankPlayers(data.players);
-  return { meta, players };
+  return { meta, players, payload: data };
 }

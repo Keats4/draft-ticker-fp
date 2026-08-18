@@ -86,6 +86,20 @@ export async function saveSnapshot(snapshot: Snapshot): Promise<string> {
   return url;
 }
 
+/** Store the day's UNTOUCHED raw FantasyPros payload under adp-fp/<date>.json
+ *  as { date, captured_at, source, payload }, the shape the retired build
+ *  wrote. The raw file is the recovery path: when the typed series stalls or
+ *  a converter bug lands, scripts/backfill_host_rank.mjs rebuilds every typed
+ *  day from these. No page reads it. */
+export async function saveRawHostRank(raw: {
+  date: string;
+  captured_at: string;
+  source: string;
+  payload: unknown;
+}): Promise<string> {
+  return putJson(`adp-fp/${raw.date}.json`, raw);
+}
+
 /** Newest stored primary snapshot, or null if none / blob unavailable. */
 export async function loadLatestSnapshot(): Promise<Snapshot | null> {
   const { latest } = await loadLatestTwoSnapshots();

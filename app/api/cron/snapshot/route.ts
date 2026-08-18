@@ -7,6 +7,7 @@ import {
   loadLatestTwoEcrSnapshots,
   loadLatestTwoSnapshots,
   saveEcrSnapshot,
+  saveRawHostRank,
   saveSnapshot,
   signatureEcr,
 } from "@/lib/snapshot";
@@ -41,8 +42,10 @@ export async function GET(req: Request) {
 
   let host_rank: Record<string, unknown>;
   let primaryFailed = false;
+  let rawPayload: unknown = null;
   try {
-    const { meta, players } = await fetchFpHostRank();
+    const { meta, players, payload } = await fetchFpHostRank();
+    rawPayload = payload;
     const { stale, reason } = hostRankStaleness({ meta, rows: players }, priorHostRank);
     if (stale)
       warnings.push(
@@ -70,6 +73,32 @@ export async function GET(req: Request) {
     // Recorded, not returned. ECR below must still run and write.
     primaryFailed = true;
     host_rank = { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+
+  // Raw capture: the SAME payload the typed snapshot was converted from,
+  // stored untouched under adp-fp/<date>.json. Its own try/catch on purpose:
+  // this is the recovery path (the typed series was rebuilt from these raw
+  // files once already), and a raw-write failure must never break the
+  // primary capture or fail the run. It is skipped, not failed, when the
+  // primary fetch itself threw, since there is then no payload to store.
+  let adp_fp: Record<string, unknown>;
+  if (rawPayload === null) {
+    adp_fp = { ok: false, skipped: "primary fetch failed, no payload to store" };
+  } else {
+    try {
+      const url = await saveRawHostRank({
+        date,
+        captured_at,
+        source: FP_HOST_RANK_URL,
+        payload: rawPayload,
+      });
+      adp_fp = { ok: true, blob_url: url };
+    } catch (err) {
+      adp_fp = { ok: false, error: err instanceof Error ? err.message : String(err) };
+      warnings.push(
+        "RAW CAPTURE FAILED: adp-fp/ raw payload write failed; typed capture unaffected, but today cannot be rebuilt from raw if the typed series is later found bad."
+      );
+    }
   }
 
   let ecr: Record<string, unknown>;
@@ -102,6 +131,7 @@ export async function GET(req: Request) {
       stale: warnings.length > 0,
       warnings,
       host_rank,
+      adp_fp,
       ecr,
     },
     { status: primaryFailed ? 502 : 200 }
