@@ -127,7 +127,11 @@ export default async function Methodology() {
           number without anyone repricing him, which is why movement is
           measured over the boards present on both days only. And because the
           boards publish up to a day apart, a move can keep entering the
-          average after the event that caused it.
+          average after the event that caused it. The same averaging is why a
+          backfield pair&rsquo;s moves are not an exact mirror and are not
+          expected to be: each side is averaged independently across boards,
+          so what matters in a mirror pair is direction, one side&rsquo;s gain
+          showing up as the other&rsquo;s loss, not equal sizes.
         </p>
       </section>
 

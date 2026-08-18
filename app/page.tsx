@@ -51,6 +51,14 @@ const fmtLongDate = (d: string) =>
   });
 const hrefFor = (r: MarketRow) => playerHref(r);
 
+/** Surname for tight hero copy ("Jonathon Brooks" → "Brooks"), skipping
+ *  generational suffixes so "Kenneth Walker III" → "Walker". */
+const SUFFIXES = new Set(["Jr.", "Sr.", "II", "III", "IV", "V"]);
+const lastName = (n: string) => {
+  const parts = n.trim().split(/\s+/).filter((p) => !SUFFIXES.has(p));
+  return parts[parts.length - 1] ?? n;
+};
+
 type MapEntry = {
   sleeper_id: string;
   name: string;
@@ -402,11 +410,11 @@ export default async function Home() {
           catalysts={pairCatalysts}
           sentence={
             isOpposed(bestPair.a, bestPair.b)
-              ? `One event, two prices, opposite directions ${moveWindow}: ${bestPair.a.name} ${
+              ? `Same backfield, opposite directions. ${lastName(bestPair.a.name)} ${
                   (bestPair.a.hostRankDelta ?? 0) > 0 ? "up" : "down"
-                } ${Math.abs(bestPair.a.hostRankDelta ?? 0)} while ${bestPair.b.name} goes ${
+                } ${Math.abs(bestPair.a.hostRankDelta ?? 0)} ${moveWindow}, ${lastName(bestPair.b.name)} ${
                   (bestPair.b.hostRankDelta ?? 0) > 0 ? "up" : "down"
-                } ${Math.abs(bestPair.b.hostRankDelta ?? 0)}. The price is an average across host boards, so the two sides are not an exact mirror and are not expected to be, what matters is that one backfield's gain is showing up as the other's loss.`
+                } ${Math.abs(bestPair.b.hostRankDelta ?? 0)}.`
               : `Both halves of this backfield moved the SAME way ${moveWindow} (${bestPair.a.name} ${
                   (bestPair.a.hostRankDelta ?? 0) > 0 ? "+" : ""
                 }${bestPair.a.hostRankDelta}, ${bestPair.b.name} ${
