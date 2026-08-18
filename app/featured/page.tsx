@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { loadAllEcrSnapshots, loadFirstAndLatestSnapshots } from "@/lib/snapshot";
+import { loadSharedWindow } from "@/lib/snapshot";
 import { buildMarketRows, playerHref, type SleeperByFpId, type MarketRow } from "@/lib/market";
 import { THRESHOLDS, type FpLite } from "@/lib/math";
 import { whatItMeans } from "@/lib/signals";
@@ -48,14 +48,10 @@ function PlayerMini({ r, moveLabel }: { r: MarketRow; moveLabel: string }) {
 }
 
 export default async function Featured() {
-  const [{ first, latest }, ecrSnaps] = await Promise.all([
-    loadFirstAndLatestSnapshots(),
-    loadAllEcrSnapshots(),
-  ]);
+  const { first, latest, ecrPrev, ecrLatest } = await loadSharedWindow();
+  // Movement measured over the window BOTH series cover (lib/snapshot.ts
+  // loadSharedWindow), so `moveLabel` below is true of host and expert alike.
   const previous = first;
-  const ecrLatest = ecrSnaps[ecrSnaps.length - 1] ?? null;
-  const ecrPrev =
-    ecrSnaps.length > 1 && ecrSnaps[0].date !== ecrLatest?.date ? ecrSnaps[0] : null;
   const live = latest !== null;
   const priceRows: FpHostRankPlayer[] = live
     ? latest.rows

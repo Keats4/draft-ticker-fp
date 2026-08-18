@@ -1,9 +1,8 @@
 import Link from "next/link";
 import {
   loadHostRankHistory,
-  loadAllEcrSnapshots,
   ecrSeriesFor,
-  loadFirstAndLatestSnapshots,
+  loadSharedWindow,
 } from "@/lib/snapshot";
 import { buildMarketRows, playerHref, type SleeperByFpId, type MarketRow } from "@/lib/market";
 import { THRESHOLDS, type FpLite } from "@/lib/math";
@@ -127,16 +126,12 @@ function StatCard({
 }
 
 export default async function Home() {
-  const [{ first, latest }, ecrSnaps, history] = await Promise.all([
-    loadFirstAndLatestSnapshots(),
-    loadAllEcrSnapshots(),
-    loadHostRankHistory(),
-  ]);
-  // The move window is the FULL tracked span: oldest stored snapshot -> newest.
+  const [{ first, latest, ecrPrev, ecrLatest, ecrSnaps }, history] =
+    await Promise.all([loadSharedWindow(), loadHostRankHistory()]);
+  // The move window is the span BOTH series cover (lib/snapshot.ts
+  // loadSharedWindow): host rank delta and ECR delta are measured over the
+  // same dates, so every "since <date>" sentence is true of both halves.
   const previous = first;
-  const ecrLatest = ecrSnaps[ecrSnaps.length - 1] ?? null;
-  const ecrPrev =
-    ecrSnaps.length > 1 && ecrSnaps[0].date !== ecrLatest?.date ? ecrSnaps[0] : null;
   const live = latest !== null;
   const priceRows: FpHostRankPlayer[] = live
     ? latest.rows

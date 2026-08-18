@@ -1,9 +1,8 @@
 import Link from "next/link";
 import {
   loadHostRankHistory,
-  loadAllEcrSnapshots,
   ecrSeriesFor,
-  loadFirstAndLatestSnapshots,
+  loadSharedWindow,
 } from "@/lib/snapshot";
 import { buildMarketRows, type SleeperByFpId } from "@/lib/market";
 import { type FpLite } from "@/lib/math";
@@ -100,16 +99,11 @@ export default async function PlayerPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [{ first, latest }, ecrSnaps, history] = await Promise.all([
-    loadFirstAndLatestSnapshots(),
-    loadAllEcrSnapshots(),
-    loadHostRankHistory(),
-  ]);
+  const [{ first, latest, ecrPrev, ecrLatest, ecrSnaps }, history] =
+    await Promise.all([loadSharedWindow(), loadHostRankHistory()]);
+  // Movement/signal compare over the window BOTH series cover (lib/snapshot.ts
+  // loadSharedWindow); the CHART still uses the full ECR series.
   const previous = first;
-  // newest two are still what movement/signal compare; the CHART uses all of them
-  const ecrLatest = ecrSnaps[ecrSnaps.length - 1] ?? null;
-  const ecrPrev =
-    ecrSnaps.length > 1 && ecrSnaps[0].date !== ecrLatest?.date ? ecrSnaps[0] : null;
   const live = latest !== null;
   const priceRows: FpHostRankPlayer[] = live
     ? latest.rows

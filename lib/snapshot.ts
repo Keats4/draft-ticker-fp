@@ -130,6 +130,95 @@ export async function loadFirstAndLatestSnapshots(): Promise<{
   }
 }
 
+/**
+ * Both series clamped to the window they SHARE: the earliest date present in
+ * both the host rank series and the ECR series, through the latest date
+ * present in both. Every movement comparison (host rank delta, ECR delta,
+ * every "since <date>" sentence, every "who moved first" signal) must be
+ * measured over the same span; first-and-latest of each series taken
+ * independently silently compares, say, one day of price movement against a
+ * week of expert movement whenever the two series start on different days.
+ *
+ * - fewer than two shared dates: no movement window exists. `first` and
+ *   `ecrPrev` come back null (so no deltas render anywhere), while `latest`
+ *   and `ecrLatest` are the newest of each series so current values still
+ *   show.
+ * - two or more shared dates: `first`/`ecrPrev` sit on the window start,
+ *   `latest`/`ecrLatest` on the window end. When one series has run ahead of
+ *   the other, the newest unshared day is deliberately NOT used: a true
+ *   sentence about a shorter window beats a longer window only one series
+ *   covers.
+ *
+ * `ecrSnaps` is the full stored ECR series for the charts, untouched by the
+ * clamp; the chart may honestly draw dates the movement window excludes.
+ */
+export async function loadSharedWindow(): Promise<{
+  first: Snapshot | null;
+  latest: Snapshot | null;
+  ecrPrev: EcrSnapshot | null;
+  ecrLatest: EcrSnapshot | null;
+  ecrSnaps: EcrSnapshot[];
+}> {
+  const [hostBlobs, ecrSnaps] = await Promise.all([
+    (async () => {
+      try {
+        const { blobs } = await list({ prefix: HOST_RANK_PREFIX });
+        return blobs;
+      } catch {
+        return [];
+      }
+    })(),
+    loadAllEcrSnapshots(),
+  ]);
+  const hostByDate = new Map(
+    hostBlobs.map((b) => [
+      b.pathname.slice(HOST_RANK_PREFIX.length).replace(/\.json$/, ""),
+      b.url,
+    ])
+  );
+  const ecrByDate = new Map(ecrSnaps.map((s) => [s.date, s]));
+  const shared = [...hostByDate.keys()].filter((d) => ecrByDate.has(d)).sort();
+  const start = shared[0] ?? null;
+  const end = shared.length > 1 ? shared[shared.length - 1] : null;
+
+  if (!start || !end) {
+    const newestHost = [...hostByDate.keys()].sort().pop();
+    const latest = newestHost
+      ? await fetchSnapshot(hostByDate.get(newestHost))
+      : null;
+    return {
+      first: null,
+      latest,
+      ecrPrev: null,
+      ecrLatest: ecrSnaps[ecrSnaps.length - 1] ?? null,
+      ecrSnaps,
+    };
+  }
+
+  const [first, latest] = await Promise.all([
+    fetchSnapshot(hostByDate.get(start)),
+    fetchSnapshot(hostByDate.get(end)),
+  ]);
+  // A failed fetch of either endpoint degrades to "no window" rather than a
+  // window with one honest end.
+  if (!first || !latest) {
+    return {
+      first: null,
+      latest: latest ?? first,
+      ecrPrev: null,
+      ecrLatest: ecrSnaps[ecrSnaps.length - 1] ?? null,
+      ecrSnaps,
+    };
+  }
+  return {
+    first,
+    latest,
+    ecrPrev: ecrByDate.get(start) ?? null,
+    ecrLatest: ecrByDate.get(end) ?? null,
+    ecrSnaps,
+  };
+}
+
 async function fetchSnapshot(url?: string): Promise<Snapshot | null> {
   if (!url) return null;
   try {
