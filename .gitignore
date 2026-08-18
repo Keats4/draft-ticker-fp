@@ -18,6 +18,10 @@ dist/
 .DS_Store
 *.log
 
+# regenerated on every dev/typecheck run — never hand-edited
+next-env.d.ts
+*.tsbuildinfo
+
 # private notes — never committed
 PRIVATE_NOTES.md
 .env*
