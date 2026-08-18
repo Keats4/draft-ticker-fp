@@ -51,20 +51,23 @@ async function putJson(path: string, data: unknown): Promise<string> {
   return blob.url;
 }
 
+/** Cache busted blob URL, same defence as scripts/backfill_host_rank.mjs:
+ *  the blob CDN has served stale copies of overwritten pathnames before.
+ *  `no-store` on the fetch only disables Next's cache; the fresh query
+ *  string per call is what defeats the CDN edge. host-rank-history.json is
+ *  overwritten in place every day; the dated snapshot files are overwritten
+ *  only when a date is re-captured, which has happened. With every read
+ *  path busted, no page can serve a stale blob. */
+function bust(url: string): string {
+  return `${url}${url.includes("?") ? "&" : "?"}cb=${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 async function readJsonBlob<T>(pathname: string): Promise<T | null> {
   try {
     const { blobs } = await list({ prefix: pathname });
     const hit = blobs.find((b) => b.pathname === pathname);
     if (!hit) return null;
-    // Cache busted read, same defence as scripts/backfill_host_rank.mjs:
-    // this reads host-rank-history.json, the one blob overwritten in place
-    // every day, and the blob CDN has served stale copies of overwritten
-    // pathnames before. `no-store` only disables Next's cache; a fresh query
-    // string per call is what defeats the CDN edge. Without it a chart can
-    // show yesterday's dates while the move window on the same page reads
-    // correctly from dated files.
-    const bust = `${hit.url.includes("?") ? "&" : "?"}cb=${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const res = await fetch(hit.url + bust, { cache: "no-store" });
+    const res = await fetch(bust(hit.url), { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
@@ -252,7 +255,7 @@ export async function loadSharedWindow(): Promise<{
 async function fetchSnapshot(url?: string): Promise<Snapshot | null> {
   if (!url) return null;
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(bust(url), { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as Snapshot;
   } catch {
@@ -322,7 +325,7 @@ export function ecrSeriesFor(
 async function fetchJson<T>(url?: string): Promise<T | null> {
   if (!url) return null;
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(bust(url), { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
