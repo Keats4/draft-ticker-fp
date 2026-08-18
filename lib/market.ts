@@ -5,7 +5,7 @@ import {
   type FpLite,
   type Signal,
 } from "@/lib/math";
-import { hostRankInUniverse, ecrComparable, gapReason, isTracked } from "@/lib/universe";
+import { hostRankInUniverse, ecrComparable, gapReason, isTracked, UNIVERSE } from "@/lib/universe";
 import type { FpHostRankPlayer } from "@/lib/types";
 
 export type MarketRow = {
@@ -35,9 +35,38 @@ export type MarketRow = {
   /** why gap is null, for honest UI copy; null when a gap is shown. */
   gapReason: string | null;
   inUniverse: boolean;
+  /** Host rank movement over the window, measured over the hosts present on
+   *  BOTH days only (see sharedHostDelta below). Null when fewer than
+   *  UNIVERSE.MIN_SOURCE_COUNT hosts are shared, never the raw average
+   *  difference. */
   hostRankDelta: number | null;
   signal: Signal | null;
 };
+
+/**
+ * Host rank delta over SHARED hosts only. `rank_ave` is an average over a
+ * varying set of host boards, so differencing two days' averages can move a
+ * player because a host added or dropped him rather than because anyone
+ * repriced him (observed Aug 16→17: one dropped board read as -7.6 raw but
+ * -2.7 over shared hosts, and another flipped direction entirely). So:
+ * intersect the two days' `experts` maps, average each day's ranks over that
+ * intersection, and difference those averages. Fewer than
+ * UNIVERSE.MIN_SOURCE_COUNT shared hosts returns null (no delta), matching
+ * the existing source count bar; it never falls back to the raw difference.
+ */
+function sharedHostDelta(
+  current: FpHostRankPlayer,
+  previous: FpHostRankPlayer | null
+): number | null {
+  if (!previous) return null;
+  const cur = current.experts ?? {};
+  const prev = previous.experts ?? {};
+  const shared = Object.keys(prev).filter((h) => cur[h] !== undefined);
+  if (shared.length < UNIVERSE.MIN_SOURCE_COUNT) return null;
+  const mean = (m: Record<string, number>) =>
+    shared.reduce((s, h) => s + m[h], 0) / shared.length;
+  return movement(mean(cur), mean(prev));
+}
 
 /** FantasyPros player_id → Sleeper id, from data/player_map.json. Needed only
  *  for catalysts, featured and archetypes, which key on sleeper_id. The
@@ -80,8 +109,8 @@ export function buildMarketRows(
     .filter((p) => isTracked(p.player_position_id))
     .sort((a, b) => a.rank_ave - b.rank_ave);
 
-  const prevHostRank = new Map<number, number>();
-  if (previous) for (const p of previous) prevHostRank.set(p.player_id, p.rank_ave);
+  const prevById = new Map<number, FpHostRankPlayer>();
+  if (previous) for (const p of previous) prevById.set(p.player_id, p);
 
   const rows: MarketRow[] = ordered.map((p, i) => {
     const hostRankOrdinal = i + 1;
@@ -96,7 +125,7 @@ export function buildMarketRows(
     const gap = comparable ? hostRankEcrGap(p.rank_ave, ecr) : null;
     const reason = gap === null ? gapReason(hostRankOrdinal, p.source_count, ecr) : null;
 
-    const hostRankDelta = movement(p.rank_ave, prevHostRank.get(p.player_id) ?? null);
+    const hostRankDelta = sharedHostDelta(p, prevById.get(p.player_id) ?? null);
     const ecrDelta =
       fp && previousEcrByFpId ? movement(ecr, previousEcrByFpId[p.player_id] ?? null) : null;
     // Signals only inside the comparison universe.

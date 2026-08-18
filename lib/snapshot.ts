@@ -25,6 +25,12 @@ export type HostRankHistoryRow = {
   rank_ave: number;
   /** Number of hosts ranking the player that day. */
   source_count: number;
+  /** Per host rank map for the day (host id -> that host's rank). Present on
+   *  rows written after 2026-08-17; older rows carry only the average and are
+   *  NOT backfilled. Stored so longer windows can compute shared-host deltas
+   *  (lib/market.ts sharedHostDelta) instead of differencing averages taken
+   *  over different board sets. */
+  experts?: Record<string, number>;
 };
 
 /** Today's date string (YYYY-MM-DD) in America/Los_Angeles. */
@@ -73,6 +79,7 @@ export async function saveSnapshot(snapshot: Snapshot): Promise<string> {
     player_team_id: p.player_team_id,
     rank_ave: p.rank_ave,
     source_count: p.source_count,
+    experts: p.experts,
   }));
   await putJson(HOST_RANK_HISTORY_PATH, [...kept, ...todays]);
 
