@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Featured · Draft Ticker" };
 
 function moveStr(d: number | null) {
-  return d === null ? ", " : `${d > 0 ? "+" : ""}${d}`;
+  return d === null ? "–" : `${d > 0 ? "+" : ""}${d}`;
 }
 function moveColor(d: number | null) {
   return d === null || d === 0 ? "var(--ink-3)" : d > 0 ? "var(--pos)" : "var(--neg)";
@@ -36,10 +36,10 @@ function PlayerMini({ r, moveLabel }: { r: MarketRow; moveLabel: string }) {
         <dt className="text-[var(--ink-3)]">{moveLabel}</dt>
         <dd className="text-right tabular-nums" style={{ color: moveColor(r.hostRankDelta) }}>{moveStr(r.hostRankDelta)}</dd>
         <dt className="text-[var(--ink-3)]">ECR</dt>
-        <dd className="text-right tabular-nums">{r.ecr ?? ", "}</dd>
+        <dd className="text-right tabular-nums">{r.ecr ?? "–"}</dd>
         <dt className="text-[var(--ink-3)]">Gap</dt>
         <dd className="text-right tabular-nums" style={{ color: gapColor(r.gap) }}>
-          {r.gap === null ? ", " : `${r.gap > 0 ? "+" : ""}${r.gap}`}
+          {r.gap === null ? "–" : `${r.gap > 0 ? "+" : ""}${r.gap}`}
         </dd>
       </dl>
       <div className="mt-2"><SignalChip signal={r.signal} /></div>

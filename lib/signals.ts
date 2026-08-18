@@ -5,7 +5,10 @@ export const SIGNAL_META: Record<
   { blurb: string; rule: string }
 > = {
   "Market moving faster": {
-    blurb: "Average host rank is rising faster than expert opinion.",
+    // Direction-neutral on purpose: this generic definition renders in
+    // contexts without a player (chip legend, methodology). whatItMeans()
+    // substitutes the direction-aware sentence when it has the delta.
+    blurb: "Average host rank is moving faster than expert opinion.",
     rule: `Either (a) average host rank moved ≥ ${THRESHOLDS.HOST_RANK_MOVE} spots, experts moved < ${THRESHOLDS.ECR_MOVE} ranks, and the move did NOT shrink the host rank−ECR gap (no 1.5× test applies on this path) or (b) both moved the same way, each clearing its threshold, with host rank shifting at least 1.5× as far as ECR.`,
   },
   "Experts moving first": {
@@ -47,7 +50,13 @@ export function whatItMeans(
       ? "Not enough history yet, movement needs a second daily snapshot before a signal appears."
       : "Movement is below the thresholds that count as a real move.";
   }
-  const base = SIGNAL_META[signal].blurb;
+  // "Market moving faster" fires on either direction (the branch tests
+  // magnitude), so the sentence must follow the sign of the actual move:
+  // a player whose rank fell six spots must not be described as rising.
+  const base =
+    signal === "Market moving faster" && hostRankDelta !== null && hostRankDelta !== 0
+      ? `Average host rank is ${hostRankDelta > 0 ? "rising" : "falling"} faster than expert opinion.`
+      : SIGNAL_META[signal].blurb;
   if (gap === null) return base;
   const dir =
     gap > 0

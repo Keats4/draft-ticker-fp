@@ -35,7 +35,7 @@ export type RowLite = {
 function Gap({ v, notable, reason }: { v: number | null; notable: boolean; reason: string | null }) {
   if (v === null)
     return (
-      <span className="text-[var(--ink-3)]" title={reason ?? undefined}>, </span>
+      <span className="text-[var(--ink-3)]" title={reason ?? undefined}>–</span>
     );
   const word = valueWord(v);
   return (
@@ -55,10 +55,15 @@ function Gap({ v, notable, reason }: { v: number | null; notable: boolean; reaso
  * would contradict the value rule one column to the left. Direction is the
  * arrow, which only ever marks a change.
  */
-function Move({ v }: { v: number | null }) {
+function Move({ v, trackingSince }: { v: number | null; trackingSince?: string | null }) {
   if (v === null)
     return (
-      <span className="text-[var(--ink-3)]" title="Tracking since Aug 10, needs a second daily snapshot">, </span>
+      <span
+        className="text-[var(--ink-3)]"
+        title={`${trackingSince ? `Tracking since ${trackingSince}. ` : ""}Movement appears once the player is ranked by enough of the same host boards on both days of the window.`}
+      >
+        –
+      </span>
     );
   return (
     <span className="whitespace-nowrap tabular-nums text-[var(--foreground)]">
@@ -81,7 +86,17 @@ const H = {
   signal: "A rule-based label comparing market movement with expert movement. Click any chip for the exact rule.",
 };
 
-export default function MarketTable({ rows, moveLabel = "Move" }: { rows: RowLite[]; moveLabel?: string }) {
+export default function MarketTable({
+  rows,
+  moveLabel = "Move",
+  trackingSince = null,
+}: {
+  rows: RowLite[];
+  moveLabel?: string;
+  /** Earliest stored host rank date, formatted; derived by the caller, never
+   *  hardcoded here (the retired series' Aug 10 start does not apply). */
+  trackingSince?: string | null;
+}) {
   const [openRank, setOpenRank] = useState<number | null>(null);
 
   return (
@@ -120,13 +135,13 @@ export default function MarketTable({ rows, moveLabel = "Move" }: { rows: RowLit
                   <td className="hidden px-3 py-2.5 text-[var(--ink-2)] sm:table-cell">{r.team}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums">{r.hostRank}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums">
-                    {r.ecr ?? <span className="text-[var(--ink-3)]">, </span>}
+                    {r.ecr ?? <span className="text-[var(--ink-3)]">–</span>}
                   </td>
                   <td className="px-3 py-2.5 text-right">
                     <Gap v={r.gap} notable={r.gapNotable} reason={r.gapReason} />
                   </td>
                   <td className="hidden px-3 py-2.5 text-right sm:table-cell">
-                    <Move v={r.hostRankDelta} />
+                    <Move v={r.hostRankDelta} trackingSince={trackingSince} />
                   </td>
                   <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                     <SignalChip signal={r.signal} />

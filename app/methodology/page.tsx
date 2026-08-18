@@ -212,7 +212,7 @@ export default async function Methodology() {
             window is the full tracked span, not a single day: every “Move”
             figure on the site covers Aug 10, 2026 to the most recent capture,
             and the dates are printed wherever the number appears. Missing data
-            renders as “, ”, never as zero.
+            renders as “–”, never as zero.
           </li>
           <li>
             <strong>Signal labels</strong> are rules, not a model:
@@ -241,7 +241,7 @@ export default async function Methodology() {
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-700">
           <li>
             <strong>No label</strong> if either movement series is missing
-            (day one, or an unmatched expert rank). The site renders “, ”, never
+            (day one, or an unmatched expert rank). The site renders “–”, never
             a label.
           </li>
           <li>
@@ -305,7 +305,7 @@ export default async function Methodology() {
           </li>
           <li>A player must be drafted in at least 30 mock drafts (liquidity bar) for his ADP to count.</li>
           <li>An expert rank (ECR) beyond the top 200 is treated as “unranked in the comparable range”, no gap is computed, rather than a fabricated one.</li>
-          <li>When a gap is not computed, the value shows “, ” with the reason, never a guess. “For your draft” and the widest-gap highlight are drawn only from this universe.</li>
+          <li>When a gap is not computed, the value shows “–” with the reason, never a guess. “For your draft” and the widest-gap highlight are drawn only from this universe.</li>
         </ul>
         <p className="mt-3 text-sm text-[var(--ink-2)]">
           Why 200 and 30: median times-drafted stays above ~80 through ADP
@@ -369,7 +369,7 @@ export default async function Methodology() {
           </li>
           <li>
             <strong>{review.unmatched.length}</strong> unmatched, no confident
-            expert match, so ECR renders “, ” and no gap is computed
+            expert match, so ECR renders “–” and no gap is computed
             {review.unmatched.length > 0 && <>: {review.unmatched.join(", ")}</>}.
           </li>
           <li>
@@ -434,7 +434,7 @@ export default async function Methodology() {
             ECR snapshot, not just the most recent ones.
           </li>
           <li>
-            Some players have no confident cross-source match and show “, ”
+            Some players have no confident cross-source match and show “–”
             for ECR rather than a guessed value.
           </li>
           <li>

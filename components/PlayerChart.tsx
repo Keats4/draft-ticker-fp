@@ -240,7 +240,7 @@ export default function PlayerChart({
           <thead><tr><th className="pr-4">Date</th><th className="pr-4">Host rank</th><th>ECR</th></tr></thead>
           <tbody>
             {days.map((p) => (
-              <tr key={p.date}><td className="pr-4">{p.date}</td><td className="pr-4">{p.hostRank ?? ", "}</td><td>{p.ecr ?? ", "}</td></tr>
+              <tr key={p.date}><td className="pr-4">{p.date}</td><td className="pr-4">{p.hostRank ?? "–"}</td><td>{p.ecr ?? "–"}</td></tr>
             ))}
           </tbody>
         </table>

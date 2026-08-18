@@ -1,6 +1,6 @@
 import Link from "next/link";
 import phasesFile from "@/data/calendar_phases.json";
-import { currentPhase, type Phase as LibPhase } from "@/lib/phases";
+import { currentPhase, trustReading, type Phase as LibPhase } from "@/lib/phases";
 import PhaseMeter from "@/components/PhaseMeter";
 
 export const metadata = { title: "Market Calendar · Draft Ticker" };
@@ -66,7 +66,7 @@ const IN_SEASON = new Set(["long-middle", "trade-deadlines", "stretch-run"]);
 
 export default function Calendar() {
   const phases = phasesFile.phases as Phase[];
-  const { index: currentIdx, inGap } = currentPhase(phases as unknown as LibPhase[]);
+  const { index: currentIdx, inGap, phase: current } = currentPhase(phases as unknown as LibPhase[]);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -107,8 +107,12 @@ export default function Calendar() {
         </div>
       </div>
 
+      {/* The trust sentence is the current phase's own reading, not a fixed
+          line: the phase carrying today's date decides it. */}
       <p className="mt-4 rounded-md border px-3 py-2 text-sm" style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}>
-        You are here. Movement now is worth taking seriously.
+        {current && !inGap
+          ? `You are here: ${current.title}. ${trustReading(current.signal_level ?? "")}`
+          : "Between phases. No phase carries today's date, so no trust reading is shown."}
       </p>
 
       <ol className="mt-8 space-y-5">

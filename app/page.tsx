@@ -25,7 +25,7 @@ import fpEcr from "@/fixtures/fp_ecr.json";
 import playerMap from "@/data/player_map.json";
 import catalystsFile from "@/data/catalysts.json";
 import phasesFile from "@/data/calendar_phases.json";
-import { currentPhase, type Phase as LibPhase } from "@/lib/phases";
+import { currentPhase, trustReading, type Phase as LibPhase } from "@/lib/phases";
 import featured from "@/data/featured.json";
 import HowToReadCard from "@/components/HowToReadCard";
 import SignalChip from "@/components/SignalChip";
@@ -40,7 +40,15 @@ export const dynamic = "force-dynamic";
 
 /** The homepage curates; the full universe lives on /players. */
 const HOME_TABLE_ROWS = 25;
-const TRACKING_SINCE = "Aug 10, 2026";
+
+/** "Aug 16, 2026" from a stored YYYY-MM-DD date. */
+const fmtLongDate = (d: string) =>
+  new Date(d + "T12:00:00Z").toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 const hrefFor = (r: MarketRow) => playerHref(r);
 
 type MapEntry = {
@@ -152,6 +160,14 @@ export default async function Home() {
       ? Object.fromEntries(ecrPrev.rows.map((r) => [r.player_id, r.rank_ecr]))
       : null
   );
+
+  // "Tracking since" is the earliest STORED host rank date, never a
+  // hardcoded date: the retired series began Aug 10 but this one did not.
+  const firstHostDate =
+    history.length > 0
+      ? history.reduce((min, r) => (r.date < min ? r.date : min), history[0].date)
+      : (latest?.date ?? null);
+  const trackingSince = firstHostDate ? fmtLongDate(firstHostDate) : "day one";
 
   const hasMovement = previous !== null;
   const prevDateLabel = previous
@@ -353,9 +369,12 @@ export default async function Home() {
         )}
       </header>
 
+      {/* Phase name and trust wording come from the phase that is current
+          today (lib/phases.ts), the same source the hero, the player page and
+          the calendar use. Nothing about the phase is hardcoded here. */}
       <p className="mb-2 text-sm text-[var(--ink-2)]">
-        Today&rsquo;s biggest move, and what it is worth. Training camp is a high
-        trust phase, so movement now tends to hold.
+        Today&rsquo;s biggest move, and what it is worth.
+        {phase ? ` ${phase.title}: ${trustReading(phase.signal_level ?? "")}` : ""}
       </p>
 
       {bestPair ? (
@@ -390,7 +409,7 @@ export default async function Home() {
                 }${bestPair.b.hostRankDelta}), so the mirror is not showing in the price today. Shown as measured, not as a story it is not telling.`
           }
           moveWindow={moveWindow}
-          trackingSince={TRACKING_SINCE}
+          trackingSince={trackingSince}
         />
       ) : singleHero ? (
         <HeroStory
@@ -409,7 +428,7 @@ export default async function Home() {
           sentence={whatItMeans(singleHero.signal, singleHero.gap, singleHero.hostRankDelta, singleHero.gapReason)}
           points={heroX?.points ?? []}
           markers={heroX?.markers ?? []}
-          trackingSince={TRACKING_SINCE}
+          trackingSince={trackingSince}
           catalyst={heroCatalyst}
           hostRank={singleHero.hostRank}
           ecr={singleHero.ecr}
@@ -595,7 +614,7 @@ export default async function Home() {
             href={hrefFor(riser)}
           />
         ) : (
-          <StatCard label={riserLabel} name=", " value=", " sub="Tracking since Aug 10, needs a second snapshot" tone="muted" />
+          <StatCard label={riserLabel} name="–" value="–" sub={`Tracking since ${trackingSince}, needs a second snapshot`} tone="muted" />
         )}
         {faller ? (
           <StatCard
@@ -607,7 +626,7 @@ export default async function Home() {
             href={hrefFor(faller)}
           />
         ) : (
-          <StatCard label={fallerLabel} name=", " value=", " sub="Tracking since Aug 10, needs a second snapshot" tone="muted" />
+          <StatCard label={fallerLabel} name="–" value="–" sub={`Tracking since ${trackingSince}, needs a second snapshot`} tone="muted" />
         )}
         {/* Value read: coloured, with the word in the tile so colour is never
             the only signal. */}
@@ -640,15 +659,17 @@ export default async function Home() {
         Every price move in the top 200, and how much to believe each one.
       </p>
 
-      <MarketTable rows={tableRows} moveLabel={moveLabel} />
+      <MarketTable rows={tableRows} moveLabel={moveLabel} trackingSince={trackingSince} />
 
       <p className="mt-3 text-sm">
         <Link href="/players" className="font-medium underline">
-          View all {UNIVERSE.TOP_N} →
+          View the full tracked pool ({rows.length} players) →
         </Link>{" "}
         <span className="text-[var(--ink-3)]">
-          Showing the top {Math.min(HOME_TABLE_ROWS, rows.length)} by average host rank here; the
-          full pool lives on Players.
+          Showing the top {Math.min(HOME_TABLE_ROWS, rows.length)} by average host rank here.
+          Gaps and signals are computed only inside the comparison universe, the top{" "}
+          {UNIVERSE.TOP_N} by average host rank; the Players page lists every tracked
+          player, comparable or not.
         </span>
       </p>
 
@@ -658,7 +679,7 @@ export default async function Home() {
         ECR:{" "}
         {ecrLatest ? "FantasyPros official API, daily" : "FantasyPros capture Aug 10 (static)"}.
         A gap is computed for {comparableCount} players inside the comparison
-        universe, the rest show “, ” (too few host boards or an expert rank outside
+        universe, the rest show “–” (too few host boards or an expert rank outside
         the top {UNIVERSE.TOP_N}), never a fabricated gap.{" "}
         <Link href="/methodology" className="underline">Methodology</Link>
       </footer>

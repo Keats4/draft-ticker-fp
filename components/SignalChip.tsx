@@ -8,7 +8,7 @@ import { SIGNAL_META } from "@/lib/signals";
 export default function SignalChip({ signal }: { signal: Signal | null }) {
   const [open, setOpen] = useState(false);
   if (signal === null)
-    return <span className="text-[var(--ink-3)]">, </span>;
+    return <span className="text-[var(--ink-3)]">–</span>;
 
   const cls =
     signal === "Market and experts diverging"

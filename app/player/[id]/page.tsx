@@ -39,7 +39,14 @@ const CURRENT_PHASE = currentPhase(PHASES).phase ?? {
   card_line: "",
 };
 
-const TRACKING_SINCE = "Aug 10, 2026";
+/** "Aug 16, 2026" from a stored YYYY-MM-DD date. */
+const fmtLongDate = (d: string) =>
+  new Date(d + "T12:00:00Z").toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 
 type MapEntry = {
   sleeper_id: string;
@@ -127,6 +134,14 @@ export default async function PlayerPage({
     ? new Date(previous.date + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
     : null;
   const moveWindow = prevDateLabel ? `since ${prevDateLabel}` : "since tracking began";
+
+  // "Tracking since" is the earliest STORED host rank date, never a
+  // hardcoded date: the retired series began Aug 10 but this one did not.
+  const firstHostDate =
+    history.length > 0
+      ? history.reduce((min, r) => (r.date < min ? r.date : min), history[0].date)
+      : (latest?.date ?? null);
+  const trackingSince = firstHostDate ? fmtLongDate(firstHostDate) : "day one";
 
   // playerHref() emits the Sleeper id when mapped, else `fp-<player_id>`.
   const row = id.startsWith("fp-")
@@ -240,7 +255,7 @@ export default async function PlayerPage({
       {/* 2. value over time, the primary chart. Value is what a drafter thinks in. */}
       <section className="mt-8">
         <Step n={1} kicker="What he costs" title="Value over time" />
-        <GapChart points={points} markers={markers} trackingSince={TRACKING_SINCE} />
+        <GapChart points={points} markers={markers} trackingSince={trackingSince} />
       </section>
 
       {/* 3. how much to believe it: the phase's own trust reading, then the
@@ -309,7 +324,7 @@ export default async function PlayerPage({
             </p>
             <p className="text-xs text-[var(--ink-3)]">
               {row.hostRankDelta == null
-                ? `tracking since ${TRACKING_SINCE}`
+                ? `tracking since ${trackingSince}`
                 : `${row.hostRankDelta > 0 ? "+" : ""}${row.hostRankDelta} ${moveWindow}`}
             </p>
           </div>
@@ -317,7 +332,7 @@ export default async function PlayerPage({
             <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">Where experts rank him</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">
               {row.ecr == null
-                ? ", "
+                ? "–"
                 : row.ecrPosRank != null
                   ? `${row.position}${row.ecrPosRank}`
                   : row.ecr}
@@ -329,7 +344,7 @@ export default async function PlayerPage({
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
             <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">What you are paying</p>
             <p className={`mt-1 text-2xl font-semibold tabular-nums ${gapCls}`}>
-              {row.gap == null ? ", " : `${fmtRounds(row.gap)}`}
+              {row.gap == null ? "–" : `${fmtRounds(row.gap)}`}
             </p>
             <p className="text-xs text-[var(--ink-3)]">
               {row.gap == null
@@ -348,7 +363,7 @@ export default async function PlayerPage({
             <PlayerChart
               points={points}
               markers={markers}
-              trackingSince={TRACKING_SINCE}
+              trackingSince={trackingSince}
               signal={row.signal}
               interpretation={whatItMeans(row.signal, row.gap, row.hostRankDelta, row.gapReason)}
               evidence={evidence}

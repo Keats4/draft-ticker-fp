@@ -52,7 +52,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
         <div className="text-right">
           <div className="text-2xl font-bold tabular-nums text-[var(--foreground)]">
             {arrow && <span aria-hidden className="text-[var(--ink-2)]">{arrow} </span>}
-            {s.hostRankDelta === null ? ", " : `${s.hostRankDelta > 0 ? "+" : ""}${s.hostRankDelta}`}
+            {s.hostRankDelta === null ? "–" : `${s.hostRankDelta > 0 ? "+" : ""}${s.hostRankDelta}`}
           </div>
           <p className="text-[11px] text-[var(--ink-3)]">
             {s.hostRankDelta === null
@@ -98,7 +98,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
         </div>
         <div>
           <dt className="text-[var(--ink-3)]">ECR</dt>
-          <dd className="tabular-nums font-medium">{s.ecr ?? ", "}</dd>
+          <dd className="tabular-nums font-medium">{s.ecr ?? "–"}</dd>
         </div>
         <div>
           <dt className="text-[var(--ink-3)]">Gap</dt>
@@ -107,7 +107,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
             className="tabular-nums font-medium"
             style={{ color: s.gap === null ? "var(--ink-3)" : valueTone(s.gap) }}
           >
-            {s.gap === null ? ", " : `${s.gap > 0 ? "+" : ""}${s.gap}`}
+            {s.gap === null ? "–" : `${s.gap > 0 ? "+" : ""}${s.gap}`}
             {valueWord(s.gap) && (
               <span className="ml-1 text-[10px] font-normal">{valueWord(s.gap)}</span>
             )}
