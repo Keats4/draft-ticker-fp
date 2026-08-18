@@ -25,7 +25,7 @@ import fpEcr from "@/fixtures/fp_ecr.json";
 import playerMap from "@/data/player_map.json";
 import catalystsFile from "@/data/catalysts.json";
 import phasesFile from "@/data/calendar_phases.json";
-import { currentPhase, trustReading, type Phase as LibPhase } from "@/lib/phases";
+import { currentPhase, type Phase as LibPhase } from "@/lib/phases";
 import featured from "@/data/featured.json";
 import HowToReadCard from "@/components/HowToReadCard";
 import SignalChip from "@/components/SignalChip";
@@ -377,8 +377,7 @@ export default async function Home() {
       <header className="mb-5">
         <h1 className="text-3xl font-bold tracking-tight">Draft Ticker</h1>
         <p className="mt-1 text-lg text-[var(--ink-2)]">
-          Everyone tells you who is rising. This tells you whether to believe
-          it.
+          Daily ADP movement, measured against expert consensus.
         </p>
         {!live && (
           <p className="mt-2 inline-block rounded border border-[var(--gold-border)] bg-[var(--gold-bg)] px-2 py-1 text-xs">
@@ -387,13 +386,9 @@ export default async function Home() {
         )}
       </header>
 
-      {/* Phase name and trust wording come from the phase that is current
-          today (lib/phases.ts), the same source the hero, the player page and
-          the calendar use. Nothing about the phase is hardcoded here. */}
-      <p className="mb-2 text-sm text-[var(--ink-2)]">
-        Today&rsquo;s biggest move, and what it is worth.
-        {phase ? ` ${phase.title}: ${trustReading(phase.signal_level ?? "")}` : ""}
-      </p>
+      {/* No intro line here on purpose: the hero's trust strip and the phase
+          card line directly below already carry the phase name and trust
+          reading. */}
 
       {bestPair ? (
         <MirrorHero
