@@ -264,7 +264,7 @@ export default async function Methodology() {
             entirely, so they receive no rank, gap, signal or page. They are
             dropped before ranking, which means the <em>#</em> column is a rank
             among tracked players, while <em>ADP</em> stays the source&rsquo;s
-            average pick from real drafts those positions were part of. The two
+            average across host boards those positions were part of. The two
             differ on purpose.
           </li>
           <li>
@@ -272,7 +272,7 @@ export default async function Methodology() {
             Market page <em>displays</em> the top 25 and links to Players for the
             rest; the comparison universe is unchanged by that cap.
           </li>
-          <li>A player must be drafted in at least 30 mock drafts (liquidity bar) for his ADP to count.</li>
+          <li>A player must be ranked by at least four of the five host boards (coverage bar) for his ADP to count.</li>
           <li>An expert rank (ECR) beyond the top 200 is treated as “unranked in the comparable range”, no gap is computed, rather than a fabricated one.</li>
           <li>When a gap is not computed, the value shows “–” with the reason, never a guess. “For your draft” and the widest-gap highlight are drawn only from this universe.</li>
         </ul>

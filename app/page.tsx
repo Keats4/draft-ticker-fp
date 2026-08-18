@@ -469,8 +469,7 @@ export default async function Home() {
             What the market repriced this week
           </h2>
           <p className="mb-2 text-sm text-[var(--ink-2)]">
-            Not a news feed. These are the moves where the price actually
-            changed, and what each one is worth to you.
+            Where the price actually moved, and what it costs you.
           </p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {stories.map((r) => {
@@ -562,8 +561,7 @@ export default async function Home() {
           <span aria-hidden style={{ color: "var(--gold)" }}>◎</span> For your draft
         </p>
         <p className="mt-0.5 text-sm text-[var(--ink-2)]">
-          The three prices most likely to be wrong when you draft, chosen from
-          players ranked widely enough to trust, never the thin tail.
+          Where ADP and the experts disagree most right now.
         </p>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
           {forYourDraft.map((r, i) => (
@@ -605,8 +603,7 @@ export default async function Home() {
                 {whatItMeans(r.signal, r.gap, r.hostRankDelta)}
               </p>
               <p className="mt-2 border-t border-[var(--border)] pt-2 text-[11px] text-[var(--ink-3)]">
-                How we chose this: #{i + 1} widest market-vs-expert gap, chosen
-                from players ranked widely enough to trust, never the thin tail.
+                How we chose this: #{i + 1} widest market-vs-expert gap.
               </p>
             </div>
           ))}
