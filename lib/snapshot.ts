@@ -8,8 +8,9 @@ import type { EcrSnapshot, Snapshot } from "@/lib/types";
  *   host-rank-history.json     flat per player per day rows of the primary series
  *   ecr/<date>.json            expert consensus rank series (untouched)
  *
- * `snapshots/`, `history.json` and `adp-fp/` hold the retired FFC series and the
- * old raw capture. They are left in place and are neither read nor written.
+ * `snapshots/` and `history.json` hold the retired series; they are left in
+ * place and are neither read nor written. `adp-fp/` holds the daily raw
+ * FantasyPros payloads, written by the cron and read by the backfill script.
  */
 const HOST_RANK_PREFIX = "host-rank/";
 const HOST_RANK_HISTORY_PATH = "host-rank-history.json";

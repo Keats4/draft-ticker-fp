@@ -7,7 +7,7 @@
 export const THRESHOLDS = {
   /** Minimum average host rank change (spots) to count as a real market
    *  move. PROVISIONAL AND UNFITTED: the value 3 is carried over from the
-   *  retired FFC draft-slot threshold and has not been re-derived for an
+   *  retired draft-slot series and has not been re-derived for an
    *  averaged rank, whose day-to-day noise is a different unit. Revisit once
    *  the host rank series has enough days to measure. */
   HOST_RANK_MOVE: 3,

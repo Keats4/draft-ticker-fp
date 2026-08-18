@@ -51,12 +51,6 @@ exists only because the cron captures both series every day: it begins on
 the date of the first capture and grows one day at a time. The raw payload
 is stored untouched so the typed series can always be rebuilt from source.
 
-## Retired
-
-Fantasy Football Calculator ADP powered the build before 2026-08-16.
-Retired with the source swap; its stored snapshots remain in blob storage
-and are not read by any page.
-
 ## Evaluated, not used
 
 | Source | What it offers | Why not |

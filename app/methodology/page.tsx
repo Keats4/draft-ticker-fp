@@ -29,10 +29,6 @@ export default async function Methodology() {
   const priceRows: FpHostRankPlayer[] = latest
     ? latest.rows
     : toHostRankPlayers(fpHostRankFixture.players as RawHostRankRow[]);
-  // SESSION FOUR: the host rank payload carries no draft count, so the FFC
-  // sample-size sentence below has nothing to read. Held at null so the FFC
-  // paragraphs render unchanged until they are rewritten.
-  const draftCount = null as number | null;
   const sleeperByFpId: SleeperByFpId = {};
   for (const e of Object.values(
     playerMap as Record<string, { sleeper_id: string; fp_id?: number }>
@@ -101,53 +97,37 @@ export default async function Methodology() {
           overall ECR across the players we successfully match, so they can
           differ by a place or two from the positional ranks published on their
           site. A player they rank whom we fail to join shifts every rank below
-          him. Draft-cost positional rank is computed the same way from Fantasy
-          Football Calculator&rsquo;s ADP ordering, which already excludes kickers
-          and team defenses, so their removal does not distort the skill
-          position ranks.
+          him. Price-side positional rank comes from the host rank
+          payload&rsquo;s own pos_rank field; kickers and team defenses are
+          excluded from the pipeline before ranking, so their removal does not
+          distort the skill position ranks.
         </p>
       </section>
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold">Where the market number comes from</h2>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
-          Draft cost here is Fantasy Football Calculator&rsquo;s PPR twelve team
-          ADP, computed from mock drafts run on their site over a rolling seven
-          day window, with computer picks filtered out and only human selections
-          counted (
-          <a
-            href="https://fantasyfootballcalculator.com/adp/ppr"
-            className="underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            their stated method
-          </a>
-          ). The current sample is{" "}
-          {draftCount ? `${draftCount.toLocaleString()} drafts` : "the live rolling window"}.
+          The price is FantasyPros&rsquo; consensus average host rank for PPR:
+          the mean of a player&rsquo;s rank across up to five league host
+          boards, taken from the official API, which exposes each contributing
+          board&rsquo;s rank and publish time. It is an average rank, not a
+          draft position.
         </p>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
-          That is a specific crowd, not the whole market. People running August
-          mocks are hobbyists rather than the manager who shows up five minutes
-          before the draft. It moves faster than a platform average and it
-          reflects more engaged drafters. FantasyPros publishes its own
-          composite ADP across the major league hosts, which is a different and
-          broader population.
+          That composite is a specific population, not the whole market. Only
+          two of the five boards are identifiable, RTSports and Sleeper; the
+          other three are unnamed by the API. Coverage varies by scoring
+          format, five boards for PPR, three for half-PPR, two for standard,
+          and one host publishes roughly 25 hours behind the others in every
+          format, so part of the average always lags the news.
         </p>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
-          Two consequences worth knowing. Because it is a seven day rolling
-          mean, a move you see today reflects drafts from the past week, and an
-          event cannot show up in it faster than that. And because it is one
-          crowd rather than all of them, it is best read as a leading indicator
-          rather than as what your league will do.
-        </p>
-        <p className="mt-2 text-sm text-[var(--ink-3)]">
-          Roadmap: comparing this mock draft crowd against a platform composite
-          would show where the sharp market and the general market disagree,
-          which is a second gap and a better one. That second source is now
-          being captured daily in parallel, stored but not used. It feeds
-          nothing on this site, and it will not until there is enough stored
-          history to say anything honest about it.
+          Two consequences worth knowing. Because it is an average over a
+          varying set of boards, a host adding or dropping a player moves the
+          number without anyone repricing him, which is why movement is
+          measured over the boards present on both days only. And because the
+          boards publish up to a day apart, a move can keep entering the
+          average after the event that caused it.
         </p>
       </section>
 
@@ -155,31 +135,23 @@ export default async function Methodology() {
         <h2 className="text-xl font-semibold">Sources and capture times</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
           <li>
-            <strong>ADP</strong>: Fantasy Football Calculator public API
-            (PPR, 12-team, 2026). Captured automatically every day at 6:00 AM
-            PT by a scheduled job; each day is stored as an immutable dated
-            snapshot. Tracking since Aug 10, 2026. Each pull is a rolling
-            average over roughly the previous seven days of drafts, not that
-            day&rsquo;s spot price; the API returns the exact window it covers in
-            meta.start_date and meta.end_date.
+            <strong>Average host rank</strong> (the price): FantasyPros&rsquo;
+            consensus composite of up to five league host boards (PPR),
+            captured automatically every day at 6:00 AM PT by a scheduled job.
+            Each day is stored as an immutable dated snapshot alongside the
+            raw payload exactly as received, so the typed series can always be
+            rebuilt from source. Series begins with its first capture,
+            2026-08-16.
           </li>
           <li>
             <strong>ECR</strong>: FantasyPros consensus rankings (Draft PPR),
             via the official FantasyPros API (limited public tier). Captured
             automatically every day at 6:00 AM PT by the same scheduled job
-            that pulls ADP, and stored as its own dated snapshot alongside it.
+            that pulls the host rank composite, and stored as its own dated
+            snapshot alongside it.
             The capture date is shown wherever ECR appears. If no stored ECR
             snapshot can be read, the page falls back to the static Aug 10,
             2026 capture and labels it as such.
-          </li>
-          <li>
-            <strong>FantasyPros composite ADP</strong> (parallel, stored only,
-            since Aug 16, 2026): a composite of five league host sites, league
-            size agnostic, captured by the same daily job and stored under its
-            own path. It is <em>not</em> used in any gap, signal, threshold,
-            chart, story card or evidence tier, and it is not the ADP shown
-            anywhere on this site. It exists so a second series accumulates,
-            because ADP history cannot be bought after the fact.
           </li>
           <li>
             <strong>Player identity</strong>: Sleeper player database is the
@@ -393,8 +365,8 @@ export default async function Methodology() {
             before that date.
           </li>
           <li>
-            ADP reflects Fantasy Football Calculator mock drafts only, one
-            market, not all of fantasy football.
+            The price reflects five league host boards, not all of fantasy
+            football.
           </li>
           <li>
             News does not hit the price all at once. Drafters are spread across

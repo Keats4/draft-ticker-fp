@@ -12,8 +12,9 @@
  */
 
 /**
- * Fantasy Football Calculator's PPR ADP is a 12 team format, so a round is 12
- * picks. This is the league size the source is drawn from, not a preference.
+ * A twelve team league is the reference format, so a round is 12 ranks. The
+ * host rank composite is league size agnostic, so this is a stated
+ * convention, not a property of the source.
  */
 export const LEAGUE_SIZE = 12;
 
