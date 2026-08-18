@@ -56,7 +56,15 @@ async function readJsonBlob<T>(pathname: string): Promise<T | null> {
     const { blobs } = await list({ prefix: pathname });
     const hit = blobs.find((b) => b.pathname === pathname);
     if (!hit) return null;
-    const res = await fetch(hit.url, { cache: "no-store" });
+    // Cache busted read, same defence as scripts/backfill_host_rank.mjs:
+    // this reads host-rank-history.json, the one blob overwritten in place
+    // every day, and the blob CDN has served stale copies of overwritten
+    // pathnames before. `no-store` only disables Next's cache; a fresh query
+    // string per call is what defeats the CDN edge. Without it a chart can
+    // show yesterday's dates while the move window on the same page reads
+    // correctly from dated files.
+    const bust = `${hit.url.includes("?") ? "&" : "?"}cb=${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const res = await fetch(hit.url + bust, { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
