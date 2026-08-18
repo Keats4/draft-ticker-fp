@@ -25,6 +25,64 @@
   },
   "entries": [
     {
+      "id": "real-040-hubbard-hamstring",
+      "player": {
+        "sleeper_id": "7594",
+        "name": "Chuba Hubbard"
+      },
+      "date": "2026-08-13",
+      "category": "injury",
+      "summary": "Week-to-week with a hamstring injury after an MRI, ruled out of the preseason game at Buffalo. Dave Canales said he is 'very confident' Hubbard is ready for the Sept 13 opener against the Bears.",
+      "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/chuba-hubbard-week-to-week-with-hamstring-injury",
+      "verified": true,
+      "sample": false,
+      "date_confirmed_on_source": true,
+      "sources": [
+        {
+          "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/chuba-hubbard-week-to-week-with-hamstring-injury",
+          "outlet": "NBC Sports / ProFootballTalk",
+          "date_text": "August 13, 2026",
+          "kind": "original"
+        },
+        {
+          "url": "https://www.qcnews.com/nfl/carolina-panthers/panthers-rb-chuba-hubbard-to-miss-bills-preseason-game-with-hamstring-injury/",
+          "outlet": "QC News (Charlotte)",
+          "date_text": "August 2026",
+          "kind": "original"
+        },
+        {
+          "url": "https://wspd.iheart.com/content/2026-08-13-panthers-hubbard-to-miss-time-with-injury/",
+          "outlet": "iHeart / WSPD",
+          "date_text": "August 13, 2026 (URL-dated)",
+          "kind": "syndicated"
+        }
+      ],
+      "independent_source_count": 2
+    },
+    {
+      "id": "real-041-brooks-hubbard-out",
+      "player": {
+        "sleeper_id": "11583",
+        "name": "Jonathon Brooks"
+      },
+      "date": "2026-08-13",
+      "category": "environment",
+      "summary": "With Hubbard week-to-week with a hamstring injury, the planned backfield split at Buffalo became a bigger first-action role for Brooks. One injury, two prices: the event pausing Hubbard's summer is the same one expanding Brooks's.",
+      "source_url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/chuba-hubbard-week-to-week-with-hamstring-injury",
+      "verified": true,
+      "sample": false,
+      "date_confirmed_on_source": true,
+      "sources": [
+        {
+          "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/chuba-hubbard-week-to-week-with-hamstring-injury",
+          "outlet": "NBC Sports / ProFootballTalk",
+          "date_text": "August 13, 2026",
+          "kind": "original"
+        }
+      ],
+      "independent_source_count": 1
+    },
+    {
       "id": "real-014-irving",
       "player": {
         "sleeper_id": "11584",
