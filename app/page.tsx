@@ -25,7 +25,8 @@ import fpEcr from "@/fixtures/fp_ecr.json";
 import playerMap from "@/data/player_map.json";
 import catalystsFile from "@/data/catalysts.json";
 import phasesFile from "@/data/calendar_phases.json";
-import { currentPhase, moveQualifier, type Phase as LibPhase } from "@/lib/phases";
+import { currentPhase, moveTrustLevel, type Phase as LibPhase } from "@/lib/phases";
+import PhaseMeter from "@/components/PhaseMeter";
 import featured from "@/data/featured.json";
 import HowToReadCard from "@/components/HowToReadCard";
 import SignalChip from "@/components/SignalChip";
@@ -205,11 +206,11 @@ export default async function Home() {
   // ---- Per-player support data, all pulled from live code paths ----
   const phases = phasesFile.phases as Phase[];
   const phase = currentPhase(phases as unknown as LibPhase[]).phase;
-  // The move qualifier reads the phase current at the window's NEWEST date
+  // The move-trust meter reads the phase current at the window's NEWEST date
   // (today): trust is a statement about what movement observed now is worth,
   // so the newer phase governs when a window spans a phase boundary. See
-  // MOVE_QUALIFIER in lib/phases.ts. Null at "med" on purpose.
-  const qualifier = phase ? moveQualifier(phase.signal_level ?? "") : null;
+  // moveTrustLevel in lib/phases.ts. Null at "med" on purpose.
+  const moveTrust = phase ? moveTrustLevel(phase.signal_level ?? "") : null;
 
   const catalystsFor = (sleeperId: string | null) =>
     sleeperId
@@ -438,7 +439,7 @@ export default async function Home() {
                 }${bestPair.b.hostRankDelta}), so the mirror is not showing in the price today. Shown as measured, not as a story it is not telling.`
           }
           moveWindow={moveWindow}
-          moveQualifier={qualifier}
+          moveTrustLevel={moveTrust}
           trackingSince={trackingSince}
         />
       ) : singleHero ? (
@@ -456,7 +457,7 @@ export default async function Home() {
           signal={singleHero.signal}
           evidence={heroX?.evidence ?? null}
           sentence={whatItMeans(singleHero.signal, singleHero.gap, singleHero.hostRankDelta, singleHero.gapReason)}
-          moveQualifier={qualifier}
+          moveTrustLevel={moveTrust}
           points={heroX?.points ?? []}
           markers={heroX?.markers ?? []}
           trackingSince={trackingSince}
@@ -523,18 +524,15 @@ export default async function Home() {
                       </span>
                     )}
                     {m.headline}.
-                    {qualifier && (
-                      <>
-                        {" "}
-                        <Link
-                          href="/calendar"
-                          className="relative z-10 text-xs font-normal text-[var(--ink-3)] underline decoration-dotted"
-                        >
-                          · {qualifier}
-                        </Link>
-                      </>
-                    )}
                   </p>
+                  {moveTrust && (
+                    <Link
+                      href="/calendar"
+                      className="relative z-10 mt-0.5 inline-flex items-center gap-1.5 text-[11px] text-[var(--ink-3)] hover:underline"
+                    >
+                      movement trust <PhaseMeter level={moveTrust} />
+                    </Link>
+                  )}
                   {m.expert && (
                     <p className="mt-0.5 text-xs text-[var(--ink-3)]">{m.expert}</p>
                   )}

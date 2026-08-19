@@ -34,7 +34,7 @@ export default function HeroStory({
   signal,
   evidence,
   sentence,
-  moveQualifier = null,
+  moveTrustLevel = null,
   points,
   markers,
   trackingSince,
@@ -56,9 +56,10 @@ export default function HeroStory({
   signal: Signal | null;
   evidence: Evidence | null;
   sentence: string;
-  /** Trust qualifier for the move (lib/phases.ts MOVE_QUALIFIER), null when
-   *  the phase's trust level is medium or unknown. Links to the calendar. */
-  moveQualifier?: string | null;
+  /** Trust level for the move (lib/phases.ts moveTrustLevel), null when the
+   *  phase's trust level is medium or unknown. Rendered as the shared
+   *  PhaseMeter linking to the calendar. */
+  moveTrustLevel?: PhaseLevel | null;
   points: ChartPoint[];
   markers: ChartMarker[];
   trackingSince: string;
@@ -160,20 +161,15 @@ export default function HeroStory({
         </div>
 
         {/* 6. plain-language sentence */}
-        <p className="mt-3 text-sm text-[var(--foreground)]">
-          {sentence}
-          {moveQualifier && (
-            <>
-              {" "}
-              <Link
-                href="/calendar"
-                className="text-xs text-[var(--ink-3)] underline decoration-dotted"
-              >
-                · {moveQualifier}
-              </Link>
-            </>
-          )}
-        </p>
+        <p className="mt-3 text-sm text-[var(--foreground)]">{sentence}</p>
+        {moveTrustLevel && (
+          <Link
+            href="/calendar"
+            className="mt-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--ink-3)] hover:underline"
+          >
+            movement trust <PhaseMeter level={moveTrustLevel} />
+          </Link>
+        )}
 
         {/* 7. catalyst headline with its date */}
         {catalyst ? (
