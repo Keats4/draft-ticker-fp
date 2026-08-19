@@ -55,18 +55,6 @@ const HOME_TABLE_ROWS = 25;
  */
 const FOR_YOUR_DRAFT_TOP_N = 120;
 
-/** Plain-noun rendering of a catalyst category for the lead sentence.
- *  Display only; the catalyst file and evidence logic are untouched. */
-const CATEGORY_NOUN: Record<string, string> = {
-  injury: "an injury report",
-  usage: "a usage note",
-  coaching: "a coaching comment",
-  "depth-chart": "a depth chart note",
-  environment: "a change in his situation",
-  trade: "a trade",
-  other: "a documented event",
-};
-
 /** "Aug 15" from a stored YYYY-MM-DD date. */
 const fmtShortDate = (d: string) =>
   new Date(d + "T12:00:00Z").toLocaleDateString("en-US", {
@@ -446,7 +434,7 @@ export default async function Home() {
   for (const r of ranked) {
     if (leadEligible(r) && !leadPool.some((p) => p.fpId === r.fpId)) leadPool.push(r);
   }
-  type LeadItem = { href: string; name: string; sentence: string };
+  type LeadItem = { href: string; name: string; sentence: string; evidence: string };
   const leadItems: LeadItem[] = daysAgo
     ? leadPool.slice(0, 3).flatMap((r) => {
         const read = leadLine(r, daysAgo);
@@ -460,22 +448,34 @@ export default async function Home() {
                 .filter((c) => inMoveWindow(c.date, previous.date, latest.date))
                 .sort((x, y) => (x.date < y.date ? 1 : -1))
             : [];
+        // The evidence line renders the newest qualifying catalyst's own
+        // one-line summary, verbatim: the schema requires a factual one-line
+        // summary per entry, so the reader gets the actual reason rather
+        // than a count and a category. Never truncated here; an over-length
+        // summary is an editorial problem in the catalyst file, not a
+        // rendering one. When more than one qualifies, the earlier ones are
+        // mentioned in plain words, and the full sourced list stays below.
         const newest = inWin[0] ?? null;
-        const noun = newest
-          ? (CATEGORY_NOUN[newest.category] ?? CATEGORY_NOUN.other)
+        const summary = newest
+          ? /[.!?]$/.test(newest.summary.trim())
+            ? newest.summary.trim()
+            : `${newest.summary.trim()}.`
           : null;
-        const evidence = !newest
-          ? "No documented event is on file for this move yet."
-          : inWin.length === 1
-            ? `A documented event sits inside the move window: ${noun} from ${fmtShortDate(newest.date)}.`
-            : `${smallNumberWord(inWin.length)[0].toUpperCase()}${smallNumberWord(inWin.length).slice(1)} documented events sit inside the move window, the newest ${noun} from ${fmtShortDate(newest.date)}.`;
+        const evidence = newest
+          ? `${fmtShortDate(newest.date)}: ${summary}${
+              inWin.length > 1
+                ? " There are earlier documented notes on file for him as well."
+                : ""
+            }`
+          : "No documented event is on file for this move yet.";
         // The name renders as its own link, so the sentence starts after it.
         const rest = read.main.slice(r.name.length).trimStart();
         return [
           {
             href: hrefFor(r),
             name: r.name,
-            sentence: `${rest}.${read.expert ? ` ${read.expert}` : ""} ${evidence}`,
+            sentence: `${rest}.${read.expert ? ` ${read.expert}` : ""}`,
+            evidence,
           },
         ];
       })
@@ -522,12 +522,17 @@ export default async function Home() {
           </h2>
           <div className="mt-2 space-y-2">
             {leadItems.map((item) => (
-              <p key={item.href} className="text-[15px] leading-snug">
-                <Link href={item.href} className="font-semibold hover:underline">
-                  {item.name}
-                </Link>{" "}
-                {item.sentence}
-              </p>
+              <div key={item.href}>
+                <p className="text-[15px] leading-snug">
+                  <Link href={item.href} className="font-semibold hover:underline">
+                    {item.name}
+                  </Link>{" "}
+                  {item.sentence}
+                </p>
+                <p className="mt-0.5 text-sm leading-snug text-[var(--ink-2)]">
+                  {item.evidence}
+                </p>
+              </div>
             ))}
           </div>
           <p className="mt-3 border-t border-[var(--border)] pt-2 text-xs text-[var(--ink-3)]">
