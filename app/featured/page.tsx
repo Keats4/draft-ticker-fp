@@ -163,7 +163,7 @@ export default async function Featured() {
                   <span className="text-[var(--ink-3)]">· ADP {r.hostRank}</span>
                 </p>
                 <div className="mt-2"><SignalChip signal={r.signal} /></div>
-                <p className="mt-2 text-xs text-[var(--ink-2)]">{whatItMeans(r.signal, r.gap, r.hostRankDelta, r.gapReason)}</p>
+                <p className="mt-2 text-xs text-[var(--ink-2)]">{whatItMeans(r.signal, r.gap, r.hostRankDelta, r.ecrDelta, r.gapReason)}</p>
               </div>
             ))}
           </div>

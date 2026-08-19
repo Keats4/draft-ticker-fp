@@ -1,17 +1,9 @@
 import Link from "next/link";
 import EvalScorecard from "@/components/EvalScorecard";
-import { THRESHOLDS, type FpLite } from "@/lib/math";
-import { loadAllEcrSnapshots, loadFirstAndLatestSnapshots } from "@/lib/snapshot";
+import { THRESHOLDS } from "@/lib/math";
 import { CATALYST_LOOKBACK_DAYS } from "@/lib/evidence";
-import { buildMarketRows, type SleeperByFpId } from "@/lib/market";
-import playerMap from "@/data/player_map.json";
-import fpHostRankFixture from "@/fixtures/fp_host_rank.json";
-import fpEcr from "@/fixtures/fp_ecr.json";
-import type { FpHostRankPlayer } from "@/lib/types";
-import { toHostRankPlayers, type RawHostRankRow } from "@/lib/sources/fantasypros-host-rank";
 
 export const metadata = { title: "Methodology · Draft Ticker" };
-export const dynamic = "force-dynamic";
 
 const AWAITING = (
   <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">
@@ -19,49 +11,11 @@ const AWAITING = (
   </span>
 );
 
-export default async function Methodology() {
-  // The join review below is computed from the SAME pipeline the Market page
-  // runs, so the numbers on this page are the live ones, not a stored report.
-  const [{ first, latest }, ecrSnaps] = await Promise.all([
-    loadFirstAndLatestSnapshots(),
-    loadAllEcrSnapshots(),
-  ]);
-  const priceRows: FpHostRankPlayer[] = latest
-    ? latest.rows
-    : toHostRankPlayers(fpHostRankFixture.players as RawHostRankRow[]);
-  const sleeperByFpId: SleeperByFpId = {};
-  for (const e of Object.values(
-    playerMap as Record<string, { sleeper_id: string; fp_id?: number }>
-  )) {
-    if (e.fp_id != null) sleeperByFpId[e.fp_id] = e.sleeper_id;
-  }
-  const ecrLatest = ecrSnaps[ecrSnaps.length - 1] ?? null;
-  // buildMarketRows now returns MarketRow[]; the join review it used to
-  // return no longer exists because price and ECR share FantasyPros
-  // player_id and need no cross-source join. Rows are still computed here so
-  // this page runs the same pipeline as the Market page.
-  const rows = buildMarketRows(
-    priceRows,
-    first?.rows ?? null,
-    ecrLatest ? ecrLatest.rows : (fpEcr as { players: FpLite[] }).players,
-    sleeperByFpId,
-    null
-  );
-  void rows;
-  // SESSION FOUR: the cross-source join review section below is left
-  // verbatim. There is no review object any more, so it is fed an explicitly
-  // empty one rather than fabricated counts.
-  const review = {
-    viaMap: 0,
-    viaFallback: 0,
-    unmatched: [] as string[],
-    ambiguous: [] as string[],
-    teamMismatch: [] as string[],
-  };
-  const joined = review.viaMap + review.viaFallback;
-  const flagged =
-    review.unmatched.length + review.ambiguous.length + review.teamMismatch.length;
-
+export default function Methodology() {
+  // This page is prose and published constants only. It used to run the
+  // Market pipeline to feed a cross-source join review; both series now come
+  // from FantasyPros on one player_id space, so there is no cross-source
+  // join to review and nothing here needs live data.
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-bold tracking-tight">Methodology</h1>
@@ -94,10 +48,10 @@ export default async function Methodology() {
         <h2 className="text-xl font-semibold">Positional ranks</h2>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
           Positional ranks here (TE13, WR24) are computed from FantasyPros&rsquo;
-          overall ECR across the players we successfully match, so they can
+          overall ECR across the tracked players who hold an ECR, so they can
           differ by a place or two from the positional ranks published on their
-          site. A player they rank whom we fail to join shifts every rank below
-          him. Price-side positional rank comes from the ADP
+          site. A player they rank whom the pipeline does not cover shifts
+          every rank below him. Price-side positional rank comes from the ADP
           payload&rsquo;s own pos_rank field; kickers and team defenses are
           excluded from the pipeline before ranking, so their removal does not
           distort the skill position ranks.
@@ -158,11 +112,11 @@ export default async function Methodology() {
             2026 capture and labels it as such.
           </li>
           <li>
-            <strong>Player identity</strong>: Sleeper player database is the
-            canonical ID space. Most rows join on a reviewed mapping table; only
-            the rows that table does not cover fall through to name matching,
-            and every one of those that fails to resolve is logged for human
-            review rather than guessed. Live counts are below.
+            <strong>Player identity</strong>: price and expert rank share the
+            FantasyPros player_id, so the two series need no join at all. A
+            reviewed mapping table (FantasyPros id → Sleeper id) links players
+            to catalysts, archetype inputs and page URLs; a row it does not
+            cover simply renders without those extras, never a guessed match.
           </li>
         </ul>
       </section>
@@ -283,6 +237,20 @@ export default async function Methodology() {
           30-draft bar additionally removes 6 of 173 otherwise-comparable
           players whose ADP rests on too few drafts to trust.
         </p>
+        <p className="mt-3 text-sm text-[var(--ink-2)]">
+          One display module carries a further bound. &ldquo;For your
+          draft&rdquo; picks its three players only from the top 120 by ADP,
+          then ranks by gap as everywhere else. The reason is what the module
+          claims to be: the three decisions that matter most at a draft table.
+          Ranked purely by raw gap, the widest disagreements in the full
+          universe are routinely late-round quarterbacks the market defers by
+          position, mathematically correct and not a decision anyone is
+          weighing in the rounds they draft. 120 is a judgment call with the
+          same standing as the move thresholds, chosen rather than fitted, and
+          will be revisited with history. It changes nothing outside that
+          module: the comparison universe, the market table, gaps and signals
+          are all unaffected.
+        </p>
       </section>
 
       <section className="mt-8">
@@ -333,48 +301,6 @@ export default async function Methodology() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold">Cross-source join review</h2>
-        <p className="mt-2 text-sm text-[var(--ink-2)]">
-          ADP and expert ranks come from two different providers with two
-          different id spaces, so every row has to be joined. These counts are
-          computed live, on this request, by the same function the Market page
-          uses, they are not a stored report.
-        </p>
-        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
-          <li>
-            <strong>{review.viaMap}</strong> rows joined on the reviewed mapping
-            table (Sleeper id → FantasyPros id). These never reach name matching.
-          </li>
-          <li>
-            <strong>{review.viaFallback}</strong> rows the mapping table does not
-            cover, resolved by normalised name and position.
-          </li>
-          <li>
-            <strong>{review.unmatched.length}</strong> unmatched, no confident
-            expert match, so ECR renders “–” and no gap is computed
-            {review.unmatched.length > 0 && <>: {review.unmatched.join(", ")}</>}.
-          </li>
-          <li>
-            <strong>{review.ambiguous.length}</strong> ambiguous, more than one
-            candidate, never auto-picked
-            {review.ambiguous.length > 0 && <>: {review.ambiguous.join(", ")}</>}.
-          </li>
-          <li>
-            <strong>{review.teamMismatch.length}</strong> matched on name and
-            position with a disagreeing team, accepted but flagged
-            {review.teamMismatch.length > 0 && <>: {review.teamMismatch.join(", ")}</>}.
-          </li>
-        </ul>
-        <p className="mt-3 text-sm text-[var(--ink-2)]">
-          {joined} of {joined + flagged} rows resolved; {flagged} flagged for a
-          human. The scope is worth stating plainly: this review covers the rows
-          that fall through to name matching. A row joined on the mapping table
-          cannot appear here, because it never went through the matcher, the
-          mapping table itself is checked separately at build time.
-        </p>
-      </section>
-
-      <section className="mt-8">
         <h2 className="text-xl font-semibold">Limitations</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
           <li>
@@ -416,8 +342,9 @@ export default async function Methodology() {
             ECR snapshot, not just the most recent ones.
           </li>
           <li>
-            Some players have no confident cross-source match and show “–”
-            for ECR rather than a guessed value.
+            Some players carry no expert rank in the ECR payload, or sit
+            outside the comparable range, and show “–” for ECR rather than a
+            guessed value.
           </li>
           <li>
             Signal evaluation summary (how often each label appeared and how

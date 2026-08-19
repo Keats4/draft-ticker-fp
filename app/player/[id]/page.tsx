@@ -298,7 +298,7 @@ export default async function PlayerPage({
                 it.
               </p>
               <p className="mt-1 text-sm text-[var(--ink-2)]">
-                {whatItMeans(row.signal, row.gap, row.hostRankDelta, row.gapReason)} Catalysts are
+                {whatItMeans(row.signal, row.gap, row.hostRankDelta, row.ecrDelta, row.gapReason)} Catalysts are
                 hand-curated with a source and a verified flag, never scraped,
                 never guessed.
               </p>
@@ -398,7 +398,7 @@ export default async function PlayerPage({
               markers={markers}
               trackingSince={trackingSince}
               signal={row.signal}
-              interpretation={whatItMeans(row.signal, row.gap, row.hostRankDelta, row.gapReason)}
+              interpretation={whatItMeans(row.signal, row.gap, row.hostRankDelta, row.ecrDelta, row.gapReason)}
               evidence={evidence}
             />
           </div>

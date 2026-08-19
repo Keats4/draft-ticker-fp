@@ -16,6 +16,8 @@ import {
   valueLine,
   valueWord,
   valueTone,
+  leadLine,
+  smallNumberWord,
 } from "@/lib/story";
 import { evidenceFor, inMoveWindow } from "@/lib/evidence";
 import { buildArchetypes } from "@/lib/archetype";
@@ -41,6 +43,37 @@ export const dynamic = "force-dynamic";
 
 /** The homepage curates; the full universe lives on /players. */
 const HOME_TABLE_ROWS = 25;
+
+/**
+ * "For your draft" eligibility bound: only players inside the top
+ * FOR_YOUR_DRAFT_TOP_N by ADP are candidates, then ranked by gap as before.
+ * A chosen constraint, not a fitted one (stated on the methodology page):
+ * without it the module surfaces late-round quarterbacks with mathematically
+ * huge gaps, which is not what a drafter means by the three decisions that
+ * matter most. Display selection only; the comparison universe, the market
+ * table and every signal are untouched by this bound.
+ */
+const FOR_YOUR_DRAFT_TOP_N = 120;
+
+/** Plain-noun rendering of a catalyst category for the lead sentence.
+ *  Display only; the catalyst file and evidence logic are untouched. */
+const CATEGORY_NOUN: Record<string, string> = {
+  injury: "an injury report",
+  usage: "a usage note",
+  coaching: "a coaching comment",
+  "depth-chart": "a depth chart note",
+  environment: "a change in his situation",
+  trade: "a trade",
+  other: "a documented event",
+};
+
+/** "Aug 15" from a stored YYYY-MM-DD date. */
+const fmtShortDate = (d: string) =>
+  new Date(d + "T12:00:00Z").toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
 
 /** "Aug 16, 2026" from a stored YYYY-MM-DD date. */
 const fmtLongDate = (d: string) =>
@@ -196,7 +229,8 @@ export default async function Home() {
   const riser = [...movers].sort((a, b) => b.hostRankDelta! - a.hostRankDelta!)[0];
   const faller = [...movers].sort((a, b) => a.hostRankDelta! - b.hostRankDelta!)[0];
 
-  const forYourDraft = [...withGap]
+  const forYourDraft = withGap
+    .filter((r) => r.hostRankOrdinal <= FOR_YOUR_DRAFT_TOP_N)
     .sort((a, b) => Math.abs(b.gap!) - Math.abs(a.gap!))
     .slice(0, 3);
 
@@ -380,6 +414,73 @@ export default async function Home() {
       }
     : null;
 
+  // ---- The plain English lead. ----
+  // Two or three moves stated in ordinary language before any vocabulary.
+  // Selection is programmatic and reuses what the page already decided: the
+  // leading mirror pair's sides first, then the story ranking, keeping only
+  // moves that cleared the published price bar inside the universe. Nothing
+  // is ever hardcoded, and if no move qualifies the section does not render.
+  const windowDays =
+    previous && latest
+      ? Math.round(
+          (Date.parse(latest.date + "T12:00:00Z") -
+            Date.parse(previous.date + "T12:00:00Z")) /
+            86_400_000
+        )
+      : null;
+  const daysAgo =
+    windowDays === null
+      ? null
+      : windowDays === 1
+        ? "yesterday"
+        : `${smallNumberWord(windowDays)} days ago`;
+
+  const leadEligible = (r: MarketRow) =>
+    r.inUniverse &&
+    r.hostRankDelta !== null &&
+    Math.abs(r.hostRankDelta) >= THRESHOLDS.HOST_RANK_MOVE;
+  const leadPool: MarketRow[] = [];
+  for (const r of bestPair ? [bestPair.a, bestPair.b] : []) {
+    if (leadEligible(r)) leadPool.push(r);
+  }
+  for (const r of ranked) {
+    if (leadEligible(r) && !leadPool.some((p) => p.fpId === r.fpId)) leadPool.push(r);
+  }
+  type LeadItem = { href: string; name: string; sentence: string };
+  const leadItems: LeadItem[] = daysAgo
+    ? leadPool.slice(0, 3).flatMap((r) => {
+        const read = leadLine(r, daysAgo);
+        if (!read) return [];
+        // Evidence clause from the same predicate every other surface uses:
+        // verified, non-sample events inside the move window plus lookback.
+        const inWin =
+          previous && latest
+            ? catalystsFor(r.sleeperId)
+                .filter((c) => c.verified && !c.sample)
+                .filter((c) => inMoveWindow(c.date, previous.date, latest.date))
+                .sort((x, y) => (x.date < y.date ? 1 : -1))
+            : [];
+        const newest = inWin[0] ?? null;
+        const noun = newest
+          ? (CATEGORY_NOUN[newest.category] ?? CATEGORY_NOUN.other)
+          : null;
+        const evidence = !newest
+          ? "No documented event is on file for this move yet."
+          : inWin.length === 1
+            ? `A documented event sits inside the move window: ${noun} from ${fmtShortDate(newest.date)}.`
+            : `${smallNumberWord(inWin.length)[0].toUpperCase()}${smallNumberWord(inWin.length).slice(1)} documented events sit inside the move window, the newest ${noun} from ${fmtShortDate(newest.date)}.`;
+        // The name renders as its own link, so the sentence starts after it.
+        const rest = read.main.slice(r.name.length).trimStart();
+        return [
+          {
+            href: hrefFor(r),
+            name: r.name,
+            sentence: `${rest}.${read.expert ? ` ${read.expert}` : ""} ${evidence}`,
+          },
+        ];
+      })
+    : [];
+
   const tableRows: RowLite[] = rows.slice(0, HOME_TABLE_ROWS).map((r) => ({
     rank: r.hostRankOrdinal,
     href: hrefFor(r),
@@ -394,7 +495,7 @@ export default async function Home() {
     gapNotable: r.gap !== null && Math.abs(r.gap) >= THRESHOLDS.GAP_NOTABLE,
     hostRankDelta: r.hostRankDelta,
     signal: r.signal,
-    whatItMeans: whatItMeans(r.signal, r.gap, r.hostRankDelta, r.gapReason),
+    whatItMeans: whatItMeans(r.signal, r.gap, r.hostRankDelta, r.ecrDelta, r.gapReason),
   }));
 
   return (
@@ -411,9 +512,29 @@ export default async function Home() {
         )}
       </header>
 
-      {/* No intro line here on purpose: the hero's trust strip and the phase
-          card line directly below already carry the phase name and trust
-          reading. */}
+      {/* The plain English lead: the first fifteen seconds, in ordinary
+          language. The market mechanics (hero, signals, evidence tiers,
+          table) all stay below for the reader who wants them. */}
+      {leadItems.length > 0 && (
+        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+          <h2 className="text-lg font-semibold">
+            What changed since your last mock draft
+          </h2>
+          <div className="mt-2 space-y-2">
+            {leadItems.map((item) => (
+              <p key={item.href} className="text-[15px] leading-snug">
+                <Link href={item.href} className="font-semibold hover:underline">
+                  {item.name}
+                </Link>{" "}
+                {item.sentence}
+              </p>
+            ))}
+          </div>
+          <p className="mt-3 border-t border-[var(--border)] pt-2 text-xs text-[var(--ink-3)]">
+            The numbers, signals and sources behind each of these are below.
+          </p>
+        </section>
+      )}
 
       {bestPair ? (
         <MirrorHero
@@ -456,7 +577,7 @@ export default async function Home() {
           archetypeReason={heroX?.arch?.reason ?? null}
           signal={singleHero.signal}
           evidence={heroX?.evidence ?? null}
-          sentence={whatItMeans(singleHero.signal, singleHero.gap, singleHero.hostRankDelta, singleHero.gapReason)}
+          sentence={whatItMeans(singleHero.signal, singleHero.gap, singleHero.hostRankDelta, singleHero.ecrDelta, singleHero.gapReason)}
           moveTrustLevel={moveTrust}
           points={heroX?.points ?? []}
           markers={heroX?.markers ?? []}
@@ -588,7 +709,8 @@ export default async function Home() {
           <span aria-hidden style={{ color: "var(--gold)" }}>◎</span> For your draft
         </p>
         <p className="mt-0.5 text-sm text-[var(--ink-2)]">
-          Where ADP and the experts disagree most right now.
+          Where ADP and the experts disagree most inside the top{" "}
+          {FOR_YOUR_DRAFT_TOP_N} by ADP, the picks a drafter actually faces.
         </p>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
           {forYourDraft.map((r, i) => (
@@ -627,10 +749,11 @@ export default async function Home() {
                 <SignalChip signal={r.signal} />
               </div>
               <p className="mt-2 text-xs text-[var(--ink-2)]">
-                {whatItMeans(r.signal, r.gap, r.hostRankDelta)}
+                {whatItMeans(r.signal, r.gap, r.hostRankDelta, r.ecrDelta)}
               </p>
               <p className="mt-2 border-t border-[var(--border)] pt-2 text-[11px] text-[var(--ink-3)]">
-                How we chose this: #{i + 1} widest market-vs-expert gap.
+                How we chose this: #{i + 1} widest market-vs-expert gap inside
+                the top {FOR_YOUR_DRAFT_TOP_N} by ADP.
               </p>
             </div>
           ))}

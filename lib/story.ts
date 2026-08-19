@@ -227,6 +227,68 @@ export function valueLine(r: StoryRow): ValueRead {
   };
 }
 
+/**
+ * ---- The plain English lead ----
+ *
+ * The first thing on the homepage, written for a reader who knows none of
+ * the site's vocabulary: no ADP, ECR, gap, signal or trust. It answers
+ * "what changed since my last mock draft" in the shape "he is going N picks
+ * earlier than three days ago", with what the experts did over the same
+ * window as a second clause. Every fact is one already computed elsewhere
+ * on the page; nothing here introduces a new threshold or measurement, and
+ * the expert clause reads the same published bars the signals do.
+ */
+
+/** "three" for 3; digits past ten so the copy never says "seventeen days". */
+const NUM_WORDS = [
+  "zero", "one", "two", "three", "four", "five",
+  "six", "seven", "eight", "nine", "ten",
+] as const;
+export function smallNumberWord(n: number): string {
+  return n >= 0 && n <= 10 ? NUM_WORDS[n] : String(n);
+}
+
+export type LeadRead = {
+  /** "Jonathon Brooks is going about 5 picks earlier than three days ago". */
+  main: string;
+  /** What the experts did over the same window, or null when unknown. */
+  expert: string | null;
+};
+
+export function leadLine(
+  r: Pick<StoryRow, "name" | "hostRankDelta" | "ecrDelta">,
+  daysAgo: string
+): LeadRead | null {
+  const move = r.hostRankDelta;
+  if (move == null || move === 0) return null;
+  const size = Math.abs(move);
+  // The price is an average rank, so deltas are usually fractional. A drafter
+  // thinks in whole picks: "about 5 picks", never "5.2 picks". An exact
+  // integer drops the "about" because rounding did not touch it.
+  const whole = Math.round(size);
+  const picksPhrase = `${Number.isInteger(size) ? size : `about ${whole}`} pick${whole === 1 ? "" : "s"}`;
+  const main = `${r.name} is going ${picksPhrase} ${move > 0 ? "earlier" : "later"} than ${daysAgo}`;
+
+  let expert: string | null = null;
+  const e = r.ecrDelta;
+  if (e != null) {
+    if (Math.abs(e) < THRESHOLDS.ECR_MOVE) {
+      expert = "The experts have not moved him.";
+    } else if (e * move < 0) {
+      expert = "The experts moved him the other way.";
+    } else {
+      const ratio = Math.abs(e) / size;
+      expert =
+        ratio >= 2 / 3 && ratio <= 1.5
+          ? "The experts moved him almost exactly the same amount."
+          : ratio < 1
+            ? "The experts moved him the same way, but not as far."
+            : "The experts moved him the same way, and even further.";
+    }
+  }
+  return { main, expert };
+}
+
 /** The old one-sentence form, value read first. Kept for non-card callers. */
 export function storyLine(r: StoryRow, moveWindow: string): string {
   const m = moveLine(r, moveWindow);
