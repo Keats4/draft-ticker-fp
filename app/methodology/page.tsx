@@ -303,6 +303,7 @@ export default async function Methodology() {
           <li><strong>Handcuff</strong>: the team&rsquo;s RB2 by ADP, at least 30 picks behind the RB1.</li>
           <li><strong>Committee</strong>: any back within 30 picks of the team&rsquo;s RB1, including the RB1 himself when the room is that tight.</li>
           <li><strong>Alpha receiver</strong>: ADP inside the first two rounds, or the team&rsquo;s WR1 by ADP with the WR2 at least 20 picks behind.</li>
+          <li><strong>Promoted</strong>: a room-mate priced above him carries the Injured tag, so his role just grew. Checked after Injured and before the price-gap roles; an authored Injured override counts.</li>
           <li><strong>Rookie</strong>: first NFL season where no role label applies.</li>
           <li><strong>No label</strong>: quarterbacks and tight ends by design, free agents, and anyone no rule matches. No placeholder is shown.</li>
         </ul>

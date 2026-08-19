@@ -61,6 +61,7 @@ export const ARCHETYPE_RULES_DOC = [
   `Handcuff: the team's RB2 by ADP, at least ${ARCHETYPE_GAPS.RB_ROLE} picks behind the RB1.`,
   `Committee: any back within ${ARCHETYPE_GAPS.RB_ROLE} picks of the team's RB1, including the RB1 himself when the room is that tight.`,
   `Alpha receiver: ADP inside the first two rounds (≤ ${ARCHETYPE_GAPS.WR_ALPHA_PRICE}), or the team's WR1 by ADP with the WR2 at least ${ARCHETYPE_GAPS.WR_ROLE} picks behind.`,
+  "Promoted: a room-mate priced above him carries the Injured tag, so his role just grew. Checked after Injured, before the price-gap roles.",
   "Rookie: first NFL season (years_exp 0) where no role label applies.",
   "No label: quarterbacks and tight ends by design, free agents, and anyone no rule matches. No placeholder is shown.",
   "Authored overrides: a short curated list (data/archetype_overrides.json) corrects rooms the price gap alone misreads, each with its reason stated; tag null removes a label.",
@@ -102,6 +103,18 @@ export function buildArchetypes(players: ArchetypeInput[]): Map<number, Archetyp
   }
   for (const g of rooms.values()) g.sort((a, b) => a.adp - b.adp);
 
+  // Who counts as injured for the Promoted rule: the serious designation OR
+  // an authored override to Injured (e.g. a report the designation feed has
+  // not caught up to). Precomputed so Promoted sees override-injuries too.
+  const injuredIds = new Set<number>();
+  for (const p of players) {
+    const ov = p.sleeperId ? OVERRIDES.get(p.sleeperId) : undefined;
+    const injured = ov
+      ? ov.tag === "Injured"
+      : !!(p.injury_status && SERIOUS_INJURY.has(p.injury_status.trim()));
+    if (injured) injuredIds.add(p.id);
+  }
+
   const out = new Map<number, Archetype>();
   for (const p of players) {
     // Authored overrides first: a short curated list correcting rooms the
@@ -124,7 +137,21 @@ export function buildArchetypes(players: ArchetypeInput[]): Map<number, Archetyp
 
     let role: Archetype | null = null;
     const room = p.team === "FA" ? undefined : rooms.get(`${p.team}|${p.position}`);
-    if (room && p.position === "RB") {
+    // Promoted: a room-mate priced ABOVE him carries the Injured tag, so his
+    // role just grew. Checked before the price-gap roles because the injury
+    // is the fresher fact; the gap rules describe the room as priced, this
+    // describes the room as it stands. Injured itself (checked above) and
+    // authored overrides still win.
+    if (room) {
+      const injuredAbove = room.find((t) => t.adp < p.adp && injuredIds.has(t.id));
+      if (injuredAbove) {
+        role = {
+          tag: "Promoted",
+          reason: `A room-mate priced above him (ADP ${r1(injuredAbove.adp)}) carries an injury designation.`,
+        };
+      }
+    }
+    if (!role && room && p.position === "RB") {
       const idx = room.indexOf(p);
       const leader = room[0];
       if (idx === 0) {
@@ -144,11 +171,11 @@ export function buildArchetypes(players: ArchetypeInput[]): Map<number, Archetyp
           role = { tag: "Committee", reason: `Within ${ARCHETYPE_GAPS.RB_ROLE} picks of the team RB1 (${r1(behind)} behind).` };
         }
       }
-    } else if (p.position === "WR" && p.adp <= ARCHETYPE_GAPS.WR_ALPHA_PRICE) {
+    } else if (!role && p.position === "WR" && p.adp <= ARCHETYPE_GAPS.WR_ALPHA_PRICE) {
       // A second-round price is an alpha price, whoever lines up across
       // from him: applies before the room rules and to FA receivers too.
       role = { tag: "Alpha receiver", reason: `ADP ${r1(p.adp)} inside the first two rounds (≤ ${ARCHETYPE_GAPS.WR_ALPHA_PRICE}).` };
-    } else if (room && p.position === "WR") {
+    } else if (!role && room && p.position === "WR") {
       const idx = room.indexOf(p);
       if (idx === 0 && (room.length === 1 || room[1].adp - p.adp >= ARCHETYPE_GAPS.WR_ROLE)) {
         role = { tag: "Alpha receiver", reason: `Team WR1 by ADP, next receiver ${room.length > 1 ? `${r1(room[1].adp - p.adp)} picks` : "nobody"} behind (bar: ${ARCHETYPE_GAPS.WR_ROLE}).` };
@@ -199,6 +226,10 @@ export const ARCHETYPE_PLAIN: Record<
   Rookie: {
     definition: "First NFL season, no role label yet.",
     moves: "Moves on camp reports and preseason usage.",
+  },
+  Promoted: {
+    definition: "A player priced above him in his room is injured, so his role just grew.",
+    moves: "Moves on the injured starter's recovery news, in the opposite direction.",
   },
 };
 
