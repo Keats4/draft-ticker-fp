@@ -61,7 +61,7 @@ export const ARCHETYPE_RULES_DOC = [
   `Handcuff: the team's RB2 by ADP, at least ${ARCHETYPE_GAPS.RB_ROLE} picks behind the RB1.`,
   `Committee: any back within ${ARCHETYPE_GAPS.RB_ROLE} picks of the team's RB1, including the RB1 himself when the room is that tight.`,
   `Alpha receiver: ADP inside the first two rounds (≤ ${ARCHETYPE_GAPS.WR_ALPHA_PRICE}), or the team's WR1 by ADP with the WR2 at least ${ARCHETYPE_GAPS.WR_ROLE} picks behind.`,
-  "Promoted: a room-mate priced above him carries the Injured tag, so his role just grew. Checked after Injured, before the price-gap roles.",
+  "Promoted: the highest priced eligible room-mate below an Injured player, one per injured starter. Checked after Injured, before the price-gap roles.",
   "Rookie: first NFL season (years_exp 0) where no role label applies.",
   "No label: quarterbacks and tight ends by design, free agents, and anyone no rule matches. No placeholder is shown.",
   "Authored overrides: a short curated list (data/archetype_overrides.json) corrects rooms the price gap alone misreads, each with its reason stated; tag null removes a label.",
@@ -115,6 +115,24 @@ export function buildArchetypes(players: ArchetypeInput[]): Map<number, Archetyp
     if (injured) injuredIds.add(p.id);
   }
 
+  // Promoted, BOUNDED: one injured starter produces ONE promoted player, the
+  // highest priced eligible room-mate below him, not everyone below him.
+  // Eligible means not injured himself and not carrying an authored
+  // override, so the label always lands where it can render.
+  const promotedBy = new Map<number, ArchetypeInput>(); // beneficiary -> injured starter
+  for (const g of rooms.values()) {
+    for (const inj of g) {
+      if (!injuredIds.has(inj.id)) continue;
+      const heir = g.find(
+        (t) =>
+          t.adp > inj.adp &&
+          !injuredIds.has(t.id) &&
+          !(t.sleeperId && OVERRIDES.has(t.sleeperId))
+      );
+      if (heir && !promotedBy.has(heir.id)) promotedBy.set(heir.id, inj);
+    }
+  }
+
   const out = new Map<number, Archetype>();
   for (const p of players) {
     // Authored overrides first: a short curated list correcting rooms the
@@ -137,19 +155,16 @@ export function buildArchetypes(players: ArchetypeInput[]): Map<number, Archetyp
 
     let role: Archetype | null = null;
     const room = p.team === "FA" ? undefined : rooms.get(`${p.team}|${p.position}`);
-    // Promoted: a room-mate priced ABOVE him carries the Injured tag, so his
-    // role just grew. Checked before the price-gap roles because the injury
-    // is the fresher fact; the gap rules describe the room as priced, this
-    // describes the room as it stands. Injured itself (checked above) and
-    // authored overrides still win.
-    if (room) {
-      const injuredAbove = room.find((t) => t.adp < p.adp && injuredIds.has(t.id));
-      if (injuredAbove) {
-        role = {
-          tag: "Promoted",
-          reason: `A room-mate priced above him (ADP ${r1(injuredAbove.adp)}) carries an injury designation.`,
-        };
-      }
+    // Promoted: the room's injured starter is priced above him and he is
+    // the highest priced eligible room-mate below, the next man in line.
+    // Checked before the price-gap roles because the injury is the fresher
+    // fact; Injured itself (above) and authored overrides still win.
+    const inj = room ? promotedBy.get(p.id) : undefined;
+    if (inj) {
+      role = {
+        tag: "Promoted",
+        reason: `Next man in line: the injured player above him (ADP ${r1(inj.adp)}) makes his role grow.`,
+      };
     }
     if (!role && room && p.position === "RB") {
       const idx = room.indexOf(p);
