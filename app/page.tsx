@@ -232,6 +232,7 @@ export default async function Home() {
       const e = r.sleeperId ? entryBySleeper.get(r.sleeperId) : undefined;
       return {
         id: r.fpId,
+        sleeperId: r.sleeperId,
         position: r.position,
         team: r.team,
         adp: r.hostRank,

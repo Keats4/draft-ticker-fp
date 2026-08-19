@@ -303,17 +303,24 @@ export default async function Methodology() {
           <li><strong>Handcuff</strong>: the team&rsquo;s RB2 by ADP, at least 30 picks behind the RB1.</li>
           <li><strong>Committee</strong>: any back within 30 picks of the team&rsquo;s RB1, including the RB1 himself when the room is that tight.</li>
           <li><strong>Alpha receiver</strong>: ADP inside the first two rounds, or the team&rsquo;s WR1 by ADP with the WR2 at least 20 picks behind.</li>
-          <li><strong>Crowded room</strong>: a team&rsquo;s WR2 or WR3 within 20 picks of the WR1, priced outside the first two rounds.</li>
           <li><strong>Rookie</strong>: first NFL season where no role label applies.</li>
           <li><strong>No label</strong>: quarterbacks and tight ends by design, free agents, and anyone no rule matches. No placeholder is shown.</li>
         </ul>
         <p className="mt-3 text-sm text-[var(--ink-2)]">
           <strong>The gap sizes are chosen, not fitted</strong>, the same
           status as the move thresholds: 30 picks separates a lead back and
-          his handcuff from a committee, 20 picks separates an alpha from a
-          crowded room, and a second-round price counts as an alpha price
+          his handcuff from a committee, 20 picks makes a receiver room an
+          alpha&rsquo;s, and a second-round price counts as an alpha price
           regardless of the room. They are judgment calls awaiting enough
           history to set honestly.
+        </p>
+        <p className="mt-2 text-sm text-[var(--ink-2)]">
+          <strong>Authored overrides.</strong> A short curated list
+          (data/archetype_overrides.json) corrects rooms the price gap alone
+          misreads, a coach-stated committee priced like a lead back and his
+          handcuff, or an injury the designation feed has not caught up to.
+          Every override carries its reason, which renders in the label&rsquo;s
+          tooltip, and an override can remove a label as well as set one.
         </p>
         <p className="mt-3 text-sm text-[var(--ink-2)]">
           <strong>Known gap.</strong> Injured fires on a player&rsquo;s

@@ -1,0 +1,35 @@
+{
+  "_doc": "Authored role overrides, applied after the archetype rules. Each entry corrects a room the price gap alone misreads, with the reason stated; tag null removes the label. Keyed on sleeper_id. Display only, like every archetype: never an input to a signal, ranking or selection.",
+  "overrides": [
+    {
+      "sleeper_id": "11584",
+      "name": "Bucky Irving",
+      "tag": "Committee",
+      "reason": "Authored override: Tampa Bay's backfield operates as a committee with Gainwell mixing in; the 58-pick price gap alone misreads the room."
+    },
+    {
+      "sleeper_id": "7567",
+      "name": "Kenny Gainwell",
+      "tag": "Committee",
+      "reason": "Authored override: the other half of Tampa Bay's committee; the price gap alone misreads the room."
+    },
+    {
+      "sleeper_id": "11586",
+      "name": "Blake Corum",
+      "tag": "Committee",
+      "reason": "Authored override: works into the Rams backfield as a committee piece rather than a pure handcuff; the price gap alone misreads the room."
+    },
+    {
+      "sleeper_id": "13286",
+      "name": "Jadarian Price",
+      "tag": null,
+      "reason": "Authored override: not a settled lead back; the Seattle room is unresolved, so no label rather than a wrong one."
+    },
+    {
+      "sleeper_id": "13287",
+      "name": "Jeremiyah Love",
+      "tag": "Injured",
+      "reason": "Authored override: high ankle sprain (Schefter, Aug 16), likely done for the preseason; the Sleeper designation lags the report."
+    }
+  ]
+}

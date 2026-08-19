@@ -14,6 +14,8 @@
  * selection, and nothing here may leak into lib/math.ts or lib/story.ts.
  */
 
+import overridesFile from "@/data/archetype_overrides.json";
+
 export type Archetype = { tag: string; reason: string };
 
 /** Only serious designations count as Injured, NOT day-to-day tags like
@@ -45,8 +47,7 @@ export const ARCHETYPE_GAPS = {
    *  30 rather than 25 so a reported 50-50 split priced ~25 picks apart
    *  (New England, Aug 2026) reads as the committee it is. */
   RB_ROLE: 30,
-  /** WR: a team WR1 this many picks clear of the WR2 is an Alpha receiver;
-   *  a WR2/WR3 within it of the WR1 sits in a Crowded room. */
+  /** WR: a team WR1 this many picks clear of the WR2 is an Alpha receiver. */
   WR_ROLE: 20,
   /** WR priced inside the first two rounds (12-team) is an Alpha receiver
    *  regardless of room position: a second-round price IS an alpha price,
@@ -60,14 +61,16 @@ export const ARCHETYPE_RULES_DOC = [
   `Handcuff: the team's RB2 by ADP, at least ${ARCHETYPE_GAPS.RB_ROLE} picks behind the RB1.`,
   `Committee: any back within ${ARCHETYPE_GAPS.RB_ROLE} picks of the team's RB1, including the RB1 himself when the room is that tight.`,
   `Alpha receiver: ADP inside the first two rounds (≤ ${ARCHETYPE_GAPS.WR_ALPHA_PRICE}), or the team's WR1 by ADP with the WR2 at least ${ARCHETYPE_GAPS.WR_ROLE} picks behind.`,
-  `Crowded room: a team's WR2 or WR3 within ${ARCHETYPE_GAPS.WR_ROLE} picks of the WR1, priced outside the first two rounds.`,
   "Rookie: first NFL season (years_exp 0) where no role label applies.",
   "No label: quarterbacks and tight ends by design, free agents, and anyone no rule matches. No placeholder is shown.",
+  "Authored overrides: a short curated list (data/archetype_overrides.json) corrects rooms the price gap alone misreads, each with its reason stated; tag null removes a label.",
 ];
 
-/** One row of what the role rules need. `id` is the FantasyPros player_id. */
+/** One row of what the role rules need. `id` is the FantasyPros player_id;
+ *  `sleeperId` keys the authored overrides. */
 export type ArchetypeInput = {
   id: number;
+  sleeperId?: string | null;
   position: string;
   team: string;
   /** ADP (average host rank). */
@@ -77,6 +80,11 @@ export type ArchetypeInput = {
 };
 
 const r1 = (n: number) => Math.round(n * 10) / 10;
+
+type Override = { sleeper_id: string; name: string; tag: string | null; reason: string };
+const OVERRIDES: Map<string, Override> = new Map(
+  (overridesFile.overrides as Override[]).map((o) => [o.sleeper_id, o])
+);
 
 /**
  * Compute every player's archetype in one pass. Role labels need the whole
@@ -96,7 +104,15 @@ export function buildArchetypes(players: ArchetypeInput[]): Map<number, Archetyp
 
   const out = new Map<number, Archetype>();
   for (const p of players) {
-    // Injury first, the v1 rule kept verbatim: a genuine limitation, not a
+    // Authored overrides first: a short curated list correcting rooms the
+    // price gap alone misreads, each with its reason stated. Tag null
+    // removes the label.
+    const ov = p.sleeperId ? OVERRIDES.get(p.sleeperId) : undefined;
+    if (ov) {
+      if (ov.tag) out.set(p.id, { tag: ov.tag, reason: ov.reason });
+      continue;
+    }
+    // Injury next, the v1 rule kept verbatim: a genuine limitation, not a
     // retraction (current designation only, never history).
     if (p.injury_status && SERIOUS_INJURY.has(p.injury_status.trim())) {
       out.set(p.id, {
@@ -136,8 +152,6 @@ export function buildArchetypes(players: ArchetypeInput[]): Map<number, Archetyp
       const idx = room.indexOf(p);
       if (idx === 0 && (room.length === 1 || room[1].adp - p.adp >= ARCHETYPE_GAPS.WR_ROLE)) {
         role = { tag: "Alpha receiver", reason: `Team WR1 by ADP, next receiver ${room.length > 1 ? `${r1(room[1].adp - p.adp)} picks` : "nobody"} behind (bar: ${ARCHETYPE_GAPS.WR_ROLE}).` };
-      } else if ((idx === 1 || idx === 2) && p.adp - room[0].adp <= ARCHETYPE_GAPS.WR_ROLE) {
-        role = { tag: "Crowded room", reason: `Team WR${idx + 1}, ${r1(p.adp - room[0].adp)} picks behind the WR1 (≤ ${ARCHETYPE_GAPS.WR_ROLE}).` };
       }
     }
 
@@ -176,10 +190,6 @@ export const ARCHETYPE_PLAIN: Record<
   "Alpha receiver": {
     definition: "The clear WR1 on his team.",
     moves: "Moves on target share and quarterback news.",
-  },
-  "Crowded room": {
-    definition: "A WR2 or WR3 priced close to the top of his room.",
-    moves: "Moves on depth chart news.",
   },
   Injured: {
     definition: "Carrying an injury designation right now.",
