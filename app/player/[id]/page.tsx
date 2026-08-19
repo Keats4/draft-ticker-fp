@@ -15,7 +15,7 @@ import PlayerChart, {
   type ChartPoint,
 } from "@/components/PlayerChart";
 import { LEAGUE_SIZE, fmtRounds, oneLineAnswer } from "@/lib/rounds";
-import { currentPhase, trustReading, type Phase as LibPhase } from "@/lib/phases";
+import { currentPhase, moveQualifier, trustReading, type Phase as LibPhase } from "@/lib/phases";
 import GapChart from "@/components/GapChart";
 import SignalChip from "@/components/SignalChip";
 import AiTrace from "@/components/AiTrace";
@@ -33,11 +33,16 @@ export const dynamic = "force-dynamic";
  *  placeholder. Same two fields the eval payloads carry: calendar_phase and
  *  phase_trust. */
 const PHASES = (phasesFile as { phases: LibPhase[] }).phases;
+// The move qualifier reads the phase current at the window's NEWEST date
+// (today): trust is a statement about what movement observed now is worth,
+// so the newer phase governs when a window spans a phase boundary. See
+// MOVE_QUALIFIER in lib/phases.ts. Null at "med" on purpose.
 const CURRENT_PHASE = currentPhase(PHASES).phase ?? {
   title: "unknown",
   signal_level: "unknown",
   card_line: "",
 };
+const QUALIFIER = moveQualifier(CURRENT_PHASE.signal_level);
 
 /** "Aug 16, 2026" from a stored YYYY-MM-DD date. */
 const fmtLongDate = (d: string) =>
@@ -335,9 +340,21 @@ export default async function PlayerPage({
               round {Math.ceil(row.hostRank / LEAGUE_SIZE)} · ADP {row.hostRank}
             </p>
             <p className="text-xs text-[var(--ink-3)]">
-              {row.hostRankDelta == null
-                ? `tracking since ${trackingSince}`
-                : `${row.hostRankDelta > 0 ? "+" : ""}${row.hostRankDelta} ${moveWindow}`}
+              {row.hostRankDelta == null ? (
+                `tracking since ${trackingSince}`
+              ) : (
+                <>
+                  {`${row.hostRankDelta > 0 ? "+" : ""}${row.hostRankDelta} ${moveWindow}`}
+                  {QUALIFIER && (
+                    <>
+                      {" "}
+                      <Link href="/calendar" className="underline decoration-dotted">
+                        · {QUALIFIER}
+                      </Link>
+                    </>
+                  )}
+                </>
+              )}
             </p>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">

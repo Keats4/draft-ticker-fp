@@ -37,6 +37,38 @@ export const TRUST_READING: Record<PhaseLevel, string> = {
 };
 
 /**
+ * Short qualifier appended where a MOVE is displayed (story cards, hero,
+ * player page movement line), derived from the current phase's trust level
+ * and rendered as a link to the calendar. Same voice as TRUST_READING, no
+ * phase name: it reads as a judgment about the move, not a date stamp.
+ *
+ * `med` is null ON PURPOSE: the qualifier appears only when it changes how
+ * the move should be read. Total over PhaseLevel so a new level without a
+ * decision will not compile.
+ *
+ * WHICH PHASE GOVERNS: callers derive the level from currentPhase(today),
+ * the phase at the move window's NEWEST date. Trust is a statement about
+ * what movement observed now is worth, so when a window spans a phase
+ * boundary the newer phase governs; the drafter is deciding today, not on
+ * the window's first day.
+ */
+export const MOVE_QUALIFIER: Record<PhaseLevel, string | null> = {
+  low: "discount it",
+  med: null,
+  high: "take this seriously",
+  vhigh: "strong evidence",
+};
+
+/** Null for med and for unknown levels (logged, never rendered as copy). */
+export function moveQualifier(level: string): string | null {
+  if (isPhaseLevel(level)) return MOVE_QUALIFIER[level];
+  console.error(
+    `[calendar] unhandled signal_level "${level}" in moveQualifier. Add it to SIGNAL_LEVELS and MOVE_QUALIFIER in lib/phases.ts.`
+  );
+  return null;
+}
+
+/**
  * Loud rather than quiet. An unknown level logs an error and renders text that
  * reads as a defect, not as intentional copy, so it cannot pass for a
  * deliberate hedge on a live page. The build-time guards above are the real

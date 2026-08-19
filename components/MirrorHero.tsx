@@ -128,6 +128,7 @@ export default function MirrorHero({
   evidence,
   catalysts,
   sentence,
+  moveQualifier = null,
   moveWindow,
   trackingSince,
 }: {
@@ -142,6 +143,9 @@ export default function MirrorHero({
    *  deduped when both sides point at the same article. */
   catalysts: { date: string; summary: string; sourceUrl: string; player: string | null }[];
   sentence: string;
+  /** Trust qualifier for the move (lib/phases.ts MOVE_QUALIFIER), null when
+   *  the phase's trust level is medium or unknown. Links to the calendar. */
+  moveQualifier?: string | null;
   moveWindow: string;
   trackingSince: string;
 }) {
@@ -206,7 +210,20 @@ export default function MirrorHero({
       </div>
 
       <div className="border-t border-[var(--border)] px-4 py-3">
-        <p className="text-sm">{sentence}</p>
+        <p className="text-sm">
+          {sentence}
+          {moveQualifier && (
+            <>
+              {" "}
+              <Link
+                href="/calendar"
+                className="text-xs text-[var(--ink-3)] underline decoration-dotted"
+              >
+                · {moveQualifier}
+              </Link>
+            </>
+          )}
+        </p>
         {catalysts.length > 0 ? (
           <div
             className="mt-2 rounded-lg border px-3 py-2"

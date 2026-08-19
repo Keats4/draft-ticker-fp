@@ -34,6 +34,7 @@ export default function HeroStory({
   signal,
   evidence,
   sentence,
+  moveQualifier = null,
   points,
   markers,
   trackingSince,
@@ -55,6 +56,9 @@ export default function HeroStory({
   signal: Signal | null;
   evidence: Evidence | null;
   sentence: string;
+  /** Trust qualifier for the move (lib/phases.ts MOVE_QUALIFIER), null when
+   *  the phase's trust level is medium or unknown. Links to the calendar. */
+  moveQualifier?: string | null;
   points: ChartPoint[];
   markers: ChartMarker[];
   trackingSince: string;
@@ -156,7 +160,20 @@ export default function HeroStory({
         </div>
 
         {/* 6. plain-language sentence */}
-        <p className="mt-3 text-sm text-[var(--foreground)]">{sentence}</p>
+        <p className="mt-3 text-sm text-[var(--foreground)]">
+          {sentence}
+          {moveQualifier && (
+            <>
+              {" "}
+              <Link
+                href="/calendar"
+                className="text-xs text-[var(--ink-3)] underline decoration-dotted"
+              >
+                · {moveQualifier}
+              </Link>
+            </>
+          )}
+        </p>
 
         {/* 7. catalyst headline with its date */}
         {catalyst ? (
