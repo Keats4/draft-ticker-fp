@@ -288,34 +288,39 @@ export default async function Methodology() {
       <section className="mt-8">
         <h2 className="text-xl font-semibold">Archetypes</h2>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
-          The tag next to a player&rsquo;s name is a <strong>tenure cut, not a
-          usage claim</strong>. It is derived only from fields the Sleeper player
-          record already carries: position, years of experience, age, and
-          current injury designation, and says nothing about a player&rsquo;s
-          role, snap share or standing on a depth chart. A back splitting a
-          committee and a clear starter with the same years of service get the
-          same tag.
+          The tag next to a player&rsquo;s name is a <strong>role label</strong>:
+          it describes what kind of news moves that player, which is what
+          connects it to the catalyst layer. A handcuff moves on starter
+          injury news, a committee back on touch-split reporting, a player in
+          a crowded room on depth chart news. Labels are computed only from
+          team, position and ADP, all already on every row, plus the current
+          Sleeper injury designation and rookie flag. Display only: an
+          archetype is never an input to any signal, ranking or selection.
         </p>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
-          <li><strong>Rookie WR / Rookie RB / Rookie</strong>: years_exp 0.</li>
-          <li><strong>Sophomore</strong>: years_exp 1.</li>
-          <li><strong>Ascending</strong>: years_exp 2–3.</li>
-          <li><strong>Prime</strong>: years_exp 4–5 and age under 30.</li>
-          <li><strong>Veteran</strong>: years_exp 6 or more, or age 30 or over. Checked ahead of Ascending and Prime, so a 30-year-old is never tagged either.</li>
-          <li><strong>Injury-Return</strong>: current Sleeper status is IR, Out, PUP, NFI, Doubtful, Suspended or COV. Day-to-day tags are ignored as too noisy.</li>
+          <li><strong>Injured</strong>: current Sleeper status is IR, Out, PUP, NFI, Doubtful, Suspended or COV. Day-to-day tags are ignored as too noisy. Checked before every role rule.</li>
+          <li><strong>Lead back</strong>: the team&rsquo;s RB1 by ADP with the next back at least 30 picks behind.</li>
+          <li><strong>Handcuff</strong>: the team&rsquo;s RB2 by ADP, at least 30 picks behind the RB1.</li>
+          <li><strong>Committee</strong>: any back within 30 picks of the team&rsquo;s RB1, including the RB1 himself when the room is that tight.</li>
+          <li><strong>Alpha receiver</strong>: ADP inside the first two rounds, or the team&rsquo;s WR1 by ADP with the WR2 at least 20 picks behind.</li>
+          <li><strong>Crowded room</strong>: a team&rsquo;s WR2 or WR3 within 20 picks of the WR1, priced outside the first two rounds.</li>
+          <li><strong>Rookie</strong>: first NFL season where no role label applies.</li>
+          <li><strong>No label</strong>: quarterbacks and tight ends by design, free agents, and anyone no rule matches. No placeholder is shown.</li>
         </ul>
         <p className="mt-3 text-sm text-[var(--ink-2)]">
-          <strong>Known gap.</strong> Injury-Return fires on a player&rsquo;s
+          <strong>The gap sizes are chosen, not fitted</strong>, the same
+          status as the move thresholds: 30 picks separates a lead back and
+          his handcuff from a committee, 20 picks separates an alpha from a
+          crowded room, and a second-round price counts as an alpha price
+          regardless of the room. They are judgment calls awaiting enough
+          history to set honestly.
+        </p>
+        <p className="mt-3 text-sm text-[var(--ink-2)]">
+          <strong>Known gap.</strong> Injured fires on a player&rsquo;s
           <em> current</em> designation, not his injury history. A player two ACL
           tears into his career who is healthy today carries no tag, because
           nothing we store remembers the tears. Closing that needs an
           injury-history source the site does not have.
-        </p>
-        <p className="mt-2 text-sm text-neutral-500">
-          <strong>v2 roadmap:</strong> usage-derived archetypes read from
-          depth-chart designations, the explicit &ldquo;or&rdquo; pairings teams
-          publish, and first-team rep reports, so a committee back is labelled
-          for what he does rather than how long he has been in the league.
         </p>
       </section>
 

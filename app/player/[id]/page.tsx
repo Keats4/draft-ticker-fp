@@ -8,7 +8,7 @@ import { buildMarketRows, type SleeperByFpId } from "@/lib/market";
 import { type FpLite } from "@/lib/math";
 import { whatItMeans } from "@/lib/signals";
 import { evidenceFor, inMoveWindow } from "@/lib/evidence";
-import { archetype, archetypePlain } from "@/lib/archetype";
+import { buildArchetypes, archetypePlain } from "@/lib/archetype";
 import type { FpHostRankPlayer } from "@/lib/types";
 import PlayerChart, {
   type ChartMarker,
@@ -149,15 +149,24 @@ export default async function PlayerPage({
     : rows.find((r) => r.sleeperId === id);
   if (!row) return <NotTracked id={id} />;
 
-  const entry = entries.find((e) => e.sleeper_id === row.sleeperId) ?? null;
-  const arch = entry
-    ? archetype({
-        position: entry.pos,
-        years_exp: entry.years_exp ?? null,
-        age: entry.age ?? null,
-        injury_status: entry.injury_status ?? null,
-      })
-    : null;
+  // Role archetypes need the whole room, so the full row set is classified
+  // once and this player's label looked up. Display only, never a signal
+  // input.
+  const entryBySleeper = new Map(entries.map((e) => [e.sleeper_id, e]));
+  const archMap = buildArchetypes(
+    rows.map((r) => {
+      const e = r.sleeperId ? entryBySleeper.get(r.sleeperId) : undefined;
+      return {
+        id: r.fpId,
+        position: r.position,
+        team: r.team,
+        adp: r.hostRank,
+        years_exp: e?.years_exp ?? null,
+        injury_status: e?.injury_status ?? null,
+      };
+    })
+  );
+  const arch = archMap.get(row.fpId) ?? null;
 
   // chart points
   // Both series key on the FantasyPros player_id, so the row's own id is used
@@ -224,9 +233,9 @@ export default async function PlayerPage({
         ) : (
           <span
             className="rounded-full border border-dashed border-[var(--border)] px-2.5 py-0.5 text-xs text-[var(--ink-3)]"
-            title="No archetype rule matched (v1 covers rookies, sophomores, veterans, injury-return). Logged for review."
+            title="No role label. Quarterbacks and tight ends carry none by design; deep players and unclear rooms stay unlabelled rather than guessed."
           >
-            Archetype: unclassified
+            No role label
           </span>
         )}
       </header>
@@ -236,12 +245,14 @@ export default async function PlayerPage({
       {arch ? (
         <p className="mt-1 text-xs text-[var(--ink-3)]">
           <span className="font-medium text-[var(--ink-2)]">{arch.tag}.</span>{" "}
-          {archetypePlain(arch.tag).definition} {archetypePlain(arch.tag).caveat}
+          {archetypePlain(arch.tag).definition}{" "}
+          <span className="font-medium text-[var(--ink-2)]">{archetypePlain(arch.tag).moves}</span>
+          {archetypePlain(arch.tag).caveat ? ` ${archetypePlain(arch.tag).caveat}` : ""}
         </p>
       ) : (
         <p className="mt-1 text-xs text-[var(--ink-3)]">
-          No archetype matched. The groupings cover rookies, sophomores,
-          ascending and prime players, veterans and injury returns.
+          No role label. Quarterbacks and tight ends carry none by design;
+          deep players and unclear rooms stay unlabelled rather than guessed.
         </p>
       )}
 

@@ -76,9 +76,9 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
         ) : (
           <span
             className="rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-[11px] text-[var(--ink-3)]"
-            title="No archetype rule matched (v1 covers rookies, sophomores, veterans, injury-return)."
+            title="No role label. Quarterbacks and tight ends carry none by design; unclear rooms stay unlabelled rather than guessed."
           >
-            Archetype: unclassified
+            No role label
           </span>
         )}
         <SignalChip signal={s.signal} />

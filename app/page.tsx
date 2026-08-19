@@ -18,7 +18,7 @@ import {
   valueTone,
 } from "@/lib/story";
 import { evidenceFor, inMoveWindow } from "@/lib/evidence";
-import { archetype } from "@/lib/archetype";
+import { buildArchetypes } from "@/lib/archetype";
 import fpHostRankFixture from "@/fixtures/fp_host_rank.json";
 import { toHostRankPlayers, type RawHostRankRow } from "@/lib/sources/fantasypros-host-rank";
 import fpEcr from "@/fixtures/fp_ecr.json";
@@ -223,16 +223,26 @@ export default async function Home() {
       .filter((c) => c.verified && !c.sample)
       .sort((x, y) => (x.date < y.date ? 1 : -1))[0] ?? null;
 
+  // Role archetypes need the whole room (team + position + ADP), so they are
+  // computed once from the full row set. Display only: never an input to any
+  // signal, ranking or selection.
+  const entryBySleeper = new Map(entries.map((e) => [e.sleeper_id, e]));
+  const archMap = buildArchetypes(
+    rows.map((r) => {
+      const e = r.sleeperId ? entryBySleeper.get(r.sleeperId) : undefined;
+      return {
+        id: r.fpId,
+        position: r.position,
+        team: r.team,
+        adp: r.hostRank,
+        years_exp: e?.years_exp ?? null,
+        injury_status: e?.injury_status ?? null,
+      };
+    })
+  );
+
   const extrasFor = (row: MarketRow) => {
-    const entry = entries.find((e) => e.sleeper_id === row.sleeperId) ?? null;
-    const arch = entry
-      ? archetype({
-          position: entry.pos,
-          years_exp: entry.years_exp ?? null,
-          age: entry.age ?? null,
-          injury_status: entry.injury_status ?? null,
-        })
-      : null;
+    const arch = archMap.get(row.fpId) ?? null;
     // Both series key on the FantasyPros player_id.
     const ecrByDate = ecrSeriesFor(ecrSnaps, row.fpId);
     const hist = history.filter((h) => h.player_id === row.fpId);
