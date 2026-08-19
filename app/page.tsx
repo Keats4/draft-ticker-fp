@@ -101,6 +101,10 @@ type Catalyst = {
   source_url: string;
   verified: boolean;
   sample: boolean;
+  /** Optional, display only: a front-page one-line statement of the event in
+   *  plain words. The summary stays the evidence record; this is the
+   *  headline form. Never read by evidence or verification logic. */
+  short_label?: string;
 };
 
 type Phase = {
@@ -448,25 +452,15 @@ export default async function Home() {
                 .filter((c) => inMoveWindow(c.date, previous.date, latest.date))
                 .sort((x, y) => (x.date < y.date ? 1 : -1))
             : [];
-        // The evidence line renders the newest qualifying catalyst's own
-        // one-line summary, verbatim: the schema requires a factual one-line
-        // summary per entry, so the reader gets the actual reason rather
-        // than a count and a category. Never truncated here; an over-length
-        // summary is an editorial problem in the catalyst file, not a
-        // rendering one. When more than one qualifies, the earlier ones are
-        // mentioned in plain words, and the full sourced list stays below.
-        const newest = inWin[0] ?? null;
-        const summary = newest
-          ? /[.!?]$/.test(newest.summary.trim())
-            ? newest.summary.trim()
-            : `${newest.summary.trim()}.`
-          : null;
-        const evidence = newest
-          ? `${fmtShortDate(newest.date)}: ${summary}${
-              inWin.length > 1
-                ? " There are earlier documented notes on file for him as well."
-                : ""
-            }`
+        // The evidence line renders the newest qualifying catalyst's
+        // short_label: the headline form written for this spot. The summary
+        // is an evidence record and never renders here. When no qualifying
+        // entry carries a label, the line falls back to the honest empty
+        // state rather than improvising one. Only the newest label shows;
+        // the full sourced list lives on the player page and in the hero.
+        const labelled = inWin.find((c) => c.short_label);
+        const evidence = labelled?.short_label
+          ? `${fmtShortDate(labelled.date)}: ${labelled.short_label.trim().replace(/[.!?]?$/, ".")}`
           : "No documented event is on file for this move yet.";
         // The name renders as its own link, so the sentence starts after it.
         const rest = read.main.slice(r.name.length).trimStart();
