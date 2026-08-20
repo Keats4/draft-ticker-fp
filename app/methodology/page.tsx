@@ -5,12 +5,6 @@ import { CATALYST_LOOKBACK_DAYS } from "@/lib/evidence";
 
 export const metadata = { title: "Methodology · Draft Ticker" };
 
-const AWAITING = (
-  <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">
-    awaiting more data
-  </span>
-);
-
 export default function Methodology() {
   // This page is prose and published constants only. It used to run the
   // Market pipeline to feed a cross-source join review; both series now come
@@ -133,7 +127,7 @@ export default function Methodology() {
             <strong>Movement</strong> = oldest stored snapshot ADP − newest
             snapshot ADP, so positive means rising (drafted earlier now). The
             window is the full tracked span, not a single day: every “Move”
-            figure on the site covers Aug 10, 2026 to the most recent capture,
+            figure on the site covers Aug 16, 2026 to the most recent capture,
             and the dates are printed wherever the number appears. Missing data
             renders as “–”, never as zero.
           </li>
@@ -311,8 +305,9 @@ export default function Methodology() {
         <h2 className="text-xl font-semibold">Limitations</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
           <li>
-            History begins Aug 10, 2026. No chart or number implies data from
-            before that date.
+            History begins Aug 16, 2026, the first capture of the current
+            FantasyPros series. No chart or number implies data from before
+            that date.
           </li>
           <li>
             The price reflects five league host boards, not all of fantasy
@@ -326,7 +321,8 @@ export default function Methodology() {
             days. A reaction therefore keeps entering the ADP for
             days after the event, and a real repricing looks like a slope rather
             than a step. How many days that takes is not published by any host
-            and has not yet been measured here {AWAITING}.
+            and has not yet been measured here; that measurement needs more
+            stored days than exist.
           </li>
           <li>
             The catalyst lookback follows from that. A catalyst is matched to a
@@ -355,7 +351,8 @@ export default function Methodology() {
           </li>
           <li>
             Signal evaluation summary (how often each label appeared and how
-            it resolved): {AWAITING}.
+            it resolved) does not exist yet; it needs more stored history than
+            currently exists.
           </li>
         </ul>
       </section>

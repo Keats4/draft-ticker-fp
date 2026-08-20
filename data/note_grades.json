@@ -1,7 +1,7 @@
 {
  "_schema": {
   "purpose": "Hand grading record for the AI notes layer. Payloads are the golden set and stay fixed across passes so a contract change is tested against identical conditions (EVALS.md section 6).",
-  "graded_by": "Navi, by hand, cell by cell. Nothing here is machine graded.",
+  "graded_by": "Graded by hand, cell by cell. Nothing here is machine graded.",
   "columns": {
    "ungrounded_claim": "fail if the note states any fact not derivable from data_given (team, injury, role, quote, transaction, standing), OR contradicts a field that is present in it.",
    "numeric_drift": "fail if any number is misquoted, mis-signed, or if direction is wrong. Positive adp_move = drafted EARLIER = more expensive.",
