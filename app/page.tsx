@@ -28,7 +28,6 @@ import playerMap from "@/data/player_map.json";
 import catalystsFile from "@/data/catalysts.json";
 import phasesFile from "@/data/calendar_phases.json";
 import { currentPhase, moveTrustLevel, type Phase as LibPhase } from "@/lib/phases";
-import PhaseMeter from "@/components/PhaseMeter";
 import featured from "@/data/featured.json";
 import HowToReadCard from "@/components/HowToReadCard";
 import SignalChip from "@/components/SignalChip";
@@ -659,14 +658,10 @@ export default async function Home() {
                     )}
                     {m.headline}.
                   </p>
-                  {moveTrust && (
-                    <Link
-                      href="/calendar"
-                      className="relative z-10 mt-0.5 inline-flex items-center gap-1.5 text-[11px] text-[var(--ink-3)] hover:underline"
-                    >
-                      movement trust <PhaseMeter level={moveTrust} />
-                    </Link>
-                  )}
+                  {/* No trust meter here: it derives from the current phase,
+                      so it is identical on every card and repeated three
+                      times on one screen. The single instance lives in the
+                      hero's trust strip near the top of the page. */}
                   {m.expert && (
                     <p className="mt-0.5 text-xs text-[var(--ink-3)]">{m.expert}</p>
                   )}

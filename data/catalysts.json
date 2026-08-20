@@ -18,7 +18,7 @@
     "provenance": "Entries dated inside the rolling window of the stored 08-10 to 08-12 snapshots. Entries outside it are held in bench[] with source_url intact rather than deleted. NOT ADDED: Darren Waller (CAR) and Deshaun Watson (CLE) are real and in-window but have no ffc_id in data/player_map.json, so they sit outside the draftable FFC pool and their player pages render 'not tracked', the same reason J.J. McCarthy was never added. Note Mike Evans is on SF in 2026, not TB. On 2026-08-14 the window was widened per the rolling-mean reasoning above, twelve eval-set events were sourced with corroboration counts, and real-002-diggs was corrected from 08-11 to 08-05 and its verification withdrawn. See VERIFY_CHECKLIST.md for what still needs a human.",
     "rules": "Candidates may be sourced by research agents or by hand (ADR-004, amending ADR-002). Every entry carries a primary source_url, no entry without one. Every entry added after 2026-08-14 also carries sources[] with an on-page date read off each page. No scraper, no news API, no NLP pipeline. What an agent may NOT do is set verified:true.",
     "counts": {
-      "live": 46,
+      "live": 47,
       "bench": 6
     },
     "window": "2026-08-04 .. 2026-08-12. Derived, not hand-picked. FFC ADP is a trailing ~7 day mean, so the 08-10 snapshot averages drafts from 08-04 to 08-10 and the 08-12 snapshot averages 08-06 to 08-12. The move between them is driven only by drafts ENTERING the newer mean (08-11 to 08-12) and drafts LEAVING the older one (08-04 to 08-05); the 08-06 to 08-10 overlap sits in both means and largely cancels. The lookback is therefore the OLDER mean's own start, computed in lib/evidence.ts catalystLookbackStart(). The previous rule, 'on or after the previous snapshot', discarded the entire leaving edge, which is the half whose sign is inverted: a catalyst on the leaving edge pushes the measured move AGAINST its own direction as the reaction ages out.",
@@ -1219,6 +1219,30 @@
           "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/bryce-young-and-panthers-offense-go-three-and-out-on-all-three-drives",
           "outlet": "Pro Football Talk (Michael David Smith)",
           "date_text": "Published August 15, 2026 02:11 PM",
+          "kind": "original"
+        }
+      ],
+      "independent_source_count": 1
+    },
+    {
+      "id": "real-047-jjohnson-environment",
+      "player": {
+        "sleeper_id": "7002",
+        "name": "Juwan Johnson"
+      },
+      "date": "2026-08-17",
+      "category": "environment",
+      "summary": "Rapoport reported teammate Jordyn Tyson is expected to miss roughly two months with the hamstring injury from the Aug 13 joint practice, putting his return around Week 6.",
+      "short_label": "Teammate Jordyn Tyson reported out roughly two months",
+      "source_url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-17/rapsheet-jordyn-tyson-hamstring-out-two-months",
+      "verified": false,
+      "sample": false,
+      "date_confirmed_on_source": true,
+      "sources": [
+        {
+          "url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-17/rapsheet-jordyn-tyson-hamstring-out-two-months",
+          "outlet": "NBC Sports player news (credits Ian Rapoport)",
+          "date_text": "August 17, 2026 (URL-dated)",
           "kind": "original"
         }
       ],
