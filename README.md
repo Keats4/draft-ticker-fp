@@ -1,17 +1,15 @@
 # Draft Ticker
 
-FantasyPros publishes what a player is worth today. Draft Ticker reads how
-that answer is changing.
+An interpretation layer on FantasyPros ADP and expert consensus: what moved,
+which side moved first, and what sits behind it.
 
 **Live:** https://draft-ticker-fp.vercel.app
 
 ## The two series
 
 The expert line is FantasyPros ECR (Draft PPR consensus). The price line is
-FantasyPros' consensus average host rank: the mean of a player's rank across
-up to five league host boards. It is an average rank, not a draft position.
-Both series come from the official FantasyPros API on one key. Nothing is
-scraped.
+FantasyPros' consensus average host rank. Both series come from the official
+FantasyPros API on one key.
 
 ## What the layer adds
 
@@ -20,9 +18,9 @@ scraped.
   the UI legend, and the code marks them reasoned rather than fitted.
 - **A six-state classification of which side moved first**: Market moving
   faster, Market catching up to experts, Experts moving first, Market and
-  experts converging, Market and experts diverging, Broad agreement. Signals
-  are computed only inside the comparison universe: top 200 by both series,
-  with a coverage bar of at least four of the five host boards.
+  experts converging, Market and experts diverging, and Broad agreement.
+  Signals are computed only inside the comparison universe which is top 200
+  by both series.
 - **Dated, sourced catalysts** with an evidence tier that says plainly when
   a move has no documented cause: catalyst-confirmed when a verified event
   sits in the window of the move, which also reaches back seven days before
@@ -52,8 +50,6 @@ payload exists so the typed series can always be rebuilt from source. See
 - AI explanation notes are generated and graded but not shipped.
 - The in-season half of the Market Price Index is a concept, because roster
   percentage and waiver prices do not exist until Week 1.
-- Findings recorded from the earlier, retired series have not been
-  re-measured on this one; `RESEARCH_LOG.md` says which is which.
 
 ## Reading further
 
