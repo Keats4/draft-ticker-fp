@@ -27,8 +27,8 @@ export type RowLite = {
 };
 
 /**
- * The gap is a VALUE READ, so it is coloured: green = cheaper than the experts
- * rank him, red = paying up. The word ships with the number, so the meaning
+ * The gap is a VALUE READ, so it is coloured: green = discount to the expert
+ * rank, red = premium. The word ships with the number, so the meaning
  * survives greyscale. No arrow here: an arrow means a change, and the gap is a
  * level, so reusing the glyph would make it mean two things in one row.
  */

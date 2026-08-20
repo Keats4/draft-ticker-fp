@@ -8,7 +8,7 @@
  *
  * Sign convention, unchanged from the rest of the product:
  *   gap < 0  the market drafts him EARLIER than experts rank him, you pay early
- *   gap > 0  the market drafts him LATER than experts rank him, he is cheaper
+ *   gap > 0  the market drafts him LATER than experts rank him, a discount
  */
 
 /**

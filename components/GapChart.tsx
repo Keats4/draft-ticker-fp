@@ -4,7 +4,7 @@
  * working that produces this line.
  *
  * Reading rule, stated on the card because sign alone is ambiguous:
- *   above zero  = the market drafts him LATER than experts rank him (cheaper)
+ *   above zero  = the market drafts him LATER than experts rank him (discount)
  *   below zero  = the market pays a premium
  *   away from zero = the gap is widening; toward zero = it is closing
  *
@@ -197,10 +197,10 @@ export default function GapChart({
             the right margin near the line end, and anchoring these to zero put
             the two on top of each other. */}
         <text x={W - M.right - 6} y={M.top + 10} textAnchor="end" fontSize="9" fill="var(--ink-3)">
-          cheaper than ranked
+          discount to the expert rank
         </text>
         <text x={W - M.right - 6} y={H - M.bottom - 6} textAnchor="end" fontSize="9" fill="var(--ink-3)">
-          market pays a premium
+          premium over the expert rank
         </text>
 
         {areaPath && (
@@ -247,8 +247,8 @@ export default function GapChart({
       </svg>
 
       <p className="mt-2 text-xs text-[var(--ink-2)]">
-        Above the line, he is cheaper than the experts rank him. Below it, you
-        are paying up. The line moving away from zero means the disagreement is
+        Above the line, the market prices him at a discount to the expert rank.
+        Below it, at a premium. The line moving away from zero means the disagreement is
         growing.
       </p>
 
@@ -283,7 +283,7 @@ export default function GapChart({
                 <td className="pr-4">{d.date}</td>
                 <td className="pr-4 tabular-nums">{fmtRounds(d.gap)}</td>
                 <td className="pr-4 tabular-nums">{fmt(d.gap)}</td>
-                <td>{d.gap < 0 ? "premium" : d.gap > 0 ? "cheaper" : "level"}</td>
+                <td>{d.gap < 0 ? "premium" : d.gap > 0 ? "discount" : "level"}</td>
               </tr>
             ))}
           </tbody>

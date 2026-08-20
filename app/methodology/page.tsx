@@ -126,8 +126,8 @@ export default function Methodology() {
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
           <li>
             <strong>Gap</strong> = ADP − ECR. Positive: the market drafts the
-            player later than experts rank him. Negative: the market pays a
-            premium relative to the expert view.
+            player later than experts rank him, a discount to the expert rank.
+            Negative: the market pays a premium relative to the expert view.
           </li>
           <li>
             <strong>Movement</strong> = oldest stored snapshot ADP − newest

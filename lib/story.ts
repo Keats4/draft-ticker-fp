@@ -103,9 +103,9 @@ export function isOpposed(a: Rankable, b: Rankable): boolean {
 /**
  * ---- The single colour semantic ----
  *
- * Green means good for the drafter: cheaper than the experts rank him.
- * Red means you are paying up. It applies to the VALUE READ only, which is
- * the gap and the rounds figure derived from it.
+ * Green means a discount: the market prices him below the expert rank.
+ * Red means a premium: you pay ahead of it. It applies to the VALUE READ
+ * only, which is the gap and the rounds figure derived from it.
  *
  * Movement is deliberately excluded. A falling host rank is a falling price, so
  * painting it red would contradict the rule above on the same card.
@@ -124,7 +124,7 @@ export function valueTone(gap: number | null): string {
 /** The word that carries the meaning when colour cannot. */
 export function valueWord(gap: number | null): string | null {
   if (gap === null || gap === 0) return null;
-  return gap > 0 ? "cheaper" : "paying up";
+  return gap > 0 ? "discount" : "premium";
 }
 
 /**
@@ -161,7 +161,7 @@ export type MoveRead = {
 };
 
 export type ValueRead = {
-  /** "About half a round cheaper than the experts rank him". */
+  /** "About half a round of discount on his expert rank". */
   text: string;
   /** var(--pos) / var(--neg) / var(--ink-2). Meaning is also in the text. */
   tone: string;
@@ -221,8 +221,8 @@ export function valueLine(r: StoryRow): ValueRead {
   return {
     text:
       r.gap < 0
-        ? `${size} ahead of where the experts rank him`
-        : `${size} cheaper than the experts rank him`,
+        ? `${size} of premium on his expert rank`
+        : `${size} of discount on his expert rank`,
     tone: valueTone(r.gap),
   };
 }

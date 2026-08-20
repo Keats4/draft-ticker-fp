@@ -74,12 +74,12 @@ export default function HowToReadCard({ hasMovement = true }: { hasMovement?: bo
         <span className="font-semibold" style={{ color: "var(--pos)" }}>
           Green
         </span>{" "}
-        means good for the drafter, cheaper than the experts rank him.{" "}
+        means a discount, the market prices him below the expert rank.{" "}
         <span className="font-semibold" style={{ color: "var(--neg)" }}>
           Red
         </span>{" "}
-        means you are paying up. It applies to the value read only, the gap and
-        the rounds figure.
+        means a premium, you pay ahead of it. It applies to the value read
+        only, the gap and the rounds figure.
       </p>
       <p className="mt-1">
         <span className="font-semibold">Movement is neutral.</span> An arrow

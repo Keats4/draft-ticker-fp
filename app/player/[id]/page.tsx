@@ -382,7 +382,7 @@ export default async function PlayerPage({
             <p className="text-xs text-[var(--ink-3)]">
               {row.gap == null
                 ? (row.gapReason ?? "not comparable")
-                : `${row.gap > 0 ? "+" : ""}${row.gap} picks · ${row.gap < 0 ? "you pay early" : "cheaper than ranked"}`}
+                : `${row.gap > 0 ? "+" : ""}${row.gap} picks · ${row.gap < 0 ? "premium" : "discount"}`}
             </p>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
