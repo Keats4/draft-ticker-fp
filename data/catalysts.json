@@ -18,7 +18,7 @@
     "provenance": "Entries dated inside the rolling window of the stored 08-10 to 08-12 snapshots. Entries outside it are held in bench[] with source_url intact rather than deleted. NOT ADDED: Darren Waller (CAR) and Deshaun Watson (CLE) are real and in-window but have no ffc_id in data/player_map.json, so they sit outside the draftable FFC pool and their player pages render 'not tracked', the same reason J.J. McCarthy was never added. Note Mike Evans is on SF in 2026, not TB. On 2026-08-14 the window was widened per the rolling-mean reasoning above, twelve eval-set events were sourced with corroboration counts, and real-002-diggs was corrected from 08-11 to 08-05 and its verification withdrawn. See VERIFY_CHECKLIST.md for what still needs a human.",
     "rules": "Candidates may be sourced by research agents or by hand (ADR-004, amending ADR-002). Every entry carries a primary source_url, no entry without one. Every entry added after 2026-08-14 also carries sources[] with an on-page date read off each page. No scraper, no news API, no NLP pipeline. What an agent may NOT do is set verified:true.",
     "counts": {
-      "live": 47,
+      "live": 48,
       "bench": 6
     },
     "window": "2026-08-04 .. 2026-08-12. Derived, not hand-picked. FFC ADP is a trailing ~7 day mean, so the 08-10 snapshot averages drafts from 08-04 to 08-10 and the 08-12 snapshot averages 08-06 to 08-12. The move between them is driven only by drafts ENTERING the newer mean (08-11 to 08-12) and drafts LEAVING the older one (08-04 to 08-05); the 08-06 to 08-10 overlap sits in both means and largely cancels. The lookback is therefore the OLDER mean's own start, computed in lib/evidence.ts catalystLookbackStart(). The previous rule, 'on or after the previous snapshot', discarded the entire leaving edge, which is the half whose sign is inverted: a catalyst on the leaving edge pushes the measured move AGAINST its own direction as the reaction ages out.",
@@ -1232,6 +1232,36 @@
           "outlet": "San Francisco 49ers On SI (Parker Hurley)",
           "date_text": "Published Aug 17, 2026",
           "kind": "original"
+        }
+      ],
+      "independent_source_count": 1
+    },
+    {
+      "id": "real-049-monangai-mri",
+      "player": {
+        "sleeper_id": "12534",
+        "name": "Kyle Monangai"
+      },
+      "date": "2026-08-17",
+      "category": "injury",
+      "summary": "An MRI diagnosed a hyperextended right knee and Jeremy Fowler of ESPN reported Monangai will miss multiple weeks; Ben Johnson called him week-to-week the following day. Supersedes real-036-monangai, which recorded the initial belief that he had avoided serious injury.",
+      "short_label": "MRI showed a hyperextended knee, out multiple weeks",
+      "source_url": "https://www.espn.com/nfl/story/_/id/49643703/bears-rb-kyle-monangai-knee-expected-miss-multiple-weeks-source-says",
+      "verified": false,
+      "sample": false,
+      "date_confirmed_on_source": true,
+      "sources": [
+        {
+          "url": "https://www.espn.com/nfl/story/_/id/49643703/bears-rb-kyle-monangai-knee-expected-miss-multiple-weeks-source-says",
+          "outlet": "ESPN (Jeremy Fowler sourcing; Ben Johnson confirmation)",
+          "date_text": "page renders without a readable date on fetch",
+          "kind": "original"
+        },
+        {
+          "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/report-bears-rb-kyle-monangai-will-miss-weeks-with-a-hyperextended-knee",
+          "outlet": "Pro Football Talk (Charean Williams, credits Jeremy Fowler of ESPN)",
+          "date_text": "Published August 17, 2026 06:32 PM",
+          "kind": "syndicated"
         }
       ],
       "independent_source_count": 1
