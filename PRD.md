@@ -1,304 +1,399 @@
 # Draft Ticker: Product Requirements
 
-Written retrospectively over 18–19 August 2026, describing the product as
-built rather than as planned. Decisions recorded here were made during the build;
-the dates and reversals are stated in the section on what changed.
-
 Live: https://draft-ticker-fp.vercel.app · Repository:
 https://github.com/Keats4/draft-ticker-fp
 
 ## 1. Problem
 
-FantasyPros already publishes what a player is worth. Expert Consensus
-Rankings say where the experts have him. Consensus ADP says where the market
-is taking him. Player pages chart both, daily, with a five day smoothing on
-the expert line. Real-Time ADP adds 24 hour and 7 day movement.
+FantasyPros publishes both sides of the market. Expert Consensus Rankings
+carry the analyst view. Consensus ADP carries the crowd. Player pages chart
+the two together, daily, with smoothing on the expert line. Real-Time ADP
+adds 24 hour and 7 day movement.
 
-So the data exists and the movement is visible. What does not exist is an
-answer to the question a drafter actually asks when a number changes:
+The data is already there. None of it says whether a move matters.
 
-**Does this move mean anything, and should I do something about it?**
+A ten spot move in June looks the same on the page as a ten spot move the
+day after starters played a real game. A move with a confirmed injury behind
+it looks the same as one with nothing behind it.
 
-A ten spot move on a Tuesday in June and a ten spot move the day after
-starters played a real game are displayed identically. A move caused by a
-confirmed injury and a move with no documented cause behind it are displayed
-identically. A move on a player five sources agree about and a move on a
-player one source has ranked are displayed identically.
+The question a drafter asks when a number changes is whether it means
+anything and whether to act. Nothing on the page answers it.
 
-Draft Ticker is the interpretation layer on top of data FantasyPros already
-owns.
+Draft Ticker is the interpretation layer on data FantasyPros already owns,
+and the structured input an assistant needs to answer that question in
+conversation.
 
-## 2. User and moment
+## 2. Objective
 
-**Primary user.** Someone drafting a redraft fantasy football team between
-June and early September, who checks in every few days as their draft
-approaches.
+A returning drafter opens the site and knows, inside a couple of minutes,
+which prices have moved enough to matter since their last session, whether
+the experts moved with the market or against it, whether a verified event
+sits behind each move, and how much weight this point in the calendar
+deserves.
 
-**The moment.** They open the site having heard a player is rising or
-falling, or with no particular player in mind, and want to know two things:
-which price changes since they last looked are worth attention, and for a
-specific player, whether the current price is one they should take.
+Nothing on the page tells them who to draft.
 
-**What they leave with.** A short list of players whose price genuinely
-moved, an answer on each about which side moved first, a documented reason
-where one exists, an honest statement where one does not, and a reading of
-how much weight this time of year deserves.
+## 3. User
 
-**Secondary user.** A dynasty or season long manager evaluating trades, for
-whom the same movement and disagreement framing applies to rest of season
-rankings. The current build does not serve this user, and section 6 explains
-why.
+A redraft drafter between June and early September, checking in every few
+days as their draft approaches.
 
-## 3. What it does
+They arrive with one of two questions. Which prices have moved enough since
+last time to matter, and for a given player, has anything changed that
+should affect how they plan around him.
 
-### The two series
+They leave with a short list of real moves, an answer on each about which
+side moved first, a sourced reason where one exists and an explicit absence
+where it does not, and a reading of how much this time of year is worth.
 
-Both come from the FantasyPros API on a single issued key. Nothing is
+Dynasty and season long trade managers are a natural second audience. Out of
+scope here, for the reason in section 6.
+
+## 4. Product
+
+### Series
+
+Both series come from the FantasyPros API on one issued key. Nothing is
 scraped.
 
-**Expert line.** FantasyPros Expert Consensus Rankings, Draft PPR.
+**Expert.** Expert Consensus Rankings, Draft PPR.
 
-**Price line.** FantasyPros consensus average host rank: the mean of a
-player's rank across up to five league host boards. This is an average rank,
-not a literal draft slot. Surfaces call it ADP because that is the term the
-reader knows; the methodology page states the precise definition.
+**Price.** Consensus average host rank, the mean of a player's rank across
+up to five league host boards. An average rank, not a draft slot. Surfaces
+call it ADP because that is the term the reader knows; methodology carries
+the exact definition.
 
-Neither source publishes historical daily values, so the history is
-accumulated by daily capture rather than fetched. The series begins on the
-date of the first capture and grows one day at a time.
+No source publishes daily history, so history is accumulated by capture. The
+series starts at the first capture and grows a day at a time. Section 9
+covers the source decision that reset it.
 
-### Movement screening
+### Movement
 
-A move registers when it clears a published threshold: three picks on the
-price side, two ranks on the expert side. Both thresholds are reasoned
-rather than fitted, and the interface says so.
+A move registers above a published bar. Both bars are stated on the site and
+in the interface legend.
 
-Movement is measured over the dates both series share, so the two sides of
-every comparison span the same window. It is computed over the host boards
-present on both days, so a board adding or dropping a player does not
-register as a repricing.
+Movement spans only dates both series share, so the two sides of a
+comparison never cover different windows. It is computed only over host
+boards present on both days, so a board adding or dropping a player is not
+mistaken for a repricing. Neither rule was there originally. Both were added
+after the missing version shipped a defect, in section 9.
 
 ### Signal
 
-Six states, plus an explicit no signal condition:
+Six states plus an explicit null: market moving faster, experts moving
+first, market catching up to experts, converging, diverging, broad
+agreement.
 
-- Market moving faster
-- Experts moving first
-- Market catching up to experts
-- Market and experts converging
-- Market and experts diverging
-- Broad agreement
+Signals compute inside the comparison universe only: top 200 by both series,
+ranked by at least four of five host boards. A player carried by one board
+produces movement that is mostly noise, so the coverage bar keeps him out of
+the comparison.
 
-Signals compute only inside the comparison universe: top 200 by both price
-and expert rank, ranked by at least four of the five host boards.
+### Catalysts
 
-### Catalysts and evidence
-
-A hand curated file of dated real world events, each with a player, a date,
-a primary source URL, a category and a one sentence factual summary.
+Dated events, each with a player, a date, a primary source URL, a category,
+a factual summary and a short display label.
 
 A signal reads catalyst confirmed when a verified event falls inside the
-move window or the seven day lookback before it, and unexplained otherwise,
-which is displayed as watch rather than act.
+move window or the seven day lookback. Otherwise it reads unexplained, shown
+as watch rather than act. The empty state is deliberate: a move with no
+documented cause is flagged as exactly that.
 
-`verified: true` means a human opened the source and confirmed the event and
-its date. Sourcing may be automated; verification may not.
+`verified: true` means the event and its date have been confirmed against
+the primary source. Sourcing is automated, verification is not. A model can
+check whether a summary matches its page, but the failures that actually
+occurred here were dates, so a person confirms the date before the flag is
+set. Section 10 covers what this becomes at scale.
 
 ### Calendar
 
-Twelve phases across the fantasy year, derived from real season dates, each
-carrying an authored trust reading from low to very high. The reading
-appears as a meter beside movement where a move is featured: the hero and
-the player page movement line, never the market table or the story cards,
-which would repeat one phase-wide reading on every row or card on the same
-screen. It renders only when the trust level is
-high, very high or low; at medium it renders nothing, so the meter appears
-only when it changes how the move should be read. The calendar's judgment
-reaches the moment a number is being read rather than living only on its own
-page.
+Twelve phases derived from real season dates, each carrying an authored
+trust reading. The reading renders as a meter beside featured moves on the
+hero and player pages. It is kept off the market table and the story cards,
+where one phase wide value would repeat identically down a screen. It
+renders only at high, very high or low. At medium it stays silent.
 
 ### Archetypes
 
-Seven labels describing what kind of news moves a player: Handcuff,
-Committee, Lead back, Alpha receiver, Promoted, Injured, Rookie. Each
-carries a one line statement of what would move him.
+Seven labels for what kind of news moves a player: handcuff, committee, lead
+back, alpha receiver, promoted, injured, rookie. Each states what would move
+him.
 
-Computed from team, position and price, plus the current injury designation
-and rookie flag, with a small authored override file for rooms the price
-misreads. Each override carries its reason, which renders in the label.
-Archetypes are display only and are not an input to any signal, ranking or
-selection.
+Derived from team, position, price, injury designation and rookie status,
+with a short authored override file for rooms the price misreads. Overrides
+carry their reason, which renders in the label. Archetypes are display only
+and feed no signal, ranking or selection.
 
-## 4. Non goals
+## 5. Functional requirements
 
-These are decisions, not omissions.
+### Market view
 
-**Not a news feed.** FantasyPros runs one. Competing on news volume would
-lose, and duplicating it adds nothing. This surfaces the price response to
-news, not the news.
+- Displays current ADP, ECR, the gap between them, movement over the shared
+  window, signal state and evidence state for every player in the comparison
+  universe.
+- Excludes players outside the comparison universe from all signal and gap
+  computation.
+- Uses one observation window for both series on every comparison.
+- Computes price movement only over host boards present on both endpoint
+  days.
+- Renders a missing value as an explicit absence, never as zero.
+- Every row links to player detail.
 
-**Not a rankings product.** It does not produce its own player valuations
-and has no opinion about who is good.
+### Player detail
 
-**No causal claims.** The evidence tier says a verified event coincides with
-a move inside a stated window. It never says the event caused the move. When
-two events coincide, both are listed rather than one being chosen.
+- Charts both series across the full stored history, aligned on shared
+  dates.
+- Marks verified catalysts falling inside the observation window or its
+  stated lookback.
+- Distinguishes catalyst confirmed from unexplained, and states which
+  applies.
+- Displays the source count and capture date behind the current values.
+- Displays the archetype label with its one line statement of what moves
+  this player.
+- Displays the calendar trust reading beside the movement line.
 
-**No prediction.** Nothing here forecasts a price or a performance. It
-describes what has already happened and how much weight it deserves.
+### Plain lead
 
-**Does not price the in season market.** Once drafts finish, draft position
-stops existing and the real price becomes roster percentage and waiver
-spending. That is a different data set and is described as a concept, not
-built.
+- Selects up to three players whose price movement clears the published bar,
+  ordered by the same ranking used elsewhere.
+- States each move, the expert response and the newest verified event in
+  plain language, without product vocabulary.
+- Renders nothing when no player qualifies.
+
+### Calendar
+
+- Derives the current phase from real season dates rather than a stored
+  flag.
+- Displays trust only at low, high or very high; renders nothing at medium.
+- Never alters the deterministic market signal.
+
+### Catalysts
+
+- Every entry carries a player, a date, a primary source URL, a category, a
+  summary and a short display label.
+- Only entries flagged verified are eligible to change a rendered evidence
+  state.
+- Evidence state is display only and does not feed signal, ranking or
+  selection.
+
+## 6. Acceptance criteria
+
+- If a host board carries a player on the first day of a window but not the
+  second, that board is excluded from his movement calculation, and if fewer
+  than four boards remain he shows no movement rather than a partial one.
+- If no verified catalyst falls inside the window or its lookback, the
+  interface renders unexplained. It never generates an explanation, and
+  never infers a cause from an event affecting a different player.
+- If either series fails the coverage requirement, no comparative signal is
+  shown for that player.
+- Both series in any comparison span identical dates. A comparison across
+  unequal windows is a defect, not a degraded state.
+- Every rendered catalyst resolves to a primary source URL, and every
+  verified flag corresponds to a human confirmation of the event and its
+  date.
+- Every published threshold appearing in the interface matches the value in
+  code. A threshold change that does not update the interface is a defect.
+
+## 7. Non goals
+
+**Not a news feed.** FantasyPros runs one. This surfaces the price response
+to news.
+
+**Not a rankings product.** No player valuations, no opinion on who is good.
+
+**Not an assistant.** Coach AI already answers questions in league context.
+This produces the market layer that assistant cannot currently read, and is
+built to be consumed by it.
+
+**No causal claims.** The evidence tier reports coincidence inside a stated
+window. When two events coincide, both are listed.
+
+**No prediction.** Nothing forecasts a price or a performance.
+
+**No in season pricing.** After drafts close, draft position stops existing
+and the real price becomes roster percentage and waiver spend. Different
+data, described as a concept and not built. Also why the dynasty and trade
+use case in section 3 is out of scope.
 
 **No opaque scoring.** No composite index, no blended confidence number.
-Every threshold is published and every label is traceable to a rule.
+Every bar is published and every label traces to a rule.
 
-## 5. Success criteria
+## 8. Success criteria
 
-### The falsifiable claim
+Two kinds. The first ask whether the model is right. The second ask whether
+the product gets used. Only the first can be tested with what exists today.
 
-The calendar asserts that identical movement carries different information
-depending on when it occurs. That is testable:
+### Model validation
 
-Moves during high trust phases should persist. Moves during low trust
-phases should revert.
+**The calendar is falsifiable.** It asserts that identical movement carries
+different information depending on when it lands. The test is whether moves
+in high trust phases persist and moves in low trust phases revert. Needs a
+season of history. If it fails, the trust weighting comes out.
 
-This requires a full season of stored history and has not been measured. If
-it fails, the calendar's trust weighting is decoration and should be
-removed.
+**The signal should discriminate.** Players labelled market moving faster
+should behave differently over subsequent weeks than players labelled broad
+agreement. If the six states separate on nothing, they are describing noise.
 
-### Whether the signal discriminates
+**Catalysts must beat a base rate.** A blind matched test found 68 percent
+of comparable players carry a qualifying news event in any twelve day
+window, with movers statistically indistinguishable from non movers on
+presence alone. That was measured before the source change and the movers
+half needs re running. Either way, presence is nearly worthless as a filter,
+so attribution needs a precision target.
 
-Players labelled market moving faster should behave differently over the
-following weeks than players labelled broad agreement. If the six states do
-not separate on any subsequent measure, the classification is describing
-noise.
+**Interpretation quality.** On a sampled review, a competent analyst agrees
+with the reading a player page gives. This is the same check that scales to
+the sampled precision audit in section 10.
 
-### Whether catalysts carry information
+### Product metrics
 
-A blind matched test found that 68 percent of comparable players carry a
-qualifying news event in any twelve day window, and that movers were
-statistically indistinguishable from non movers on news presence alone. That
-measurement was made before the price source changed and the movers half
-needs re running.
+Measurable standalone:
 
-The implication stands regardless: news presence alone is close to worthless
-as a filter, so any automated catalyst pipeline needs a precision target
-rather than a volume target.
+- Repeat use during preseason among users with an upcoming draft. Primary
+  metric.
+- Click through from the market view into player detail.
+- Sessions reading two or more players.
+- Seven day return rate.
+- Whether a sampled user can correctly state why a player moved after using
+  the page, which tests comprehension rather than traffic.
 
-### What would make it worth building at scale
+Measurable only inside FantasyPros:
 
-A drafter changes a decision because of something read here, and would
-notice its absence. Absent usage data, the proxy is whether the
-interpretation is one a competent analyst would agree with on a sampled
-review.
+- Entries into Draft Wizard or Draft Assistant originating here.
+- Premium conversion among users who reach this surface.
+- Preseason retention against users who do not.
 
-## 6. Known limitations
+No targets are set. Setting one requires a baseline, and the standalone
+version has no traffic to draw from.
 
-Stated as they are on the site.
+## 9. Known limitations
 
-- The stored history is days old, so charts are short and moves are small.
-- Thresholds are reasoned rather than fitted, and will be re measured once
-  enough history exists to build a distribution.
-- Calendar trust and archetypes are published and displayed but are not
-  inputs to signal computation.
-- AI generated explanation notes exist and have been graded against a
-  written contract, but are not shipped. Section 7 explains why.
-- The in season half of the Market Price Index is a concept, because roster
-  percentage and waiver prices do not exist until Week 1.
-- Only two of the five contributing host boards are identifiable by name;
-  the API does not name the other three.
+Stated on the site, not only here.
+
+- History is days old. Charts are short and moves are small.
+- Bars are reasoned rather than fitted. A first distribution check exists.
+  Proper percentile matching needs weeks of windows.
+- Calendar trust and archetypes are displayed but are not signal inputs.
+- Generated explanation notes are built and graded but held. Section 10.
+- The in season index is a concept. Roster percentage and waiver prices do
+  not exist until Week 1.
+- Two of five host boards are identifiable by name. The API does not name
+  the rest.
 - Host coverage varies by scoring format, and one host publishes roughly 25
   hours behind the others.
-- Findings measured on the retired price series have not been re measured on
-  the current one, and the research log marks which are which.
 
-## 7. What changed and why
+## 10. Decisions reversed
 
-The value of this section is that these were reversals, not refinements.
-
-**The thesis was wrong and was corrected.** The original premise was that
-FantasyPros lacked the stored time series. Checking their player pages
-showed they chart it daily with smoothing already applied. The product was
-repositioned from missing data to missing interpretation, which is a smaller
-claim and a true one.
-
-**Catalyst provenance did not match its own documentation.** An audit found
-that entries described as hand curated had been generated by research
-agents, and that a script had set every verification flag in one pass. The
-standard was rewritten into three parts that no longer travel together:
-sourcing earns no trust, attribution requires a primary source URL, and
+**Catalyst provenance.** An audit found entries documented as hand curated
+had been agent generated, and that a script had set every verification flag
+in one pass. The standard was split into three parts that no longer travel
+together: sourcing earns no trust, attribution requires a primary source,
 verification requires a human. Flags were withdrawn and re earned.
 
-**The price source changed.** The build originally used a third party mock
-draft ADP. It now uses FantasyPros' own consensus, so both series come from
-one provider on one key. The cost was the stored history, which restarted,
-and a measurement basis, since several findings were made on the retired
-series and are marked as such rather than relabelled.
+**Archetypes.** The first version grouped by tenure, which told a drafter
+nothing actionable and needed a disclaimer under every label. The second
+describes what kind of news moves a player, which ties the archetype to the
+catalyst layer.
 
-**The catalyst lookback stopped being derived.** It was justified by the
-previous source publishing a seven day trailing mean. The current source
-publishes no averaging window, so the same seven days is now a stated
-assumption with three named reasons: drafters arrive over days, each host
-averages over its own unpublished window, and the sources publish roughly 25
-hours apart.
+**Two measurement bugs, caught after shipping.** Movement was compared
+across windows of unequal length, inflating one signal state across most of
+the board. Price deltas were computed across changing sets of source boards,
+so a board dropping a player registered as a repricing. A test caught
+neither. Both turned up by checking a rendered number against its inputs.
 
-**Archetypes were rebuilt.** The first version grouped players by tenure,
-which told a drafter nothing they could act on and required a disclaimer
-under every label. The second version describes what kind of news moves a
-player, which connects the archetype to the catalyst layer.
+**Explanation notes, built and held.** Thirteen notes were generated and
+graded twice against a written contract of named failure modes. A payload
+defect invalidated the second pass: the catalyst fields feeding the notes
+were wrong, and every check grades a note against its payload, so a note
+faithfully reporting bad inputs passes all of them. No amount of stricter
+grading reaches a defect in the inputs.
 
-**Two measurement bugs were found and fixed after shipping.** Movement was
-being compared across windows of different lengths, which inflated one
-signal state across most of the board. And price deltas were being computed
-across changing sets of source boards, so a board dropping a player
-registered as a repricing. Both were caught by checking a rendered number
-against its inputs rather than by a test.
+## 11. The AI layer
 
-**The explanation notes were built, graded and held.** Thirteen notes were
-generated and graded twice against a written contract of named failure
-modes. A payload defect then invalidated the second pass: the catalyst
-fields feeding the notes were incomplete or wrong, and every check grades a
-note against its payload, so a note faithfully reporting wrong inputs passes
-every one of them. Grading harder never reaches an input defect. The notes
-stay unshipped until they are regenerated against corrected, human verified
-payloads and the usefulness check is in force.
+FantasyPros already runs the right surface. Coach AI answers draft, trade,
+waiver and start or sit questions inside a user's league context.
 
-## 8. What ships next
+What an assistant can say is bounded by what it can read. Coach AI can rank
+a player, weigh him against a roster and explain a projection. It cannot say
+he got five picks cheaper this week, that the market moved before the
+experts did, or that a hamstring reported Thursday sits behind it. That
+layer does not exist in structured form.
 
-**Measure the calendar claim.** Persistence of high trust moves against
-reversion of low trust moves, once a season of history exists.
+Draft Ticker builds it. Every field traces to a rule or a URL.
 
-**Fit the thresholds.** Replace reasoned bars with distribution matched ones
+**The split.** Models handle explanation and attribution. The signal,
+thresholds, evidence tier and coverage bar stay deterministic and published,
+because a drafter is about to act on them.
+
+**Attribution at scale.** Hand verification is the right cost for a
+prototype and the wrong one for a product. Inside FantasyPros, Fantasy Feed
+already carries every news item tagged to a player with a timestamp, so
+three of the four verification steps are already satisfied by the editorial
+process that published the item. What remains for a model is ranking which
+of a player's feed items inside the window plausibly explains the move. That
+is a scoring problem with labelled data already in hand, since every
+verified catalyst here is a labelled example.
+
+**It has to be precision biased.** The base rate in section 8 means a system
+attributing whenever it finds news will attribute almost always, and the
+confirmed label stops carrying information. Attribution fires above a stated
+confidence bar and defaults to unexplained below it. Recency and event
+category are the levers, and the feed carries both.
+
+**Human review does not disappear.** It moves to a sampled precision audit
+against a published target, with the measured hit rate shown on the surface,
+which turns a cost that scales with volume into one that does not.
+
+**Shipping discipline.** Every generative feature ships behind a written
+standard with named failure modes, a repeatable graded pass, and a stated
+precision target. The eval contract in the repository is the reusable asset,
+and it has already caught a data defect before a user saw a confident
+sentence built on it.
+
+## 12. Roadmap
+
+**Measure the calendar claim.** Persistence against reversion, once a season
+of history exists.
+
+**Fit the bars.** Replace reasoned thresholds with distribution matched ones
 once there are enough windows to percentile match honestly.
 
-**Re run the news lookback** on the current price series, rebuilding the
-mover and control sample at a comparable size.
+**Re run the news lookback** on the current series, rebuilding movers and
+controls at comparable size.
 
-**Ship the explanation notes** once the usefulness check in the grading
-contract is in force, so a note that only paraphrases its inputs cannot
-pass.
+**Ship explanation notes** against corrected payloads with the usefulness
+check enforced.
 
-**Build the in season index.** Roster percentage as the price and waiver
-spending as the tape, which extends the product past the draft.
+**Build the in season index.** Roster percentage as price, waiver spend as
+tape.
 
-**Second source comparison.** Where two crowds disagree about the same
-player by a wide margin, that disagreement is itself information, and no
-product surfaces it.
+**Second source comparison.** Where two crowds disagree widely on the same
+player, that disagreement is information nobody surfaces.
 
-## 9. Proposals for FantasyPros
+## 13. Proposals for FantasyPros
 
-Detailed on the Inside FantasyPros page. Summarised here because they are
-the point of the exercise.
+Full treatment on the Inside FantasyPros page. Ordered by build cost,
+smallest first.
 
-The strongest is that inside FantasyPros this stops being a research
-problem. Fantasy Feed already carries every news item tagged to a player
-with a timestamp. A catalyst therefore becomes a join between two things
-they already own: a movement threshold fires, the pipeline looks up their
-own feed for that player within the window, and the editorial team has
-already decided what counts as news.
+**Price response on Fantasy Feed items.** Every feed item gains one line:
+ADP down five picks since this broke, experts moved him up four. Two owned
+datasets, highest traffic content surface. No new pipeline, no editorial
+judgment, no external source.
 
-The measurement in section 5 is why that join needs a precision bar rather
-than a volume target.
+**A why column on Real-Time ADP.** The page already ranks movers. Movers
+with a feed item inside the window get a marker linking to it, so a user
+scanning what moved can see what moved it without leaving the page.
+
+**Catalyst attribution as a join.** A movement threshold fires, the pipeline
+retrieves that player's feed items inside the window, and a ranking model
+scores which plausibly explains the move. Requires a confidence bar and a
+sampled precision audit, per section 8.
+
+**Market context inside Coach AI.** The assistant answers in league context
+but cannot read price movement. This layer gives it a structured, dated,
+sourced view of what moved and what sits behind it. Largest build, largest
+payoff, depends on the three above.
+
+**Sequencing.** The first two ship independently and test whether users
+engage with price context at all. Attribution gates the fourth: an assistant
+that cites the wrong cause does more damage than one that cites none.
