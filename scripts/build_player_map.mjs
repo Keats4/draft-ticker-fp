@@ -9,7 +9,12 @@
  *
  * Usage: node scripts/build_player_map.mjs
  * Reads:  fixtures/sleeper_players.json, fixtures/fp_ecr.json, fixtures/fp_host_rank.json
- * Writes: data/player_map.json, data/mapping_review.json, data/archetype_review.json
+ * Writes: data/player_map.json, data/mapping_review.json
+ *
+ * Archetypes are NOT written here. The retired tenure system used to stamp
+ * an archetype field onto every entry; the current role system computes its
+ * labels at render time in lib/archetype.ts from the live rows, so the map
+ * carries only identity, team, position, years_exp, age and injury_status.
  */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
@@ -34,7 +39,6 @@ const sleeper = JSON.parse(readFileSync("fixtures/sleeper_players.json", "utf8")
 // precedence because that board is what the product prices.
 const fpEcr = JSON.parse(readFileSync("fixtures/fp_ecr.json", "utf8")).players;
 const fpHostRank = JSON.parse(readFileSync("fixtures/fp_host_rank.json", "utf8")).players;
-const hostRankIds = new Set(fpHostRank.map((p) => p.player_id));
 const fpById = new Map();
 for (const p of fpEcr) fpById.set(p.player_id, p);
 for (const p of fpHostRank) fpById.set(p.player_id, p);
@@ -177,37 +181,6 @@ try {
 } catch (e) { console.log("no overrides file:", e.message); }
 
 mkdirSync("data", { recursive: true });
-// ---- archetype tags (mirror lib/archetype.ts; keep in sync) ----
-function archetypeOf(m) {
-  const { pos, years_exp, age, injury_status } = m;
-  const SERIOUS = new Set(["IR","Out","PUP","NFI","Doubtful","Suspended","COV"]); // mirror lib/archetype.ts
-  if (injury_status && SERIOUS.has(String(injury_status).trim()))
-    return { tag: "Injury-Return", reason: `injury_status="${injury_status}"` };
-  if (years_exp === 0) {
-    if (pos === "WR") return { tag: "Rookie WR", reason: "years_exp=0 WR" };
-    if (pos === "RB") return { tag: "Rookie RB", reason: "years_exp=0 RB" };
-    return { tag: "Rookie", reason: `years_exp=0 ${pos}` };
-  }
-  if (years_exp === 1) return { tag: "Sophomore", reason: "years_exp=1" };
-  if ((years_exp === 2 || years_exp === 3) && !(age != null && age >= 30))
-    return { tag: "Ascending", reason: `years_exp=${years_exp}` };
-  if ((years_exp === 4 || years_exp === 5) && !(age != null && age >= 30))
-    return { tag: "Prime", reason: `years_exp=${years_exp} age=${age}` };
-  if ((years_exp != null && years_exp >= 6) || (age != null && age >= 30))
-    return { tag: "Veteran", reason: years_exp >= 6 ? `years_exp=${years_exp}` : `age=${age}` };
-  return null;
-}
-const archReview = [];
-for (const e of Object.values(map)) {
-  const a = archetypeOf(e);
-  if (a) { e.archetype = a.tag; e.archetype_reason = a.reason; }
-  else if (e.fp_id != null && hostRankIds.has(e.fp_id)) {
-    // only players actually shown (on the host rank board) matter for review
-    archReview.push({ sleeper_id: e.sleeper_id, name: e.name, pos: e.pos, years_exp: e.years_exp, age: e.age });
-  }
-}
-writeFileSync("data/archetype_review.json", JSON.stringify({ count: archReview.length, unclassified: archReview }, null, 1));
-console.log(`archetype: ${archReview.length} in-pool players unclassified (see data/archetype_review.json)`);
 
 writeFileSync("data/player_map.json", JSON.stringify(map, null, 1));
 writeFileSync("data/mapping_review.json", JSON.stringify(review, null, 1));
