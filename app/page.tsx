@@ -216,7 +216,6 @@ export default async function Home() {
   const withGap = rows.filter((r) => r.gap !== null);
   const comparableCount = rows.filter((r) => r.gap !== null).length;
 
-  const widest = [...withGap].sort((a, b) => Math.abs(b.gap!) - Math.abs(a.gap!))[0];
   const movers = rows.filter((r) => r.hostRankDelta !== null && r.inUniverse);
   const riser = [...movers].sort((a, b) => b.hostRankDelta! - a.hostRankDelta!)[0];
   const faller = [...movers].sort((a, b) => a.hostRankDelta! - b.hostRankDelta!)[0];
@@ -759,10 +758,16 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <section className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {/* Movement tiles: neutral, arrow carries direction. Colouring a riser
             green and a faller red is the exact contradiction the single colour
-            semantic removes, a falling host rank is a falling price. */}
+            semantic removes, a falling host rank is a falling price. These two
+            are the only surface where a large move carrying a "Broad
+            agreement" label appears: story cards rank by signal strength and
+            that label scores zero there. The old third tile, widest expert
+            gap, duplicated "For your draft" with worse selection (it
+            re-surfaced the late-round quarterbacks the top 120 bound excludes)
+            and was removed. */}
         {riser ? (
           <StatCard
             label={riserLabel}
@@ -787,32 +792,13 @@ export default async function Home() {
         ) : (
           <StatCard label={fallerLabel} name="–" value="–" sub={`Tracking since ${trackingSince}, needs a second snapshot`} tone="muted" />
         )}
-        {/* Value read: coloured, with the word in the tile so colour is never
-            the only signal. */}
-        {widest && (
-          <StatCard
-            label="Widest expert gap"
-            name={widest.name}
-            value={`${widest.gap! > 0 ? "+" : ""}${widest.gap}${valueWord(widest.gap) ? ` ${valueWord(widest.gap)}` : ""}`}
-            sub={`${widest.position}${widest.posRank} · ${widest.team} · ADP minus expert rank`}
-            tone={widest.gap! < 0 ? "expensive" : "cheap"}
-            href={hrefFor(widest)}
-          />
-        )}
       </section>
 
-      <HowToReadCard />
-
-      <p className="mb-3 rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--ink-2)]">
-        <span className="font-medium">Thresholds:</span> Move counts at ≥
-        {THRESHOLDS.HOST_RANK_MOVE} picks · Expert move at ≥{THRESHOLDS.ECR_MOVE} ranks
-        · Notable gap at ≥{THRESHOLDS.GAP_NOTABLE} · Both sides clearing their
-        threshold in opposite directions is labelled “Market and experts
-        diverging” when the gap grew and “Market and experts converging” when it
-        shrank · Gaps only inside the top{" "}
-        {UNIVERSE.TOP_N} (both ADP &amp; ECR), ranked by ≥{UNIVERSE.MIN_SOURCE_COUNT} host boards
-        {!hasMovement && " · Movement begins once a second daily snapshot exists"}
-      </p>
+      {/* The one explainer block, directly above the table where the
+          vocabulary is used. It merges the old how-to-read card and the
+          thresholds legend; dismissing collapses it to a one-line legend
+          rather than removing the published bars from the page. */}
+      <HowToReadCard hasMovement={hasMovement} />
 
       <p className="mb-2 text-sm text-[var(--ink-2)]">
         Every price move in the top 200, and how much to believe each one.
