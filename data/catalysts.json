@@ -479,42 +479,6 @@
       "date_confirmed_on_source": "unknown"
     },
     {
-      "id": "real-106-kelce",
-      "player": {
-        "sleeper_id": "1466",
-        "name": "Travis Kelce"
-      },
-      "date": "2026-08-10",
-      "category": "usage",
-      "summary": "Andy Reid said the Chiefs have to pull Kelce out of training camp reps because the 36-year-old declines the reduced veteran workload the team plans for him.",
-      "source_url": "https://sports.yahoo.com/articles/travis-kelce-refusing-chiefs-training-103000648.html",
-      "originator": "Steve Walls (@SteveWallsKC), 2026-08-10, capturing Reid's practice comments",
-      "sources": [
-        {
-          "url": "https://sports.yahoo.com/articles/travis-kelce-refusing-chiefs-training-103000648.html",
-          "outlet": "Yahoo Sports",
-          "date_text": "Tuesday, August 11, 2026 at 10:30 AM UTC",
-          "kind": "original"
-        },
-        {
-          "url": "https://heavy.com/sports/nfl/kansas-city-chiefs/andy-reid-travis-kelce-refuses-training-camp/",
-          "outlet": "Heavy",
-          "date_text": "August 11, 2026 at 1:17pm",
-          "kind": "original"
-        },
-        {
-          "url": "https://www.hitc.com/what-travis-kelce-is-refusing-to-do-in-chiefs-training-camp-as-andy-reid-details-his-struggle/",
-          "outlet": "HITC",
-          "date_text": "Tue 11 August 2026 11:00, UK",
-          "kind": "original"
-        }
-      ],
-      "independent_source_count": 3,
-      "verified": false,
-      "date_confirmed_on_source": true,
-      "sample": false
-    },
-    {
       "id": "real-026-tuten",
       "player": {
         "sleeper_id": "12490",
@@ -1128,7 +1092,7 @@
         "sleeper_id": "12484",
         "name": "Jayden Higgins"
       },
-      "date": "2026-08-18",
+      "date": "2026-08-19",
       "category": "injury",
       "summary": "Tore his ACL in Tuesday's joint practice with the Raiders and will miss the entire 2026 season, per Ian Rapoport; he had been listed as a starting wideout on Houston's depth chart.",
       "short_label": "Tore his ACL in a joint practice, out for the season",
@@ -1243,6 +1207,30 @@
           "url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-17/rapsheet-jordyn-tyson-hamstring-out-two-months",
           "outlet": "NBC Sports player news (credits Ian Rapoport)",
           "date_text": "August 17, 2026 (URL-dated)",
+          "kind": "original"
+        }
+      ],
+      "independent_source_count": 1
+    },
+    {
+      "id": "real-048-stribling-environment",
+      "player": {
+        "sleeper_id": "13417",
+        "name": "De'Zhaun Stribling"
+      },
+      "date": "2026-08-17",
+      "category": "environment",
+      "summary": "SI's 49ers site reported the receiver room reshaped inside two weeks: Ricky Pearsall on injured reserve and out for the season, Deebo Samuel signed in his place, Christian Kirk not practicing, and Demarcus Robinson rested with the starters in the preseason opener.",
+      "short_label": "Pearsall out for the season and Kirk not practicing around him",
+      "source_url": "https://www.si.com/nfl/49ers/onsi/49ers-wide-receiver-depth-chart-completely-changed-last-week",
+      "verified": false,
+      "sample": false,
+      "date_confirmed_on_source": true,
+      "sources": [
+        {
+          "url": "https://www.si.com/nfl/49ers/onsi/49ers-wide-receiver-depth-chart-completely-changed-last-week",
+          "outlet": "San Francisco 49ers On SI (Parker Hurley)",
+          "date_text": "Published Aug 17, 2026",
           "kind": "original"
         }
       ],
