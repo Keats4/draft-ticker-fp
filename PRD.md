@@ -47,7 +47,7 @@ side moved first, a sourced reason where one exists and an explicit absence
 where it does not, and a reading of how much this time of year is worth.
 
 Dynasty and season long trade managers are a natural second audience. Out of
-scope here, for the reason in section 6.
+scope here, for the reason in section 7.
 
 ## 4. Product
 
@@ -64,7 +64,7 @@ call it ADP because that is the term the reader knows; methodology carries
 the exact definition.
 
 No source publishes daily history, so history is accumulated by capture. The
-series starts at the first capture and grows a day at a time. Section 9
+series starts at the first capture and grows a day at a time. Section 10
 covers the source decision that reset it.
 
 ### Movement
@@ -76,7 +76,7 @@ Movement spans only dates both series share, so the two sides of a
 comparison never cover different windows. It is computed only over host
 boards present on both days, so a board adding or dropping a player is not
 mistaken for a repricing. Neither rule was there originally. Both were added
-after the missing version shipped a defect, in section 9.
+after the missing version shipped a defect, in section 10.
 
 ### Signal
 
@@ -103,7 +103,7 @@ documented cause is flagged as exactly that.
 the primary source. Sourcing is automated, verification is not. A model can
 check whether a summary matches its page, but the failures that actually
 occurred here were dates, so a person confirms the date before the flag is
-set. Section 10 covers what this becomes at scale.
+set. Section 11 covers what this becomes at scale.
 
 ### Calendar
 
@@ -243,7 +243,7 @@ so attribution needs a precision target.
 
 **Interpretation quality.** On a sampled review, a competent analyst agrees
 with the reading a player page gives. This is the same check that scales to
-the sampled precision audit in section 10.
+the sampled precision audit in section 11.
 
 ### Product metrics
 
@@ -283,6 +283,12 @@ Stated on the site, not only here.
   hours behind the others.
 
 ## 10. Decisions reversed
+
+**The price source changed.** The build originally priced from a third
+party mock draft ADP. It now uses FantasyPros' own consensus, so both series
+come from one provider on one key. The cost was the stored history, which
+restarted, and a measurement basis: findings made on the retired series are
+marked as such in the research log rather than relabelled.
 
 **Catalyst provenance.** An audit found entries documented as hand curated
 had been agent generated, and that a script had set every verification flag
