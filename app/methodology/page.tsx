@@ -198,8 +198,15 @@ export default function Methodology() {
         </ol>
         <p className="mt-2 text-sm text-neutral-500">
           These initial thresholds are judgment calls, not fitted to
-          historical data {AWAITING}. They will be revisited once several
-          weeks of snapshots exist, and any change will be recorded here.
+          historical data. First directional read, recorded 2026-08-20 on the
+          five days stored so far: the 3 pick price bar sits near the 80th
+          percentile of nonzero price moves over the window (26 of 172
+          comparable players cleared it), while the 2 rank expert bar sits at
+          the median of nonzero expert moves (83 of 172 cleared), so if either
+          bar is mis-set it is the expert side being too loose. Five days
+          inside one high trust phase is a direction, not a fit. The bars will
+          be percentile matched once several weeks of windows exist, and any
+          change will be recorded here.
         </p>
       </section>
 
