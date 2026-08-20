@@ -108,9 +108,10 @@ its date. Sourcing may be automated; verification may not.
 
 Twelve phases across the fantasy year, derived from real season dates, each
 carrying an authored trust reading from low to very high. The reading
-appears as a meter beside movement where a move is featured: the story
-cards, the hero, and the player page movement line, never the market table,
-which would repeat it on every row. It renders only when the trust level is
+appears as a meter beside movement where a move is featured: the hero and
+the player page movement line, never the market table or the story cards,
+which would repeat one phase-wide reading on every row or card on the same
+screen. It renders only when the trust level is
 high, very high or low; at medium it renders nothing, so the meter appears
 only when it changes how the move should be read. The calendar's judgment
 reaches the moment a number is being read rather than living only on its own
