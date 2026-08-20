@@ -33,7 +33,7 @@ export const TRUST_READING: Record<PhaseLevel, string> = {
   low: "Movement now usually reverses.",
   med: "Movement now is worth noting rather than acting on.",
   high: "Movement now is worth taking seriously.",
-  vhigh: "Movement now is the strongest evidence the calendar offers.",
+  vhigh: "Movement now is the strongest evidence the offseason calendar offers.",
 };
 
 /**
