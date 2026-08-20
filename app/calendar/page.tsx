@@ -34,9 +34,6 @@ function watchingLabel(offset: "past" | "now" | "future"): string {
   return "What to watch for";
 }
 
-const FUTURE_NOTE =
-  "Names populate when this phase opens, from the catalyst file and the Move column.";
-
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
@@ -173,14 +170,7 @@ export default function Calendar() {
                     </Section>
                     <Section title={watchingLabel(offset)}>
                       {phase.sections.watching ? (
-                        <>
-                          {phase.sections.watching}
-                          {offset === "future" && (
-                            <span className="mt-1 block text-xs italic text-[var(--ink-3)]">
-                              {FUTURE_NOTE}
-                            </span>
-                          )}
-                        </>
+                        phase.sections.watching
                       ) : (
                         <Pending />
                       )}

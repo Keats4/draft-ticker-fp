@@ -31,7 +31,7 @@
    "how_to_read": "Draft capital is real information, but the prices that follow it usually are not. Rookies get drafted early on landing-spot excitement and shiny-new-toy hype, and the actual role does not exist until the season starts.",
    "sections": {
     "what_appears": "Teams show you what they think of their own rosters. A second-round running back tells you more about the incumbent than any offseason quote will.",
-    "player_types": "Rookie WR · Rookie RB · Ambiguous-Backfield RB · unsettled TE rooms",
+    "player_types": "Rookies · Ambiguous-Backfield RB",
     "signal_strength": "",
     "watching": "This year that was Jeremiyah Love, taken third overall into Arizona's backfield, with James Conner taking the corresponding hit. The board still shows the split: Love at ADP 26.2, Conner at 183.1."
    }
@@ -47,7 +47,7 @@
    "how_to_read": "There is no contact and no competition, so there is nothing to confirm. Price spikes from minicamp reports reverse more often than they hold.",
    "sections": {
     "what_appears": "Rookies in helmets and shorts, no defense, and a round of positive first-look reports.",
-    "player_types": "Rookie WR · Rookie RB · Rookie TE",
+    "player_types": "Rookies",
     "signal_strength": "",
     "watching": "This year's minicamp riser was Emmett Johnson, who drew a LeSean McCoy comparison from Andy Reid after a single practice. He is no longer in the draftable pool, which is this phase's point made for it."
    }
@@ -63,7 +63,7 @@
    "how_to_read": "Most June risers give the gain back by mid-August. Movement in this phase is mostly narrative, and the market knows it, which is why it drifts instead of jumps.",
    "sections": {
     "what_appears": "Unpadded practices and optimistic coach quotes. The first “running with the first team” reports show up here, months before they can be tested.",
-    "player_types": "Rookie WR · Injury-Return Vet · Camp-Hype Breakout",
+    "player_types": "Rookies · Injury-Return Vet · Camp-Hype Breakout",
     "signal_strength": "",
     "watching": "This year's June riser was Rachaad White, who took lead-back reps in Washington while Jacory Croskey-Merritt was hurt. It has held in this market: White sits at ADP 99.9, Croskey-Merritt at 111.3."
    }
@@ -95,7 +95,7 @@
    "how_to_read": "First-team reps in pads are the first signal that tends to hold. A player who takes a starter's reps for two weeks of camp usually keeps the role, and the market is right to pay for it. The caveat: coaches rotate packages all camp, so a raw rep count without package context can overstate a role.",
    "sections": {
     "what_appears": "Padded practices begin and beat reporters chart first-team reps daily. This is the first usage data of the year that involves contact.",
-    "player_types": "Camp-Hype Breakout · Ambiguous-Backfield RB · Rookie WR · Injury-Return Vet (PUP decisions land here)",
+    "player_types": "Camp-Hype Breakout · Ambiguous-Backfield RB · Rookies · Injury-Return Vet (PUP decisions land here)",
     "signal_strength": "",
     "watching": "From the catalyst file: the Brooks/Hubbard backfield shift, Nabers back at practice off the ACL, and Jaydon Blue listed RB2 behind Javonte Williams. Blue's entry is a slip, not a rise: ADP 150.1 to 155.2."
    }
@@ -111,7 +111,7 @@
    "how_to_read": "Starter snaps in a live game are the strongest evidence available before Week 1. Prices that move on real preseason usage rarely come back.",
    "sections": {
     "what_appears": "Game snaps. Who plays with the starters, for how many series, and in which packages.",
-    "player_types": "Camp-Hype Breakout · Rookie WR/RB · Ambiguous-Backfield RB",
+    "player_types": "Camp-Hype Breakout · Rookies · Ambiguous-Backfield RB",
     "signal_strength": "",
     "watching": "Populates after the first preseason weekend."
    }
@@ -155,7 +155,7 @@
    "start": "2026-09-09",
    "end": "2026-09-15",
    "signal_level": "low",
-   "card_line": "The box score is fact. The conclusion is the trap.",
+   "card_line": "The box score is a fact. The conclusion drawn from one week usually is not.",
    "how_to_read": "The box score is fact. The conclusion drawn from one week usually is not, and overpaying for Week 1 is the most common early-season mistake. Trust what happened; distrust what one week is said to mean. The meter reflects the second half of that, because that is where the money is lost.",
    "sections": {
     "what_appears": "Real snap counts, routes, and target shares. The draft market closes and the waiver market opens.",
@@ -193,7 +193,7 @@
     "what_appears": "Two deadlines a few weeks apart. NFL trades reprice players on both teams the day they happen, target vacancies included. Then fantasy deadlines close the trade market in most leagues, and every roster decision after that runs through waivers only.",
     "player_types": "Traded veterans and the teammates behind them · buy-low candidates ahead of the fantasy deadline · contenders' handcuffs",
     "signal_strength": "",
-    "watching": "Chuba Hubbard, and the room he would leave to Jonathon Brooks. Carolina is not built to contend, Hubbard is a starting-caliber back on a team with no reason to keep one, and Brooks is already taking first-group reps behind him."
+    "watching": "Chuba Hubbard, and the room he would leave to Jonathon Brooks. Brooks is already taking first-group reps behind him, so any change in Hubbard's status would reprice both halves of the backfield overnight."
    }
   },
   {
