@@ -124,12 +124,14 @@ export default function Methodology() {
             Negative: the market pays a premium relative to the expert view.
           </li>
           <li>
-            <strong>Movement</strong> = oldest stored snapshot ADP − newest
-            snapshot ADP, so positive means rising (drafted earlier now). The
-            window is the full tracked span, not a single day: every “Move”
-            figure on the site covers Aug 16, 2026 to the most recent capture,
-            and the dates are printed wherever the number appears. Missing data
-            renders as “–”, never as zero.
+            <strong>Movement</strong> = window-start ADP − window-end ADP, so
+            positive means rising (drafted earlier now). The window is the
+            span both series share, oldest shared date to newest: every
+            “Move” figure on the site covers Aug 16, 2026 to the most recent
+            capture, and the dates are printed wherever the number appears.
+            The delta is computed only over host boards present on both days,
+            for the averaging reasons stated under “Where the market number
+            comes from” above. Missing data renders as “–”, never as zero.
           </li>
           <li>
             <strong>Signal labels</strong> are rules, not a model:
@@ -232,11 +234,16 @@ export default function Methodology() {
           <li>When a gap is not computed, the value shows “–” with the reason, never a guess. “For your draft” and the widest-gap highlight are drawn only from this universe.</li>
         </ul>
         <p className="mt-3 text-sm text-[var(--ink-2)]">
-          Why 200 and 30: median times-drafted stays above ~80 through ADP
-          rank 200, then collapses to ~19 beyond it, so 200 sits at the
-          liquidity cliff rather than being an arbitrary round number. The
-          30-draft bar additionally removes 6 of 173 otherwise-comparable
-          players whose ADP rests on too few drafts to trust.
+          Why these bars: the coverage requirement is the liquidity rule. A
+          price averaged over at least four of the five host boards rests on
+          real drafting across hosts; a player carried by one board produces
+          movement that is mostly that board&rsquo;s noise. The 200 cap is a
+          chosen cutoff, stated as one. The retired price series published a
+          times-drafted count that located a liquidity cliff near rank 200;
+          the current API publishes no equivalent, so 200 stands as a
+          judgment call with the same standing as the move thresholds until
+          enough history exists to measure where comparability actually
+          degrades.
         </p>
         <p className="mt-3 text-sm text-[var(--ink-2)]">
           One display module carries a further bound. &ldquo;For your
@@ -260,8 +267,8 @@ export default function Methodology() {
           The tag next to a player&rsquo;s name is a <strong>role label</strong>:
           it describes what kind of news moves that player, which is what
           connects it to the catalyst layer. A handcuff moves on starter
-          injury news, a committee back on touch-split reporting, a player in
-          a crowded room on depth chart news. Labels are computed only from
+          injury news, a committee back on touch-split reporting. Labels are
+          computed only from
           team, position and ADP, all already on every row, plus the current
           Sleeper injury designation and rookie flag. Display only: an
           archetype is never an input to any signal, ranking or selection.
@@ -360,8 +367,10 @@ export default function Methodology() {
       <section className="mt-8">
         <h2 className="text-xl font-semibold">Explanation evals</h2>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
-          The AI explanation layer is gated behind a scorecard. Until it runs,
-          the shell shows a pending state rather than any score.
+          The AI explanation layer is gated behind this scorecard. Two
+          hand-graded passes are recorded below, and no note is live: the
+          usefulness check in the grading contract is not yet in force, so a
+          note that only paraphrases its inputs cannot yet be failed for it.
         </p>
         <div className="mt-3">
           <EvalScorecard />
