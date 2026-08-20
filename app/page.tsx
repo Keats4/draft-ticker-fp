@@ -355,7 +355,22 @@ export default async function Home() {
     .filter((p): p is NonNullable<typeof p> => p !== null && p.score > 0)
     .sort((x, y) => y.score - x.score)[0] ?? null;
 
-  const singleHero = ranked[0] ?? null;
+  // Hero guard for the no-pair fallback: the featured single should be a
+  // draft decision, and a player on a season-scoped reserve list (IR, PUP,
+  // NFI) has a documented move but is no longer a decision at his old price,
+  // a season-ending injury is the one move a drafter cannot act on. He still
+  // appears in the plain lead, the story cards, the tiles and the table; only
+  // the hero spotlight skips him. Rule-based, never a hardcoded player: it
+  // reads the same Sleeper designation the archetype layer uses, so it takes
+  // effect for a newly injured player when player_map is next rebuilt.
+  const SEASON_SCOPED_STATUS = new Set(["IR", "PUP", "NFI"]);
+  const singleHero =
+    ranked.find((r) => {
+      const status = r.sleeperId
+        ? entryBySleeper.get(r.sleeperId)?.injury_status
+        : null;
+      return !(status && SEASON_SCOPED_STATUS.has(status));
+    }) ?? null;
   const leadIds = new Set<number>(
     bestPair ? [bestPair.a.fpId, bestPair.b.fpId] : singleHero ? [singleHero.fpId] : []
   );
