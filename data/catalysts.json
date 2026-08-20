@@ -15,10 +15,10 @@
       "independent_source_count": "how many entries in sources[] are independent originators. This is a proxy for REACH, which is the actual mechanism by which news moves ADP: FFC ADP aggregates roughly 6,160 drafts, so an event has to reach drafters to move it. One beat writer's practice note does not reach them; a story carried across five newsrooms does. Published like every other threshold in this product.",
       "date_confirmed_on_source": "true means at least one source in sources[] DISPLAYS a publication date that was read off the page. false means no source displays a date. unknown means the entry predates this rule and has not been audited. Added because real-002-diggs carried verified:true with a date six days wrong: its source_url renders 'Published:' and 'Updated:' with empty date fields, so the date it claimed was never confirmable from the source it cited. A dateless source cannot verify a date."
     },
-    "provenance": "Entries dated inside the rolling window of the stored 08-10 to 08-12 snapshots. Entries outside it are held in bench[] with source_url intact rather than deleted. NOT ADDED: Darren Waller (CAR) and Deshaun Watson (CLE) are real and in-window but have no ffc_id in data/player_map.json, so they sit outside the draftable FFC pool and their player pages render 'not tracked', the same reason J.J. McCarthy was never added. Note Mike Evans is on SF in 2026, not TB. On 2026-08-14 the window was widened per the rolling-mean reasoning above, twelve eval-set events were sourced with corroboration counts, and real-002-diggs was corrected from 08-11 to 08-05 and its verification withdrawn. See VERIFY_CHECKLIST.md for what still needs a human.",
+    "provenance": "Entries dated inside the rolling window of the stored 08-10 to 08-12 snapshots. Entries outside it are held in bench[] with source_url intact rather than deleted. NOT ADDED: Darren Waller (CAR) and Deshaun Watson (CLE) are real and in-window but have no ffc_id in data/player_map.json, so they sit outside the draftable FFC pool and their player pages render 'not tracked', the same reason J.J. McCarthy was never added. Note Mike Evans is on SF in 2026, not TB. On 2026-08-14 the window was widened per the rolling-mean reasoning above, twelve eval-set events were sourced with corroboration counts, and real-002-diggs was corrected from 08-11 to 08-05 and its verification withdrawn. See VERIFY_CHECKLIST.md for what still needs a human. On 2026-08-20 Navi opened the sources for real-043, real-044, real-045, real-047, real-048 and real-049 and confirmed the events and dates; the flags were set at his direction. real-112-dart was removed the same day as an event with no price move attached (the base-rate failure the August lookback test documents). real-046-young is held unverified deliberately: the event is real but its connection to the move is a judgment not yet made.",
     "rules": "Candidates may be sourced by research agents or by hand (ADR-004, amending ADR-002). Every entry carries a primary source_url, no entry without one. Every entry added after 2026-08-14 also carries sources[] with an on-page date read off each page. No scraper, no news API, no NLP pipeline. What an agent may NOT do is set verified:true.",
     "counts": {
-      "live": 48,
+      "live": 47,
       "bench": 6
     },
     "window": "2026-08-04 .. 2026-08-12. Derived, not hand-picked. FFC ADP is a trailing ~7 day mean, so the 08-10 snapshot averages drafts from 08-04 to 08-10 and the 08-12 snapshot averages 08-06 to 08-12. The move between them is driven only by drafts ENTERING the newer mean (08-11 to 08-12) and drafts LEAVING the older one (08-04 to 08-05); the 08-06 to 08-10 overlap sits in both means and largely cancels. The lookback is therefore the OLDER mean's own start, computed in lib/evidence.ts catalystLookbackStart(). The previous rule, 'on or after the previous snapshot', discarded the entire leaving edge, which is the half whose sign is inverted: a catalyst on the leaving edge pushes the measured move AGAINST its own direction as the reaction ages out.",
@@ -752,54 +752,6 @@
       "sample": false
     },
     {
-      "id": "real-112-dart",
-      "player": {
-        "sleeper_id": "12508",
-        "name": "Jaxson Dart"
-      },
-      "date": "2026-08-12",
-      "category": "coaching",
-      "summary": "Completed 2 of 8 passes with an interception in a red-zone seven-on-seven period, after which Giants offensive coordinator Matt Nagy publicly called the practice average, maybe below average, and not good enough.",
-      "source_url": "https://sports.yahoo.com/articles/jaxson-dart-takes-lumps-tough-012928242.html",
-      "originator": "Zach Braziller, New York Post, broke the stat line; Nagy's quotes captured at the practice-day podium",
-      "sources": [
-        {
-          "url": "https://sports.yahoo.com/articles/jaxson-dart-takes-lumps-tough-012928242.html",
-          "outlet": "New York Post",
-          "date_text": "Wednesday, August 12, 2026 at 1:29 AM UTC",
-          "kind": "original"
-        },
-        {
-          "url": "https://www.yardbarker.com/nfl/articles/giants_oc_matt_nagy_sends_clear_message_to_jaxson_dart_after_ugly_practice/s1_13132_44166462",
-          "outlet": "Yardbarker",
-          "date_text": "August 12, 2026, 8:17 AM ET",
-          "kind": "original"
-        },
-        {
-          "url": "https://fansided.com/nfl/giants-are-quickly-learning-about-matt-nagy-what-chiefs-and-bears-fans-already-knew",
-          "outlet": "FanSided",
-          "date_text": "2026-08-12T21:23:20Z",
-          "kind": "original"
-        },
-        {
-          "url": "https://sports.yahoo.com/articles/giants-coach-sounds-off-jaxson-100212269.html",
-          "outlet": "NJ.com",
-          "date_text": "Wednesday, August 12, 2026 at 5:58 PM UTC",
-          "kind": "original"
-        },
-        {
-          "url": "https://athlonsports.com/nfl/new-york-giants/jaxson-dart-slow-start-matt-nagy-giants",
-          "outlet": "Athlon Sports",
-          "date_text": "August 12, 2026",
-          "kind": "original"
-        }
-      ],
-      "independent_source_count": 5,
-      "verified": false,
-      "date_confirmed_on_source": true,
-      "sample": false
-    },
-    {
       "id": "real-028-brooks-game",
       "player": {
         "sleeper_id": "11583",
@@ -1097,7 +1049,7 @@
       "summary": "Tore his ACL in Tuesday's joint practice with the Raiders and will miss the entire 2026 season, per Ian Rapoport; he had been listed as a starting wideout on Houston's depth chart.",
       "short_label": "Tore his ACL in a joint practice, out for the season",
       "source_url": "https://www.nfl.com/news/texans-wr-jayden-higgins-torn-acl-out-2026-season",
-      "verified": false,
+      "verified": true,
       "sample": false,
       "date_confirmed_on_source": true,
       "sources": [
@@ -1127,7 +1079,7 @@
       "summary": "Led the game with seven catches for 63 yards in his preseason debut against the Titans, all in the first half and much of it against Tennessee's first-team defense, including a 32-yard sideline catch.",
       "short_label": "Seven catches in his preseason debut against the Titans",
       "source_url": "https://www.49ers.com/news/breaking-down-wr-de-zhaun-stribling-s-impressive-preseason-debut",
-      "verified": false,
+      "verified": true,
       "sample": false,
       "date_confirmed_on_source": true,
       "sources": [
@@ -1151,7 +1103,7 @@
       "summary": "Ran for a game-high 63 yards on six carries in his NFL preseason debut against the Cardinals, including a 53-yard run, with coach Klint Kubiak saying he was pleased with what he did.",
       "short_label": "Ran for 63 yards on six carries in his preseason debut",
       "source_url": "https://www.reviewjournal.com/sports/raiders/raiders-rookie-running-back-makes-1st-nfl-game-memorable-3864617/",
-      "verified": false,
+      "verified": true,
       "sample": false,
       "date_confirmed_on_source": true,
       "sources": [
@@ -1199,7 +1151,7 @@
       "summary": "Rapoport reported teammate Jordyn Tyson is expected to miss roughly two months with the hamstring injury from the Aug 13 joint practice, putting his return around Week 6.",
       "short_label": "Teammate Jordyn Tyson reported out roughly two months",
       "source_url": "https://www.nbcsports.com/fantasy/football/player-news/2026-08-17/rapsheet-jordyn-tyson-hamstring-out-two-months",
-      "verified": false,
+      "verified": true,
       "sample": false,
       "date_confirmed_on_source": true,
       "sources": [
@@ -1223,7 +1175,7 @@
       "summary": "SI's 49ers site reported the receiver room reshaped inside two weeks: Ricky Pearsall on injured reserve and out for the season, Deebo Samuel signed in his place, Christian Kirk not practicing, and Demarcus Robinson rested with the starters in the preseason opener.",
       "short_label": "Pearsall out for the season and Kirk not practicing around him",
       "source_url": "https://www.si.com/nfl/49ers/onsi/49ers-wide-receiver-depth-chart-completely-changed-last-week",
-      "verified": false,
+      "verified": true,
       "sample": false,
       "date_confirmed_on_source": true,
       "sources": [
@@ -1247,7 +1199,7 @@
       "summary": "An MRI diagnosed a hyperextended right knee and Jeremy Fowler of ESPN reported Monangai will miss multiple weeks; Ben Johnson called him week-to-week the following day. Supersedes real-036-monangai, which recorded the initial belief that he had avoided serious injury.",
       "short_label": "MRI showed a hyperextended knee, out multiple weeks",
       "source_url": "https://www.espn.com/nfl/story/_/id/49643703/bears-rb-kyle-monangai-knee-expected-miss-multiple-weeks-source-says",
-      "verified": false,
+      "verified": true,
       "sample": false,
       "date_confirmed_on_source": true,
       "sources": [
