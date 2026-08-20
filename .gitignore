@@ -28,3 +28,7 @@ PRIVATE_NOTES.md
 
 *.patch
 *.tgz
+
+# Contributor instructions, kept local only
+AGENTS.md
+CLAUDE.md
