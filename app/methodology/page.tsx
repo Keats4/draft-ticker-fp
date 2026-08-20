@@ -15,7 +15,7 @@ export default function Methodology() {
       <h1 className="text-3xl font-bold tracking-tight">Methodology</h1>
       <p className="mt-2 text-neutral-500">
         Every number on the data pages (Market, Players, player pages,
-        Featured and this one) traces to a named source, a capture time, and a
+        and this one) traces to a named source, a capture time, and a
         calculation defined on this page. Where one day of data cannot support a
         claim, the site says so instead of implying history. Two pages are
         excluded by design and badged as such: the Market Price Index and
