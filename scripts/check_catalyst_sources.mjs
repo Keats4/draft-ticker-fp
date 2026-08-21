@@ -96,7 +96,7 @@ const cache = new Map();
 async function scrape(url) {
   if (cache.has(url)) return cache.get(url);
   let result = { ok: false, status: null, markdown: "", meta: null, error: null };
-  for (let attempt = 0; attempt < 2 && !result.ok; attempt++) {
+  for (let attempt = 0; attempt < 4 && !result.ok; attempt++) {
     try {
       const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
         method: "POST",
@@ -112,10 +112,15 @@ async function scrape(url) {
     } catch (e) {
       result = { ok: false, status: null, markdown: "", meta: null, error: String(e.message ?? e) };
     }
-    if (!result.ok) await new Promise((r) => setTimeout(r, 1500));
+    if (!result.ok) {
+      // The free tier allows roughly ten requests a minute. Honor the
+      // server's stated retry window instead of hammering it.
+      const ra = /retry after (\d+)s/i.exec(result.error ?? "");
+      await new Promise((r) => setTimeout(r, ra ? (Number(ra[1]) + 2) * 1000 : 8000));
+    }
   }
   cache.set(url, result);
-  await new Promise((r) => setTimeout(r, 500));
+  await new Promise((r) => setTimeout(r, 6500));
   return result;
 }
 
