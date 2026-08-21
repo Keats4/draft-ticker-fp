@@ -279,7 +279,7 @@ export default async function PlayerPage({
       {/* 3. how much to believe it: the phase's own trust reading, then the
              catalyst, or the honest admission that there is none */}
       <section className="mt-8">
-        <Step n={2} kicker="How much to believe it" title="What is behind this move" />
+        <Step n={2} kicker="How much to believe it" title="The events near this move" />
         <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
           <p className="text-sm text-[var(--ink-2)]">
             <span className="font-semibold text-[var(--foreground)]">{CURRENT_PHASE.title}.</span>{" "}
@@ -294,7 +294,7 @@ export default async function PlayerPage({
           {verifiedCatalysts.length === 0 ? (
             <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-4">
               <p className="text-sm font-medium">
-                No documented event behind this move. Watch it, do not act on
+                No documented event near this move. Watch it, do not act on
                 it.
               </p>
               <p className="mt-1 text-sm text-[var(--ink-2)]">

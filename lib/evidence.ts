@@ -4,9 +4,9 @@
  * backed by a documented event or is still unexplained. It never upgrades a
  * reading into "act", "unexplained" explicitly means watch, don't act.
  *
- * catalyst-confirmed: a verified (non-sample) catalyst exists inside the
- *   lookback that can plausibly have moved the price. See below, that lookback
- *   is NOT the gap between the two snapshots.
+ * verified event in window: a verified (non-sample) catalyst exists inside
+ *   the lookback. Temporal association, stated as such, never causation. See
+ *   below, that lookback is NOT the gap between the two snapshots.
  * unexplained: no verified catalyst yet, the move is real but the "why" is
  *   not documented, so the fallback copy applies.
  */
@@ -77,8 +77,8 @@ export function evidenceFor(verifiedCatalystInWindow: boolean): Evidence {
   return verifiedCatalystInWindow
     ? {
         confirmed: true,
-        label: "Catalyst-confirmed",
-        note: "backed by a verified catalyst inside the lookback window of the move",
+        label: "Verified event in window",
+        note: "a verified event sits inside the lookback window of the move",
       }
     : {
         confirmed: false,

@@ -61,7 +61,7 @@ export default function InsideFP() {
           The same two-series chart on your player pages, with the layer added
           on top: a rule-based signal that names who moved first, catalyst
           markers on the dates that moved the price, a plain “what it means”
-          line, and an evidence tier, “catalyst-confirmed” when a verified event
+          line, and an evidence tier, “verified event in window” when one
           sits in the window of the move, “unexplained” otherwise (watch, don’t
           act). The chart stops being an exhibit and starts making a claim it can
           back or admit it can’t.
@@ -75,7 +75,7 @@ export default function InsideFP() {
             trackingSince="the 2025 preseason (illustrative)"
             signal="Market moving faster"
             interpretation="Market jumped ~14 picks on 7/17 while experts moved ~2, repricing him ahead of consensus."
-            evidence={{ confirmed: true, label: "Catalyst-confirmed", note: "verified event in the window of the move" }}
+            evidence={{ confirmed: true, label: "Verified event in window", note: "a verified event sits in the window of the move" }}
           />
         </div>
       </section>

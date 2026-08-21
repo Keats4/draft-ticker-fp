@@ -45,8 +45,9 @@ export default async function Methodology() {
           and stop there. Draft Ticker adds the interpretation layer on top:
           movement screening, who-moved-first signals, catalyst annotation,
           calendar context, and evaluated explanations: turning a raw exhibit
-          into a research desk. Signals also carry an evidence tier, catalyst-confirmed when a verified catalyst sits inside the rolling window that governs the
-          move, unexplained otherwise (watch, don’t act), so a reading always
+          into a research desk. Signals also carry an evidence tier, verified
+          event in window when one sits inside the rolling window that governs
+          the move, unexplained otherwise (watch, don’t act), so a reading always
           shows its receipts or admits it has none. We do not claim FantasyPros
           lacks the data or the chart; we build what they leave off of it.
         </p>

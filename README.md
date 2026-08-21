@@ -32,7 +32,7 @@ FantasyPros API on one key.
   Signals are computed only inside the comparison universe which is top 200
   by both series.
 - **Dated, sourced catalysts** with an evidence tier that says plainly when
-  a move has no documented cause: catalyst-confirmed when a verified event
+  a move has no documented cause: verified event in window when one
   sits in the window of the move, which also reaches back seven days before
   the window opens, a stated assumption in `lib/evidence.ts`, unexplained
   otherwise (watch, don't act).

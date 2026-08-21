@@ -90,7 +90,7 @@ export default function MarketPriceIndex() {
           <div className="flex items-center justify-between">
             <p className="font-semibold">Paid before priced</p>
             <span className="rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ background: "rgba(21,128,61,0.12)", color: "var(--pos)" }}>
-              Catalyst-confirmed
+              Verified event in window
             </span>
           </div>
           <p className="mt-1 text-sm text-[var(--ink-2)]">

@@ -95,7 +95,7 @@ the comparison.
 Dated events, each with a player, a date, a primary source URL, a category,
 a factual summary and a short display label.
 
-A signal reads catalyst confirmed when a verified event falls inside the
+A signal reads verified event in window when one falls inside the
 move window or the seven day lookback. Otherwise it reads unexplained, shown
 as watch rather than act. The empty state is deliberate: a move with no
 documented cause is flagged as exactly that.
@@ -146,7 +146,7 @@ and feed no signal, ranking or selection.
   dates.
 - Marks verified catalysts falling inside the observation window or its
   stated lookback.
-- Distinguishes catalyst confirmed from unexplained, and states which
+- Distinguishes verified event in window from unexplained, and states which
   applies.
 - Displays the source count and capture date behind the current values.
 - Displays the archetype label with its one line statement of what moves
