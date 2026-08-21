@@ -80,9 +80,10 @@ after the missing version shipped a defect, in section 10.
 
 ### Signal
 
-Six states plus an explicit null: market moving faster, experts moving
+Seven states plus an explicit null: market moving faster, experts moving
 first, market catching up to experts, converging, diverging, broad
-agreement.
+agreement (both sides repricing together), both holding (neither side
+cleared its bar).
 
 Signals compute inside the comparison universe only: top 200 by both series,
 ranked by at least four of five host boards. A player carried by one board
@@ -233,7 +234,7 @@ season of history. If it fails, the trust weighting comes out.
 
 **The signal should discriminate.** Players labelled market moving faster
 should behave differently over subsequent weeks than players labelled broad
-agreement. If the six states separate on nothing, they are describing noise.
+agreement. If the states separate on nothing, they are describing noise.
 
 **Catalysts must beat a base rate.** A blind matched test found 68 percent
 of comparable players carry a qualifying news event in any twelve day

@@ -6,7 +6,9 @@ import { THRESHOLDS, type Signal } from "@/lib/math";
  * player is ever hardcoded and the lead changes on its own as the data does.
  *
  * Weight dominates magnitude: what the label SAYS matters more than how far
- * the number moved. "Broad agreement" scores 0 and can never be a story, * agreement is the absence of one, not a weak version of one.
+ * the number moved. "Broad agreement" and "Both holding" score 0 and can
+ * never be a story: consensus and stillness are the absence of one, not a
+ * weak version of one.
  */
 export const SIGNAL_WEIGHT: Record<Signal, number> = {
   "Market and experts diverging": 4,
@@ -15,6 +17,7 @@ export const SIGNAL_WEIGHT: Record<Signal, number> = {
   "Experts moving first": 3,
   "Market catching up to experts": 2,
   "Broad agreement": 0,
+  "Both holding": 0,
 };
 
 export type Rankable = {

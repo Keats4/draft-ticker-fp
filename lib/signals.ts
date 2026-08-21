@@ -28,13 +28,12 @@ export const SIGNAL_META: Record<
     rule: `ADP moved ≥ ${THRESHOLDS.HOST_RANK_MOVE} picks and ECR moved ≥ ${THRESHOLDS.ECR_MOVE} ranks in OPPOSITE directions, and the absolute ADP−ECR gap GREW over the window.`,
   },
   "Broad agreement": {
-    // Generic form for contexts without deltas (chip legend, methodology).
-    // whatItMeans() substitutes a magnitude-aware sentence when it has both
-    // deltas: this label fires on two very different branches (both sides
-    // cleared their bars moving together, or neither cleared) and the copy
-    // must not describe the first as nothing moving.
-    blurb: "The market and the experts are not disagreeing.",
-    rule: `Both moved the same direction at similar size, or neither cleared its threshold (ADP ${THRESHOLDS.HOST_RANK_MOVE}, ECR ${THRESHOLDS.ECR_MOVE}).`,
+    blurb: "The market and the experts repriced him together.",
+    rule: `Both moved the same direction, each clearing its threshold (ADP ${THRESHOLDS.HOST_RANK_MOVE}, ECR ${THRESHOLDS.ECR_MOVE}), with ADP under 1.5× ECR.`,
+  },
+  "Both holding": {
+    blurb: "Neither side has moved much.",
+    rule: `Neither ADP (≥ ${THRESHOLDS.HOST_RANK_MOVE} picks) nor ECR (≥ ${THRESHOLDS.ECR_MOVE} ranks) cleared its threshold.`,
   },
 };
 
@@ -62,19 +61,10 @@ export function whatItMeans(
   if (signal === "Market moving faster" && hostRankDelta !== null && hostRankDelta !== 0) {
     return `Draft rooms are moving him ${hostRankDelta > 0 ? "up" : "down"} quicker than the experts.`;
   }
-  // "Broad agreement" fires on two branches that deserve opposite copy: both
-  // sides cleared their bars moving the same way at similar size (something
-  // meaningful moved, together), or neither cleared (nothing much moved).
-  // Same pattern as the direction branch above: the label's generic blurb is
-  // replaced when the deltas are in hand. The branch logic itself is
-  // untouched; this only reads the same thresholds the label was born from.
-  if (signal === "Broad agreement" && hostRankDelta !== null && ecrDelta !== null) {
-    const bothCleared =
-      Math.abs(hostRankDelta) >= THRESHOLDS.HOST_RANK_MOVE &&
-      Math.abs(ecrDelta) >= THRESHOLDS.ECR_MOVE;
-    return bothCleared
-      ? `The market and the experts repriced him together, both moving him ${hostRankDelta > 0 ? "up" : "down"}.`
-      : "Neither side has moved much.";
+  // "Broad agreement" now means one thing (the label split gave stillness
+  // its own name, "Both holding"), so the reading only adds direction.
+  if (signal === "Broad agreement" && hostRankDelta !== null && hostRankDelta !== 0) {
+    return `The market and the experts repriced him together, both moving him ${hostRankDelta > 0 ? "up" : "down"}.`;
   }
   return SIGNAL_META[signal].blurb;
 }

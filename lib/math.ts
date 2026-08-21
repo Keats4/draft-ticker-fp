@@ -53,7 +53,8 @@ export type Signal =
   | "Market catching up to experts"
   | "Market and experts diverging"
   | "Market and experts converging"
-  | "Broad agreement";
+  | "Broad agreement"
+  | "Both holding";
 
 /**
  * Rule-based signal. Returns null when there is not enough history to
@@ -94,7 +95,11 @@ export function signalLabel(input: SignalInput): Signal | null {
     return gapClosing ? "Market catching up to experts" : "Market moving faster";
   }
   if (!marketMoved && ecrMoved) return "Experts moving first";
-  return "Broad agreement";
+  // Neither side cleared its bar. This used to share the "Broad agreement"
+  // label with the both-cleared-together branch above; one name for a joint
+  // repricing and for stillness misled (a wide gap read as agreement because
+  // nothing moved). Label split only: the branch structure is unchanged.
+  return "Both holding";
 }
 
 export type FpLite = {

@@ -99,9 +99,9 @@ describe("signalLabel", () => {
       "Broad agreement"
     );
   });
-  it("Broad agreement still fires when neither side clears its threshold", () => {
+  it("Both holding when neither side clears its threshold", () => {
     expect(signalLabel({ hostRankDelta: 2, ecrDelta: -1, gap: 4 })).toBe(
-      "Broad agreement"
+      "Both holding"
     );
   });
   it("thresholds are what the legend says they are", () => {

@@ -25,9 +25,10 @@ FantasyPros API on one key.
 - **Movement screening** against published thresholds: a host rank move
   counts at ≥3 spots, an expert move at ≥2 ranks. The thresholds render in
   the UI legend, and the code marks them reasoned rather than fitted.
-- **A six-state classification of which side moved first**: Market moving
+- **A seven-state classification of which side moved first**: Market moving
   faster, Market catching up to experts, Experts moving first, Market and
-  experts converging, Market and experts diverging, and Broad agreement.
+  experts converging, Market and experts diverging, Broad agreement (both
+  sides repricing together), and Both holding (neither cleared its bar).
   Signals are computed only inside the comparison universe which is top 200
   by both series.
 - **Dated, sourced catalysts** with an evidence tier that says plainly when

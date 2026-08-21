@@ -189,7 +189,7 @@ export default function Methodology() {
             first”.
           </li>
           <li>
-            <strong>Neither cleared its threshold</strong>: “Broad agreement”.
+            <strong>Neither cleared its threshold</strong>: “Both holding”.
           </li>
         </ol>
         <p className="mt-2 text-sm text-neutral-500">

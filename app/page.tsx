@@ -602,7 +602,8 @@ export default async function Home() {
       ) : (
         <section className="mb-6 rounded-xl border border-dashed border-[var(--border)] p-6 text-sm text-[var(--ink-3)]">
           No player is showing a disagreement signal right now, and no curated
-          pair is mirroring. Every comparable player is in broad agreement, or
+          pair is mirroring. Every comparable player is holding or repricing
+          in agreement, or
           there is not yet enough history to say. Nothing is featured rather
           than featuring a non-story.
         </section>
