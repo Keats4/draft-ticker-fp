@@ -2,14 +2,28 @@ import Link from "next/link";
 import EvalScorecard from "@/components/EvalScorecard";
 import { THRESHOLDS } from "@/lib/math";
 import { CATALYST_LOOKBACK_DAYS } from "@/lib/evidence";
+import { loadFirstAndLatestSnapshots } from "@/lib/snapshot";
 
 export const metadata = { title: "Methodology · Draft Ticker" };
+export const dynamic = "force-dynamic";
 
-export default function Methodology() {
-  // This page is prose and published constants only. It used to run the
-  // Market pipeline to feed a cross-source join review; both series now come
-  // from FantasyPros on one player_id space, so there is no cross-source
-  // join to review and nothing here needs live data.
+/** "Aug 16, 2026" from a stored YYYY-MM-DD date. */
+const fmtLongDate = (d: string) =>
+  new Date(d + "T12:00:00Z").toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+export default async function Methodology() {
+  // The only live data this page reads is the stored series' own endpoints,
+  // so every date it states is derived rather than hardcoded and cannot go
+  // stale when the history grows or restarts. Blob unavailable degrades to
+  // wording without a date, never to a wrong one.
+  const { first, latest } = await loadFirstAndLatestSnapshots();
+  const seriesStart = first?.date ?? latest?.date ?? null;
+  const startLong = seriesStart ? fmtLongDate(seriesStart) : null;
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-bold tracking-tight">Methodology</h1>
@@ -92,8 +106,8 @@ export default function Methodology() {
             captured automatically every day at 6:00 AM PT by a scheduled job.
             Each day is stored as an immutable dated snapshot alongside the
             raw payload exactly as received, so the typed series can always be
-            rebuilt from source. Series begins with its first capture,
-            2026-08-16.
+            rebuilt from source. Series begins with its first stored capture
+            {startLong ? `, ${startLong}` : ""}.
           </li>
           <li>
             <strong>ECR</strong>: FantasyPros consensus rankings (Draft PPR),
@@ -127,7 +141,8 @@ export default function Methodology() {
             <strong>Movement</strong> = window-start ADP − window-end ADP, so
             positive means rising (drafted earlier now). The window is the
             span both series share, oldest shared date to newest: every
-            “Move” figure on the site covers Aug 16, 2026 to the most recent
+            “Move” figure on the site covers{" "}
+            {startLong ?? "the first stored capture"} to the most recent
             capture, and the dates are printed wherever the number appears.
             The delta is computed only over host boards present on both days,
             for the averaging reasons stated under “Where the market number
@@ -309,9 +324,9 @@ export default function Methodology() {
         <h2 className="text-xl font-semibold">Limitations</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700">
           <li>
-            History begins Aug 16, 2026, the first capture of the current
-            FantasyPros series. No chart or number implies data from before
-            that date.
+            History begins {startLong ?? "at the first stored capture"}, the
+            first capture of the current FantasyPros series. No chart or
+            number implies data from before that date.
           </li>
           <li>
             The price reflects five league host boards, not all of fantasy
