@@ -3,8 +3,11 @@
  *  tools, calls all three, and prints the results. Verification only. */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const transport = new StdioClientTransport({ command: "node", args: ["server.mjs"] });
+const serverPath = join(dirname(fileURLToPath(import.meta.url)), "server.mjs");
+const transport = new StdioClientTransport({ command: "node", args: [serverPath] });
 const client = new Client({ name: "test-client", version: "0.0.1" });
 await client.connect(transport);
 
