@@ -1,4 +1,4 @@
-# Draft Ticker: Product Requirements
+# Draft Ticker: Product Requirements and Decision Log
 
 Live: https://draft-ticker-fp.vercel.app · Repository:
 https://github.com/Keats4/draft-ticker-fp

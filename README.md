@@ -5,6 +5,15 @@ which side moved first, and what sits behind it.
 
 **Live:** https://draft-ticker-fp.vercel.app
 
+## Product thinking
+
+The full reasoning lives in
+[docs/PRD.md](docs/PRD.md), a product requirements and decision log covering
+the problem and objective, functional requirements and acceptance criteria,
+how the model gets validated, the decisions that were reversed rather than
+hidden, and the AI layer with its shipping discipline. Start there to
+understand why the product is shaped the way it is.
+
 ## The two series
 
 The expert line is FantasyPros ECR (Draft PPR consensus). The price line is
@@ -56,8 +65,8 @@ payload exists so the typed series can always be rebuilt from source. See
 - [The live site](https://draft-ticker-fp.vercel.app) ·
   [Methodology](https://draft-ticker-fp.vercel.app/methodology) ·
   [Inside FantasyPros](https://draft-ticker-fp.vercel.app/inside-fantasypros)
-- `PRD.md`, the product requirements, written retrospectively and honest
-  about the reversals
+- [docs/PRD.md](docs/PRD.md), the product requirements and decision log,
+  written retrospectively and honest about the reversals
 - `EVALS.md`, the grading bar for generated explanations
 - `RESEARCH_LOG.md`, findings and their provenance
 - `decisions/`, ADR-001 through ADR-005
