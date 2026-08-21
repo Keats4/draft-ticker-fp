@@ -3,11 +3,12 @@
  * values that actually exist in data/calendar_phases.json.
  *
  * This file exists because the first version of the trust reading hardcoded
- * three levels (high, med, low) while the data carries four. `preseason` and
- * `stretch-run` are both `vhigh`, and preseason is the phase immediately after
- * training camp, so an unhandled level would have degraded to a generic
- * sentence within days rather than in November. It failed quietly, which is the
- * failure mode this repo keeps cataloguing.
+ * three levels (high, med, low) while the data carries four. `stretch-run` is
+ * `vhigh` (preseason was too, until 2026-08-20 when it was reset to `high`),
+ * and preseason is the phase immediately after training camp, so an unhandled
+ * level would have degraded to a generic sentence within days rather than in
+ * November. It failed quietly, which is the failure mode this repo keeps
+ * cataloguing.
  *
  * Two sides are now enforced, so neither half can drift without something going
  * red:
@@ -80,7 +81,8 @@ export function trustReading(level: string): string {
 // The `current` boolean is gone from data/calendar_phases.json. It was set by
 // hand and never advanced, so on 2026-08-15, with preseason games under way,
 // the site still said Training Camp and told every reader that movement was
-// worth "high" trust when the calendar's own rating for preseason is "vhigh".
+// worth "high" trust when the calendar's own rating for preseason was "vhigh"
+// at the time.
 // The one question the product exists to answer was being answered from a
 // stale input.
 //

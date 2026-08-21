@@ -5,16 +5,17 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 /**
- * Four items, deliberately. Inside FantasyPros is a pitch document rather than
- * a product surface, so it sits in the footer as "For FantasyPros". Price Index
- * is reachable from Inside FP and from the calendar's in-season phase cards,
- * where it belongs contextually. Featured merged into the homepage. Nothing was
- * deleted; the other pages stopped competing with the product.
+ * Five items. Inside FantasyPros is a pitch document rather than a product
+ * surface, so it sits in the footer as "For FantasyPros". The Market Price
+ * Index is a badged concept preview promoted to the nav so the in-season
+ * thesis is discoverable; the badge on the page keeps it honest. Featured
+ * merged into the homepage.
  */
 const TABS = [
   { href: "/", label: "Market" },
   { href: "/players", label: "Players" },
   { href: "/calendar", label: "Calendar" },
+  { href: "/market-price-index", label: "Price Index" },
   { href: "/methodology", label: "Methodology" },
 ];
 
