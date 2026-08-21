@@ -1,6 +1,6 @@
 # Draft Ticker: Research Log
 
-Fourteen hypotheses tested during the build, with the reasoning behind each, the test run, and what changed as a result. Three entries (3, 7 and 11) were measured entirely on the retired price series and were removed with it; the numbering keeps their slots. Findings 4 and 6 were re-measured on the current series on 2026-08-18. Finding 13's mover comparison awaits enough current history to re-run; its base rate stands on its own.
+Fourteen hypotheses tested during the build, with the reasoning behind each, the test run, and what changed as a result. Three entries (3, 7 and 11) were measured entirely on an earlier price series and were removed with it; the numbering keeps their slots. Findings 4 and 6 were re-measured on the current series on 2026-08-18. Finding 13's mover comparison awaits enough current history to re-run; its base rate stands on its own.
 
 Every test was run read only against stored snapshots, with no code changed until the result was in.
 
@@ -34,7 +34,7 @@ Every test was run read only against stored snapshots, with no code changed unti
 
 **Why I expected it.** The price side is a composite repriced whenever a host board updates. ECR is a consensus of individual analysts, and a player's rank only changes when an analyst sits down and revisits him. Structurally, the market side should lead.
 
-**Test.** Counted how many players changed expert rank between each pair of consecutive stored ECR snapshots, with the median and maximum size of those moves. ECR is unchanged by the source swap, so the measurement carries across; re-run 2026-08-18 on all nine stored snapshots, 2026-08-10 through 2026-08-18.
+**Test.** Counted how many players changed expert rank between each pair of consecutive stored ECR snapshots, with the median and maximum size of those moves. ECR is the same series throughout, so the measurement carries across; re-run 2026-08-18 on all nine stored snapshots, 2026-08-10 through 2026-08-18.
 
 **Result: rejected.** Between 66 and 83 percent of common players changed expert rank on every live transition, median move two to three ranks, single moves as large as 42. The one quiet transition, eighteen percent on Aug 10 to 11, coincides with a snapshot that was backfilled rather than captured live, so it is likely an artifact rather than a slow day. Experts re-rank aggressively and often.
 
@@ -46,7 +46,7 @@ Every test was run read only against stored snapshots, with no code changed unti
 
 **Why I suspected it.** Three spots of average host rank and two ECR ranks are different units on different scales. The price is a continuous average; ECR is an integer consensus where a player cannot move a fraction of a rank and has to displace somebody. There was no reason to assume the two numbers represent comparable amounts of evidence.
 
-**Status: not yet measured on the current series.** The percentile position of each bar was measured once on the retired price series, at two different grains, and those figures were removed with the source. Re-measuring needs roughly two weeks of the current series, enough window-move distributions on the host rank composite to place each threshold inside its own series' percentiles. Until then the ≥3 bar is carried over and unfitted, which `lib/math.ts` states in the threshold's own comment.
+**Status: not yet measured on the current series.** The percentile position of each bar was measured once on an earlier price series, at two different grains, and those figures were removed with it. Re-measuring needs roughly two weeks of the current series, enough window-move distributions on the host rank composite to place each threshold inside its own series' percentiles. Until then the ≥3 bar is carried over and unfitted, which `lib/math.ts` states in the threshold's own comment.
 
 **What changed: nothing, deliberately.** One short window is a single observation of a distribution, not an estimate of it. Recalibrating thresholds on that basis to make the label distribution look better would be the same error as blending an index with weights that have not been earned. Percentile matched thresholds are on the roadmap for when there is enough history to set them honestly.
 
@@ -56,7 +56,7 @@ Every test was run read only against stored snapshots, with no code changed unti
 
 **Why I suspected it.** The branch fires when both series move in opposite directions. But two lines moving in opposite directions can close the distance between them or open it, depending on which one started ahead. Direction and distance are different questions and the branch only tested one.
 
-**Test.** Computed the absolute gap at the start and end of the window for every comparable player with opposite signed moves, thresholded and unthresholded, reading start values from the stored snapshots rather than reconstructing them from rounded deltas. First run on the retired series, where it produced the branch fix below; re-run 2026-08-18 on the current series' shared window, Aug 16 to Aug 18, with movement measured over shared hosts.
+**Test.** Computed the absolute gap at the start and end of the window for every comparable player with opposite signed moves, thresholded and unthresholded, reading start values from the stored snapshots rather than reconstructing them from rounded deltas. First run on the earlier price series, where it produced the branch fix below; re-run 2026-08-18 on the current series' shared window, Aug 16 to Aug 18, with movement measured over shared hosts.
 
 **Result: confirmed on both series.** On the current window, 27 of 56 opposite-signed movers closed the gap and 29 opened it, an even split, so both cases carry real weight at any bar. With both thresholds applied the split is four converging to two diverging.
 
@@ -110,7 +110,7 @@ Every test was run read only against stored snapshots, with no code changed unti
 
 **What changed.** Exclusion now matches on `sleeper_id`, the canonical key the product already uses for exactly this reason. `lib/market.ts` has joined on a mapping table with a name fallback since the beginning precisely because names do not join; I wrote a throwaway analysis script and did not apply the project's own rule to it.
 
-**Why it is worth a numbered entry.** It is the fourth time a safeguard has passed while doing nothing. Finding 8: the catalyst file's stated provenance had drifted from how it was actually produced. Finding 10: an audit reported the unexplained state was missing everywhere, having queried only the players that have catalysts, a population selected so it could not contain a counterexample. The catalyst date audit, removed with the retired series: `verified: true` meant a human had confirmed the date, while nothing required the cited source to display one. This one: an exclusion filter that ran cleanly and excluded nothing.
+**Why it is worth a numbered entry.** It is the fourth time a safeguard has passed while doing nothing. Finding 8: the catalyst file's stated provenance had drifted from how it was actually produced. Finding 10: an audit reported the unexplained state was missing everywhere, having queried only the players that have catalysts, a population selected so it could not contain a counterexample. The catalyst date audit, since removed: `verified: true` meant a human had confirmed the date, while nothing required the cited source to display one. This one: an exclusion filter that ran cleanly and excluded nothing.
 
 The shared shape is that none of them fail loudly. A filter that matches zero rows returns an empty set, not an error. The only thing that caught this one was recognising a name in output I had just told the user contained no names I recognised.
 
@@ -120,9 +120,9 @@ The shared shape is that none of them fail loudly. A filter that matches zero ro
 
 ## 13. Movers have more news than non-movers
 
-**Data.** All 60 per-player results, with confirmed dates and source URLs, are in `NEWS_LOOKBACK.md` and `data/news_lookback.json`. Every figure this entry once carried traces to those files; the comparison figures were removed from the entry with the retired price series and the data files retain all of them.
+**Data.** All 60 per-player results, with confirmed dates and source URLs, are in `NEWS_LOOKBACK.md` and `data/news_lookback.json`. Every figure this entry once carried traces to those files; the comparison figures were removed from the entry with the earlier price series and the data files retain all of them.
 
-**Provenance, stated plainly.** Measured 2026-08-14, before the source swap. Movers were selected by the retired series' move bar and controls were matched on its price, so the mover-versus-control comparison belongs to the retired series and is due for re-running once the current series can produce a sample of thirty movers. The base rate reported below does not depend on any price series: it is a fact about how often NFL players carry news in a twelve day window.
+**Provenance, stated plainly.** Measured 2026-08-14, before the current price series began. Movers were selected by the earlier series' move bar and controls were matched on its price, so the mover-versus-control comparison belongs to that series and is due for re-running once the current series can produce a sample of thirty movers. The base rate reported below does not depend on any price series: it is a fact about how often NFL players carry news in a twelve day window.
 
 **Pre-registered before the test was run.** ADR-005, committed 2026-08-14, fixed the sample, the blinding, the protocol and the decision rule while the answer was unknown. Support required a mover-versus-control hit rate gap of at least 25 percentage points across all pairs AND the same direction among the well matched pairs alone. Anything smaller was to be reported as inconclusive at this sample size, not as weak support.
 

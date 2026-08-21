@@ -142,7 +142,7 @@ export default async function PlayerPage({
   const moveWindow = prevDateLabel ? `since ${prevDateLabel}` : "since tracking began";
 
   // "Tracking since" is the earliest STORED host rank date, never a
-  // hardcoded date: the retired series began Aug 10 but this one did not.
+  // hardcoded date: the series begins at its own first capture.
   const firstHostDate =
     history.length > 0
       ? history.reduce((min, r) => (r.date < min ? r.date : min), history[0].date)

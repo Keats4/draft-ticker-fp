@@ -6,10 +6,9 @@
 /** Thresholds (in rank spots). Rendered verbatim in the UI legend. */
 export const THRESHOLDS = {
   /** Minimum average host rank change (spots) to count as a real market
-   *  move. PROVISIONAL AND UNFITTED: the value 3 is carried over from the
-   *  retired draft-slot series and has not been re-derived for an
-   *  averaged rank, whose day-to-day noise is a different unit. Revisit once
-   *  the host rank series has enough days to measure. */
+   *  move. PROVISIONAL AND UNFITTED: the value 3 is reasoned rather than
+   *  fitted, and an averaged rank's day-to-day noise is its own unit.
+   *  Revisit once the host rank series has enough days to measure. */
   HOST_RANK_MOVE: 3,
   /** Minimum ECR change (ranks) to count as a real expert move. */
   ECR_MOVE: 2,

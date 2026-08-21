@@ -33,8 +33,7 @@ export type FpHostRankPlayer = {
   /** Host id -> that host's rank for this player. Only contributing hosts appear. */
   experts: Record<string, number>;
   /** Derived: number of entries in `experts`, the count of hosts that rank the
-   *  player. Replaces the retired series' `times_drafted` as the coverage
-   *  measure. */
+   *  player. The coverage measure behind the liquidity bar. */
   source_count: number;
 };
 

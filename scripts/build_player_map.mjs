@@ -11,7 +11,7 @@
  * Reads:  fixtures/sleeper_players.json, fixtures/fp_ecr.json, fixtures/fp_host_rank.json
  * Writes: data/player_map.json, data/mapping_review.json
  *
- * Archetypes are NOT written here. The retired tenure system used to stamp
+ * Archetypes are NOT written here. An earlier tenure based system used to stamp
  * an archetype field onto every entry; the current role system computes its
  * labels at render time in lib/archetype.ts from the live rows, so the map
  * carries only identity, team, position, years_exp, age and injury_status.

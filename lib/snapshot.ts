@@ -8,7 +8,7 @@ import type { EcrSnapshot, Snapshot } from "@/lib/types";
  *   host-rank-history.json     flat per player per day rows of the primary series
  *   ecr/<date>.json            expert consensus rank series (untouched)
  *
- * `snapshots/` and `history.json` hold the retired series; they are left in
+ * `snapshots/` and `history.json` are unused legacy paths; they are left in
  * place and are neither read nor written. `adp-fp/` holds the daily raw
  * FantasyPros payloads, written by the cron and read by the backfill script.
  */
@@ -99,8 +99,8 @@ export async function saveSnapshot(snapshot: Snapshot): Promise<string> {
 }
 
 /** Store the day's UNTOUCHED raw FantasyPros payload under adp-fp/<date>.json
- *  as { date, captured_at, source, payload }, the shape the retired build
- *  wrote. The raw file is the recovery path: when the typed series stalls or
+ *  as { date, captured_at, source, payload }. The raw file is the recovery
+ *  path: when the typed series stalls or
  *  a converter bug lands, scripts/backfill_host_rank.mjs rebuilds every typed
  *  day from these. No page reads it. */
 export async function saveRawHostRank(raw: {

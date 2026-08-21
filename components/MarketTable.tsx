@@ -94,7 +94,7 @@ export default function MarketTable({
   rows: RowLite[];
   moveLabel?: string;
   /** Earliest stored host rank date, formatted; derived by the caller, never
-   *  hardcoded here (the retired series' Aug 10 start does not apply). */
+   *  hardcoded here. */
   trackingSince?: string | null;
 }) {
   const [openRank, setOpenRank] = useState<number | null>(null);

@@ -238,12 +238,9 @@ export default function Methodology() {
           price averaged over at least four of the five host boards rests on
           real drafting across hosts; a player carried by one board produces
           movement that is mostly that board&rsquo;s noise. The 200 cap is a
-          chosen cutoff, stated as one. The retired price series published a
-          times-drafted count that located a liquidity cliff near rank 200;
-          the current API publishes no equivalent, so 200 stands as a
-          judgment call with the same standing as the move thresholds until
-          enough history exists to measure where comparability actually
-          degrades.
+          chosen cutoff, stated as one: a judgment call with the same
+          standing as the move thresholds until enough history exists to
+          measure where comparability actually degrades.
         </p>
         <p className="mt-3 text-sm text-[var(--ink-2)]">
           One display module carries a further bound. &ldquo;For your

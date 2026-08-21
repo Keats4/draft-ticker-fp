@@ -65,8 +65,7 @@ call it ADP because that is the term the reader knows; methodology carries
 the exact definition.
 
 No source publishes daily history, so history is accumulated by capture. The
-series starts at the first capture and grows a day at a time. Section 10
-covers the source decision that reset it.
+series starts at the first capture and grows a day at a time.
 
 ### Movement
 
@@ -239,9 +238,9 @@ agreement. If the six states separate on nothing, they are describing noise.
 **Catalysts must beat a base rate.** A blind matched test found 68 percent
 of comparable players carry a qualifying news event in any twelve day
 window, with movers statistically indistinguishable from non movers on
-presence alone. That was measured before the source change and the movers
-half needs re running. Either way, presence is nearly worthless as a filter,
-so attribution needs a precision target.
+presence alone. The movers half of that test needs re running on the
+current data. Either way, presence is nearly worthless as a filter, so
+attribution needs a precision target.
 
 **Interpretation quality.** On a sampled review, a competent analyst agrees
 with the reading a player page gives. This is the same check that scales to
@@ -285,12 +284,6 @@ Stated on the site, not only here.
   hours behind the others.
 
 ## 10. Decisions reversed
-
-**The price source changed.** The build originally priced from a third
-party mock draft ADP. It now uses FantasyPros' own consensus, so both series
-come from one provider on one key. The cost was the stored history, which
-restarted, and a measurement basis: findings made on the retired series are
-marked as such in the research log rather than relabelled.
 
 **Catalyst provenance.** An audit found entries documented as hand curated
 had been agent generated, and that a script had set every verification flag
