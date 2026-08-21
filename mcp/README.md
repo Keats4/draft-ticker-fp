@@ -32,7 +32,7 @@ reports temporal association ("verified event in window"), never causation.
 - `get_player_market_context`: one player by name, the same fields plus the
   ADP-ECR gap, the current calendar phase with its trust reading, and any
   verified events inside the window with dates and source URLs.
-- `get_recent_events`: verified catalysts inside the current window, newest
+- `get_recent_events`: verified events inside the current window, newest
   first, with player, date, short label and source.
 
 ## Run
@@ -40,7 +40,7 @@ reports temporal association ("verified event in window"), never causation.
 ```
 cd mcp
 npm install
-node test-client.mjs   # spawns the server over stdio and calls every tool
+npm test               # spawns the server over stdio and calls every tool
 npm run check-drift    # value drift check against ../lib
 ```
 
@@ -51,7 +51,7 @@ npm run check-drift    # value drift check against ../lib
   "mcpServers": {
     "draft-ticker": {
       "command": "node",
-      "args": ["/Users/navichawla/Desktop/draft-ticker-fp/mcp/server.mjs"]
+      "args": ["/absolute/path/to/draft-ticker-fp/mcp/server.mjs"]
     }
   }
 }

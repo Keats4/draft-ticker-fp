@@ -159,14 +159,16 @@ export default function InsideFP() {
         <h2 className="text-xl font-semibold">4 · Market context for Coach AI</h2>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
           An assistant can only say what it can read. FantasyPros has shipped
-          an MCP server: 29 tools returning current rankings, ADP,
-          projections, depth charts and league analysis, and none returns a
-          change over time. The 24 hour and 7 day trend columns on the
-          Real-Time ADP page do not reach it, an integration omission rather
-          than a missing capability, since the movement data already exists on
-          that page. The near misses are exactly that: the trade tools return
-          counterfactual deltas from a hypothetical trade, and the stats tools
-          return aggregates over a window rather than changes across it.
+          an MCP server. As inspected on August 21, 2026, it exposes 29 tools
+          across rankings, ADP, projections, depth charts, league context and
+          advice, and no tool returns market change over time: the 24 hour
+          and 7 day trend columns on the Real-Time ADP page do not reach it.
+          That is an extension opportunity rather than a missing data
+          capability, since the movement data already exists on the Real-Time
+          ADP surface. The near misses are exactly that: the trade tools
+          return counterfactual deltas from a hypothetical trade, and the
+          stats tools return aggregates over a window rather than changes
+          across it.
         </p>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
           This proposal is not a mockup. The repository carries a working

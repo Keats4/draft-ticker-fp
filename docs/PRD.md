@@ -327,17 +327,18 @@ Draft Ticker builds it. Every field traces to a rule or a URL.
 thresholds, evidence tier and coverage bar stay deterministic and published,
 because a drafter is about to act on them.
 
-**The gap is observable.** FantasyPros has shipped an MCP server. Its 29
-tools return current rankings, ADP, projections, depth charts and league
-analysis, and none returns a change over time: the 24 hour and 7 day trend
-columns on their own Real-Time ADP page do not reach it. The near misses
-are exactly that: the trade tools return counterfactual deltas from a
-hypothetical trade, and the stats tools return aggregates over a window
-rather than changes across it. This is an integration omission rather than
-a missing capability, since the movement data already exists on their own
-page. Draft Ticker exposes exactly that layer as three tools in the
-repository's mcp/ directory: market movers over the current window, one
-player's full market context, and verified events with dates and sources.
+**The gap is observable.** FantasyPros has shipped an MCP server. As
+inspected on August 21, 2026, it exposes 29 tools across rankings, ADP,
+projections, depth charts, league context and advice, and no tool returns
+market change over time: the 24 hour and 7 day trend columns on their own
+Real-Time ADP page do not reach it. The near misses are exactly that: the
+trade tools return counterfactual deltas from a hypothetical trade, and the
+stats tools return aggregates over a window rather than changes across it.
+This is an extension opportunity rather than a missing data capability,
+since the movement data already exists on the Real-Time ADP surface. Draft
+Ticker exposes exactly that layer as three tools in the repository's mcp/
+directory: market movers over the current window, one player's full market
+context, and verified events with dates and sources.
 
 **Attribution at scale.** Hand verification is the right cost for a
 prototype and the wrong one for a product. Inside FantasyPros, Fantasy Feed

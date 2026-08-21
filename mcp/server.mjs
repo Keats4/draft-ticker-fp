@@ -346,7 +346,7 @@ server.registerTool(
   "get_recent_events",
   {
     description:
-      "Verified catalysts inside the current move window (including the seven-day lookback), newest first: player, date, short label and primary source URL.",
+      "Verified events inside the current move window (including the seven-day lookback), newest first: player, date, short label and primary source URL.",
     inputSchema: {},
   },
   async () => {
