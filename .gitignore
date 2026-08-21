@@ -32,3 +32,6 @@ PRIVATE_NOTES.md
 # Contributor instructions, kept local only
 AGENTS.md
 CLAUDE.md
+
+# source checker output, review artifact
+source-check-report.md
