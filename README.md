@@ -1,7 +1,7 @@
 # Draft Ticker
 
 An interpretation layer on FantasyPros ADP and expert consensus: what moved,
-which side moved first, and what sits behind it.
+which side moved first, and the documented events near it.
 
 **Live:** https://draft-ticker-fp.vercel.app
 
@@ -10,8 +10,8 @@ which side moved first, and what sits behind it.
 The full reasoning lives in
 [docs/PRD.md](docs/PRD.md), a product requirements and decision log covering
 the problem and objective, functional requirements and acceptance criteria,
-how the model gets validated, the decisions that were reversed rather than
-hidden, and the AI layer with its shipping discipline. Start there to
+how the interpretation system is validated, the decisions that were reversed
+rather than hidden, and the AI layer with its shipping discipline. Start there to
 understand why the product is shaped the way it is.
 
 ## The two series
@@ -32,7 +32,7 @@ FantasyPros API on one key.
   Signals are computed only inside the comparison universe which is top 200
   by both series.
 - **Dated, sourced catalysts** with an evidence tier that says plainly when
-  a move has no documented cause: verified event in window when one
+  a move has no documented event near it: verified event in window when one
   sits in the window of the move, which also reaches back seven days before
   the window opens, a stated assumption in `lib/evidence.ts`, unexplained
   otherwise (watch, don't act).

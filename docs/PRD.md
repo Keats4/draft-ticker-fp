@@ -14,8 +14,8 @@ FantasyPros already has the core data. The remaining opportunity is helping
 a drafter interpret whether a move matters.
 
 A ten spot move in June looks the same on the page as a ten spot move the
-day after starters played a real game. A move with a confirmed injury behind
-it looks the same as one with nothing behind it.
+day after starters played a real game. A move with a confirmed injury in its
+window looks the same as one with no documented event near it.
 
 The question a drafter asks when a number changes is whether it means
 anything and whether to act. Nothing on the page answers it.
@@ -29,7 +29,7 @@ conversation.
 A returning drafter opens the site and knows, inside a couple of minutes,
 which prices have moved enough to matter since their last session, whether
 the experts moved with the market or against it, whether a verified event
-sits behind each move, and how much weight this point in the calendar
+sits near each move, and how much weight this point in the calendar
 deserves.
 
 Nothing on the page tells them who to draft.
@@ -44,7 +44,7 @@ last time to matter, and for a given player, has anything changed that
 should affect how they plan around him.
 
 They leave with a short list of real moves, an answer on each about which
-side moved first, a sourced reason where one exists and an explicit absence
+side moved first, a sourced event where one exists and an explicit absence
 where it does not, and a reading of how much this time of year is worth.
 
 Dynasty and season long trade managers are a natural second audience. Out of
@@ -98,7 +98,7 @@ a factual summary and a short display label.
 A signal reads verified event in window when one falls inside the
 move window or the seven day lookback. Otherwise it reads unexplained, shown
 as watch rather than act. The empty state is deliberate: a move with no
-documented cause is flagged as exactly that.
+documented event near it is flagged as exactly that.
 
 `verified: true` means the event and its date have been confirmed against
 the primary source. Sourcing is automated, verification is not. A model can
@@ -225,7 +225,7 @@ Two kinds. The first ask whether the interpretation system is right. The
 second ask whether the product gets used. Only the first can be tested with
 what exists today.
 
-### Model validation
+### Interpretation validation
 
 **The calendar is falsifiable.** It asserts that identical movement carries
 different information depending on when it lands. The test is whether moves
@@ -318,8 +318,8 @@ waiver and start or sit questions inside a user's league context.
 What an assistant can say is bounded by what it can read. Coach AI can rank
 a player, weigh him against a roster and explain a projection. It cannot say
 he got five picks cheaper this week, that the market moved before the
-experts did, or that a hamstring reported Thursday sits behind it. That
-layer does not exist in structured form.
+experts did, or that a hamstring reported Thursday sits inside the move
+window. That layer does not exist in structured form.
 
 Draft Ticker builds it. Every field traces to a rule or a URL.
 
@@ -393,8 +393,8 @@ sampled precision audit, per section 8.
 
 **Market context inside Coach AI.** The assistant answers in league context
 but cannot read price movement. This layer gives it a structured, dated,
-sourced view of what moved and what sits behind it. Largest build, largest
-payoff, depends on the three above.
+sourced view of what moved and the documented events near it. Largest
+build, largest payoff, depends on the three above.
 
 **Sequencing.** The first two ship independently and test whether users
 engage with price context at all. Attribution gates the fourth: an assistant

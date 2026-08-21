@@ -60,7 +60,7 @@ export default function InsideFP() {
         <p className="mt-2 text-sm text-[var(--ink-2)]">
           The same two-series chart on your player pages, with the layer added
           on top: a rule-based signal that names who moved first, catalyst
-          markers on the dates that moved the price, a plain “what it means”
+          markers on the dates of documented events, a plain “what it means”
           line, and an evidence tier, “verified event in window” when one
           sits in the window of the move, “unexplained” otherwise (watch, don’t
           act). The chart stops being an exhibit and starts making a claim it can

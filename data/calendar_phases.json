@@ -5,7 +5,6 @@
    "key": "stable slug",
    "title": "display name",
    "window": "approximate calendar window, display only",
-   "current": "true for the phase we're in now (drives the timeline highlight, the 'how to read this phase' panel, and the homepage hero's phase strip)",
    "signal_level": "one of low | med | high | vhigh | null - drives the signal-quality meter; null renders 'pending'. Split ratings from the source doc are rounded DOWN to the more cautious level and the nuance is kept in how_to_read.",
    "card_line": "one sentence, the lead line on the phase card AND the line the homepage hero shows next to the phase name. Keep it short.",
    "how_to_read": "the TRUST WHY prose: why movement in this phase deserves the trust level it has. Renders in the gold panel on the current phase. Empty = pending.",
@@ -17,7 +16,7 @@
    "phases": 12,
    "authored": 12
   },
-  "dates": "start and end are inclusive YYYY-MM-DD and are the ONLY thing that decides which phase is current; there is no hand set current flag. Ranges are contiguous and non-overlapping so exactly one phase is current on any covered date. Sourced anchors: Hall of Fame Game 2026-08-06, Week 1 kickoff 2026-09-09, regular season ends 2027-01-10, Labor Day 2026-09-07. Where a range and its display `window` string disagree, the window string is the human label and the dates are the machine boundary; trade-deadlines and stretch-run both claim in-season weeks, so the dates split them at 2026-11-24 rather than overlapping. 2027-01-11 to 2026-04-22 is uncovered offseason: lib/phases.ts currentPhase() returns the most recently ended phase and flags inGap."
+  "dates": "start and end are inclusive YYYY-MM-DD and are the ONLY thing that decides which phase is current; there is no hand set current flag. Ranges are contiguous and non-overlapping so exactly one phase is current on any covered date. Sourced anchors: Hall of Fame Game 2026-08-06, Week 1 kickoff 2026-09-09, regular season ends 2027-01-10, Labor Day 2026-09-07. Where a range and its display `window` string disagree, the window string is the human label and the dates are the machine boundary; trade-deadlines and stretch-run both claim in-season weeks, so the dates split them at 2026-11-24 rather than overlapping. 2027-01-11 to 2027-04-22 is uncovered offseason: lib/phases.ts currentPhase() returns the most recently ended phase and flags inGap."
  },
  "phases": [
   {
@@ -44,7 +43,7 @@
    "end": "2026-05-17",
    "signal_level": "low",
    "card_line": "Highlight clips, no defense, no signal.",
-   "how_to_read": "There is no contact and no competition, so there is nothing to confirm. Price spikes from minicamp reports reverse more often than they hold.",
+   "how_to_read": "There is no contact and no competition, so there is nothing to confirm. A price spike here rests on a highlight clip, not on a role anyone has won.",
    "sections": {
     "what_appears": "Rookies in helmets and shorts, no defense, and a round of positive first-look reports.",
     "player_types": "Rookies",
@@ -59,8 +58,8 @@
    "start": "2026-05-18",
    "end": "2026-06-08",
    "signal_level": "low",
-   "card_line": "Coach-speak season. Most June risers give it back.",
-   "how_to_read": "Most June risers give the gain back by mid-August. Movement in this phase is mostly narrative, and the market knows it, which is why it drifts instead of jumps.",
+   "card_line": "Coach-speak season. Role hints without padded competition.",
+   "how_to_read": "OTAs offer role hints without padded competition, so movement here deserves less weight than camp or preseason usage. What moves a price in this phase is narrative, not anything a defense contested.",
    "sections": {
     "what_appears": "Unpadded practices and optimistic coach quotes. The first “running with the first team” reports show up here, months before they can be tested.",
     "player_types": "Rookies · Injury-Return Vet · Camp-Hype Breakout",
@@ -91,8 +90,8 @@
    "start": "2026-07-22",
    "end": "2026-08-05",
    "signal_level": "high",
-   "card_line": "First-team reps in pads: the first signal that sticks.",
-   "how_to_read": "First-team reps in pads are the first signal that tends to hold. A player who takes a starter's reps for two weeks of camp usually keeps the role, and the market is right to pay for it. The caveat: coaches rotate packages all camp, so a raw rep count without package context can overstate a role.",
+   "card_line": "First-team reps in pads: the first evidence from real competition.",
+   "how_to_read": "First-team reps in pads are the first evidence produced under real competition: contact, installs, and coaches choosing who runs with the starters. The caveat: coaches rotate packages all camp, so a raw rep count without package context can overstate a role.",
    "sections": {
     "what_appears": "Padded practices begin and beat reporters chart first-team reps daily. This is the first usage data of the year that involves contact.",
     "player_types": "Camp-Hype Breakout · Ambiguous-Backfield RB · Rookies · Injury-Return Vet (PUP decisions land here)",
@@ -124,7 +123,7 @@
    "end": "2026-08-31",
    "signal_level": "high",
    "card_line": "90 to 53. Cuts are facts, and facts reprice instantly.",
-   "how_to_read": "A cut is a fact, not a projection. The repricing that follows is immediate and it holds.",
+   "how_to_read": "A cut is a fact, not a projection: the roster spot is gone and the depth chart behind the player renames itself the same day.",
    "sections": {
     "what_appears": "Rosters go from 90 to 53. Depth charts become transactions instead of reports, and a surprise cut reprices everyone behind it the same day.",
     "player_types": "Ambiguous-Backfield RB · deep-league WRs · handcuffs",
@@ -204,7 +203,7 @@
    "end": "2027-01-10",
    "signal_level": "vhigh",
    "card_line": "Rookies take over. Averages stop describing roles.",
-   "how_to_read": "Late-season role changes are usually permanent for the year, and the sample behind them is large. The main trap is paying for a season-long average that no longer describes the player's current role.",
+   "how_to_read": "A late-season role change arrives with a large usage sample behind it and few weeks left for another change. The main trap is paying for a season-long average that no longer describes the player's current role.",
    "sections": {
     "what_appears": "Rookies who opened the year buried start taking over backfields and target shares, the classic second-half emergence. IR returns land in time for the playoff push. Eliminated NFL teams shut veterans down, and playoff schedules start mattering more than season-long averages.",
     "player_types": "Second-half rookie risers · IR returns · shutdown-risk veterans on eliminated teams · playoff-schedule targets",
