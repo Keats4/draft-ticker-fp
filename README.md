@@ -72,6 +72,11 @@ payload exists so the typed series can always be rebuilt from source. See
 - `RESEARCH_LOG.md`, findings and their provenance
 - `decisions/`, ADR-001 through ADR-005
 
+## Agent access
+
+A local MCP server in [mcp/](mcp/README.md) exposes the market layer,
+movers, player context and verified events, to an agent over stdio.
+
 ## Develop
 
 ```

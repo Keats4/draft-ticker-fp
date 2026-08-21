@@ -154,13 +154,52 @@ export default function InsideFP() {
         </p>
       </section>
 
+      {/* Proposal 4: the prototype, not a mockup */}
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold">4 · Market context for Coach AI</h2>
+        <p className="mt-2 text-sm text-[var(--ink-2)]">
+          An assistant can only say what it can read. FantasyPros has shipped
+          an MCP server: 29 tools returning current rankings, ADP,
+          projections, depth charts and league analysis, and none returns a
+          change over time. The 24 hour and 7 day trend columns on the
+          Real-Time ADP page do not reach it, an integration omission rather
+          than a missing capability, since the movement data already exists on
+          that page. The near misses are exactly that: the trade tools return
+          counterfactual deltas from a hypothetical trade, and the stats tools
+          return aggregates over a window rather than changes across it.
+        </p>
+        <p className="mt-2 text-sm text-[var(--ink-2)]">
+          This proposal is not a mockup. The repository carries a working
+          prototype: a Model Context Protocol server exposing the market layer
+          as three tools. <span className="font-medium text-[var(--foreground)]">get_market_movers</span>{" "}
+          returns the price moves that cleared the published bar this window,
+          with the signal, evidence state and archetype.{" "}
+          <span className="font-medium text-[var(--foreground)]">get_player_market_context</span>{" "}
+          returns one player&rsquo;s move, gap, calendar trust and verified
+          events with sources.{" "}
+          <span className="font-medium text-[var(--foreground)]">get_recent_events</span>{" "}
+          returns the verified events in the window, newest first. Both
+          servers, FantasyPros&rsquo; own and this one, have been run together
+          in one client: the assistant reads current rankings from one and
+          what moved from the other in a single conversation.
+        </p>
+        <p className="mt-2 text-sm text-[var(--ink-2)]">
+          Stated plainly: it is a local stdio server reading public data, run
+          by editing a config file and restarting a desktop app. A
+          demonstration of the missing layer, not a hosted service and not a
+          user feature.
+        </p>
+        <Ships>prototype in the repository → the same three tools backed by FantasyPros&rsquo; own store, inside their MCP.</Ships>
+      </section>
+
       {/* Closing */}
       <section className="mt-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-        <h2 className="text-lg font-semibold">Why these three</h2>
+        <h2 className="text-lg font-semibold">Why these four</h2>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
-          All three sit on one primitive: a stored, interpreted value series. Once
+          All four sit on one primitive: a stored, interpreted value series. Once
           you can store the series, screen it, explain it, and price it year-round,
-          the reading, the personalized module, and the index are the same engine
+          the reading, the personalized module, the index, and the agent layer
+          are the same engine
           pointed at different surfaces. The eval harness is the quality bar, every advice surface is gated on grounding and directionality before it
           ships, so the interpretation is trustworthy, not just present.
         </p>
