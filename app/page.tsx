@@ -12,8 +12,6 @@ import {
   rankStories,
   pairStrength,
   isOpposed,
-  moveLine,
-  valueLine,
   valueWord,
   valueTone,
   leadLine,
@@ -27,7 +25,7 @@ import fpEcr from "@/fixtures/fp_ecr.json";
 import playerMap from "@/data/player_map.json";
 import catalystsFile from "@/data/catalysts.json";
 import phasesFile from "@/data/calendar_phases.json";
-import { currentPhase, moveTrustLevel, type Phase as LibPhase } from "@/lib/phases";
+import { currentPhase, type Phase as LibPhase } from "@/lib/phases";
 import featured from "@/data/featured.json";
 import HowToReadCard from "@/components/HowToReadCard";
 import SignalChip from "@/components/SignalChip";
@@ -149,8 +147,8 @@ function StatCard({
     <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
       <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">{label}</p>
       <div className="mt-1 flex items-baseline justify-between gap-2">
-        <span className="text-lg font-semibold">{name}</span>
-        <span className="text-xl font-bold tabular-nums" style={{ color }}>
+        <span className="text-sm font-semibold">{name}</span>
+        <span className="text-2xl font-bold tabular-nums" style={{ color }}>
           {value}
         </span>
       </div>
@@ -230,11 +228,8 @@ export default async function Home() {
   // ---- Per-player support data, all pulled from live code paths ----
   const phases = phasesFile.phases as Phase[];
   const phase = currentPhase(phases as unknown as LibPhase[]).phase;
-  // The move-trust meter reads the phase current at the window's NEWEST date
-  // (today): trust is a statement about what movement observed now is worth,
-  // so the newer phase governs when a window spans a phase boundary. See
-  // moveTrustLevel in lib/phases.ts. Null at "med" on purpose.
-  const moveTrust = phase ? moveTrustLevel(phase.signal_level ?? "") : null;
+  // Trust renders once, in the hero's strip; the duplicate footer meter was
+  // removed in the compression pass.
 
   const catalystsFor = (sleeperId: string | null) =>
     sleeperId
@@ -395,7 +390,7 @@ export default async function Home() {
   // deduped when both sides cite the same article: an injury on one side and
   // the other side's response can appear together. Evidence above stays keyed
   // to the shared-URL event.
-  type PairCatalyst = { date: string; summary: string; sourceUrl: string; player: string | null };
+  type PairCatalyst = { date: string; summary: string; label: string | null; sourceUrl: string; player: string | null };
   const pairCatalysts: PairCatalyst[] = bestPair
     ? [topCatalystFor(bestPair.a.sleeperId), topCatalystFor(bestPair.b.sleeperId)]
         .filter((c): c is NonNullable<typeof c> => c != null)
@@ -404,6 +399,7 @@ export default async function Home() {
         .map((c) => ({
           date: c.date,
           summary: c.summary,
+          label: c.short_label ?? null,
           sourceUrl: c.source_url,
           player: c.player.name ?? null,
         }))
@@ -415,6 +411,7 @@ export default async function Home() {
     ? {
         date: heroX.verified[0].date,
         summary: heroX.verified[0].summary,
+        label: heroX.verified[0].short_label ?? null,
         sourceUrl: heroX.verified[0].source_url,
       }
     : null;
@@ -451,7 +448,27 @@ export default async function Home() {
   for (const r of ranked) {
     if (leadEligible(r) && !leadPool.some((p) => p.fpId === r.fpId)) leadPool.push(r);
   }
-  type LeadItem = { href: string; name: string; sentence: string; evidence: string };
+  /** Display copy only: four-word market-versus-expert relationship for the
+   *  lead's scan line. Reads the published bars, introduces nothing new. */
+  const relWord = (hd: number, ed: number | null): string | null => {
+    if (ed == null) return null;
+    if (Math.abs(ed) < THRESHOLDS.ECR_MOVE) return "Experts haven't moved";
+    if (ed * hd < 0) return "Experts went the other way";
+    const ratio = Math.abs(ed) / Math.abs(hd);
+    if (ratio >= 2 / 3 && ratio <= 1.5) return "Experts matched it";
+    return ratio < 1 ? "Experts trailed it" : "Experts moved further";
+  };
+  type LeadItem = {
+    href: string;
+    name: string;
+    sub: string;
+    arrow: string;
+    figure: string;
+    figureSub: string;
+    rel: string | null;
+    reason: string;
+    detail: string;
+  };
   const leadItems: LeadItem[] = daysAgo
     ? leadPool.slice(0, 3).flatMap((r) => {
         const read = leadLine(r, daysAgo);
@@ -472,17 +489,25 @@ export default async function Home() {
         // state rather than improvising one. Only the newest label shows;
         // the full sourced list lives on the player page and in the hero.
         const labelled = inWin.find((c) => c.short_label);
+        const reason = labelled?.short_label
+          ? `${fmtShortDate(labelled.date)} · ${labelled.short_label.trim().replace(/[.!?]$/, "")}`
+          : "No documented event yet";
         const evidence = labelled?.short_label
           ? `${fmtShortDate(labelled.date)}: ${labelled.short_label.trim().replace(/[.!?]?$/, ".")}`
           : "No documented event is on file for this move yet.";
-        // The name renders as its own link, so the sentence starts after it.
-        const rest = read.main.slice(r.name.length).trimStart();
+        const d = r.hostRankDelta!;
         return [
           {
             href: hrefFor(r),
             name: r.name,
-            sentence: `${rest}.${read.expert ? ` ${read.expert}` : ""}`,
-            evidence,
+            sub: `${r.position}${r.posRank} · ${r.team}`,
+            arrow: d > 0 ? "▲" : "▼",
+            figure: `${d > 0 ? "+" : ""}${d}`,
+            figureSub: `picks ${moveWindow}`,
+            rel: relWord(d, r.ecrDelta),
+            // Full sentences from the previous lead, intact behind the expander.
+            detail: `${read.main}.${read.expert ? ` ${read.expert}` : ""} ${evidence}`,
+            reason,
           },
         ];
       })
@@ -509,7 +534,7 @@ export default async function Home() {
     <main className="mx-auto max-w-6xl px-4 py-8">
       <header className="mb-5">
         <h1 className="text-3xl font-bold tracking-tight">Draft Ticker</h1>
-        <p className="mt-1 text-lg text-[var(--ink-2)]">
+        <p className="mt-1 text-sm text-[var(--ink-2)]">
           Daily ADP movement, measured against expert consensus.
         </p>
         {!live && (
@@ -523,26 +548,43 @@ export default async function Home() {
           language. The market mechanics (hero, signals, evidence tiers,
           table) all stay below for the reader who wants them. */}
       {leadItems.length > 0 && (
-        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
-          <h2 className="text-lg font-semibold">
+        <section className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
             What changed since your last mock draft
           </h2>
-          <div className="mt-2 space-y-2">
+          {/* Numbers lead, words support: the figure lands before a word is
+              read. Same positions on every row so the eye learns the pattern
+              once. Full sentences stay intact behind the expander. */}
+          <div className="mt-3 space-y-4">
             {leadItems.map((item) => (
-              <div key={item.href}>
-                <p className="text-[15px] leading-snug">
-                  <Link href={item.href} className="font-semibold hover:underline">
-                    {item.name}
-                  </Link>{" "}
-                  {item.sentence}
-                </p>
-                <p className="mt-0.5 text-sm leading-snug text-[var(--ink-2)]">
-                  {item.evidence}
-                </p>
+              <div key={item.href} className="flex items-start gap-4">
+                <div className="w-24 shrink-0 text-right">
+                  <p className="text-2xl font-bold tabular-nums leading-none">
+                    <span aria-hidden className="text-[var(--ink-3)]">{item.arrow} </span>
+                    {item.figure}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--ink-3)]">{item.figureSub}</p>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold leading-snug">
+                    <Link href={item.href} className="hover:underline">{item.name}</Link>{" "}
+                    <span className="font-normal text-[var(--ink-3)]">{item.sub}</span>
+                  </p>
+                  {item.rel && <p className="text-xs text-[var(--ink-2)]">{item.rel}</p>}
+                  <p className="text-xs text-[var(--ink-3)]">{item.reason}</p>
+                  <details className="mt-0.5">
+                    <summary className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline">
+                      details
+                    </summary>
+                    <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
+                      {item.detail}
+                    </p>
+                  </details>
+                </div>
               </div>
             ))}
           </div>
-          <p className="mt-3 border-t border-[var(--border)] pt-2 text-xs text-[var(--ink-3)]">
+          <p className="mt-4 border-t border-[var(--border)] pt-2 text-xs text-[var(--ink-3)]">
             The numbers, signals and sources behind each of these are below.
           </p>
         </section>
@@ -572,7 +614,6 @@ export default async function Home() {
                 }${bestPair.b.hostRankDelta}), so the mirror is not showing in the price today. Shown as measured, not as a story it is not telling.`
           }
           moveWindow={moveWindow}
-          moveTrustLevel={moveTrust}
           trackingSince={trackingSince}
         />
       ) : singleHero ? (
@@ -590,7 +631,6 @@ export default async function Home() {
           signal={singleHero.signal}
           evidence={heroX?.evidence ?? null}
           sentence={whatItMeans(singleHero.signal, singleHero.gap, singleHero.hostRankDelta, singleHero.ecrDelta, singleHero.gapReason)}
-          moveTrustLevel={moveTrust}
           points={heroX?.points ?? []}
           markers={heroX?.markers ?? []}
           trackingSince={trackingSince}
@@ -617,30 +657,28 @@ export default async function Home() {
       )}
 
       {stories.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-1 text-lg font-semibold">
+        <section className="mb-8">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
             What the market repriced this week
           </h2>
-          <p className="mb-2 text-sm text-[var(--ink-2)]">
-            Where the price actually moved, and what it costs you.
-          </p>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {/* One number is the headline per card; everything else is
+              secondary type. Whitespace separates the cards, not borders.
+              Fixed rhythm: name, market move, expert move + gap, signal,
+              reason. Movement stays neutral with an arrow; the gap is the
+              only coloured figure and carries its word. */}
+          <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
             {stories.map((r) => {
-              const m = moveLine(r, moveWindow);
-              const v = valueLine(r);
               const cat = topCatalystFor(r.sleeperId);
+              const d = r.hostRankDelta;
               return (
-                <div
-                  key={r.fpId}
-                  className="relative rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 transition-colors hover:border-[var(--ink-3)]"
-                >
+                <div key={r.fpId} className="relative rounded-lg p-1 transition-colors hover:bg-[var(--surface)]">
                   <div className="flex items-baseline justify-between gap-2">
                     {/* Stretched link: the whole card stays a tap target on a
-                        phone, while the source anchor and the signal chip are
+                        phone, while the expander and the signal chip are
                         raised above the overlay and still work. */}
                     <Link
                       href={hrefFor(r)}
-                      className="font-semibold after:absolute after:inset-0 after:content-['']"
+                      className="text-sm font-semibold after:absolute after:inset-0 after:content-['']"
                     >
                       {r.name}
                     </Link>
@@ -649,61 +687,65 @@ export default async function Home() {
                     </span>
                   </div>
 
-                  {/* 1. The move, first, in plain language. Neutral by rule:
-                      direction is the arrow, never colour. */}
-                  <p className="mt-2 text-sm font-medium">
-                    {m.arrow && (
-                      <span aria-hidden className="text-[var(--ink-2)]">
-                        {m.arrow}{" "}
-                      </span>
+                  <p className="mt-1 text-2xl font-bold tabular-nums leading-none">
+                    {d !== null && d !== 0 && (
+                      <span aria-hidden className="text-[var(--ink-3)]">{d > 0 ? "▲" : "▼"} </span>
                     )}
-                    {m.headline}.
-                  </p>
-                  {/* No trust meter here: it derives from the current phase,
-                      so it is identical on every card and repeated three
-                      times on one screen. The single instance lives in the
-                      hero's trust strip near the top of the page. */}
-                  {m.expert && (
-                    <p className="mt-0.5 text-xs text-[var(--ink-3)]">{m.expert}</p>
-                  )}
-
-                  {/* The value read: the only coloured figure on the card, and
-                      it carries its own word. */}
-                  <p className="mt-1 text-xs font-medium" style={{ color: v.tone }}>
-                    {v.text}.
+                    {d === null ? "–" : `${d > 0 ? "+" : ""}${d}`}
+                    <span className="ml-2 align-baseline text-xs font-normal text-[var(--ink-3)]">
+                      picks {moveWindow}
+                    </span>
                   </p>
 
-                  {/* 2. The signal label. */}
+                  <p className="mt-1 text-xs text-[var(--ink-2)]">
+                    {r.ecrDelta === null
+                      ? "Experts: no data"
+                      : r.ecrDelta === 0
+                        ? "Experts unmoved"
+                        : `Experts ${r.ecrDelta > 0 ? "▲" : "▼"} ${Math.abs(r.ecrDelta)}`}
+                    {r.gap !== null && (
+                      <>
+                        {" · "}
+                        <span style={{ color: valueTone(r.gap) }}>
+                          Gap {r.gap > 0 ? "+" : ""}{r.gap}
+                          {valueWord(r.gap) ? ` ${valueWord(r.gap)}` : ""}
+                        </span>
+                      </>
+                    )}
+                  </p>
+
                   <div className="relative z-10 mt-2">
                     <SignalChip signal={r.signal} />
                   </div>
 
-                  {/* 3. The catalyst with its source, or the honest empty
-                      state. Never a guess in place of a document. */}
                   {cat ? (
-                    <div
-                      className="mt-2 rounded-md border px-2.5 py-2"
-                      style={{
-                        background: "var(--gold-bg)",
-                        borderColor: "var(--gold-border)",
-                      }}
-                    >
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--ink-3)]">
-                        Catalyst · {cat.date}
+                    <div className="mt-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+                        Event · {cat.date}
                       </p>
-                      <p className="mt-0.5 text-xs">{cat.summary}</p>
-                      <a
-                        href={cat.source_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="relative z-10 mt-1 inline-block text-[10px] underline text-[var(--ink-3)]"
-                      >
-                        source
-                      </a>
+                      <p className="mt-0.5 text-xs text-[var(--ink-2)]">
+                        {cat.short_label ?? cat.summary}
+                      </p>
+                      <details className="relative z-10 mt-0.5">
+                        <summary className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline">
+                          view evidence
+                        </summary>
+                        <p className="mt-1 text-xs leading-relaxed text-[var(--ink-2)]">
+                          {cat.summary}{" "}
+                          <a
+                            href={cat.source_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline text-[var(--ink-3)]"
+                          >
+                            source
+                          </a>
+                        </p>
+                      </details>
                     </div>
                   ) : (
-                    <p className="mt-2 rounded-md border border-dashed border-[var(--border)] px-2.5 py-2 text-[11px] text-[var(--ink-3)]">
-                      No documented event on file for this move yet.
+                    <p className="mt-2 text-xs text-[var(--ink-3)]">
+                      No documented event yet.
                     </p>
                   )}
                 </div>
@@ -714,10 +756,10 @@ export default async function Home() {
       )}
 
       <section className="mb-5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-        <p className="flex items-center gap-2 font-semibold">
+        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
           <span aria-hidden style={{ color: "var(--gold)" }}>◎</span> For your draft
         </p>
-        <p className="mt-0.5 text-sm text-[var(--ink-2)]">
+        <p className="mt-0.5 text-xs text-[var(--ink-2)]">
           Where ADP and the experts disagree most inside the top{" "}
           {FOR_YOUR_DRAFT_TOP_N} by ADP, the picks a drafter actually faces.
         </p>
@@ -737,7 +779,7 @@ export default async function Home() {
                 {/* Value read: coloured, and the word carries the same meaning
                     so colour is never the only signal. */}
                 <span
-                  className="tabular-nums font-medium"
+                  className="tabular-nums font-semibold"
                   style={{ color: valueTone(r.gap) }}
                 >
                   {r.gap! > 0 ? "+" : ""}
@@ -760,7 +802,7 @@ export default async function Home() {
               <p className="mt-2 text-xs text-[var(--ink-2)]">
                 {whatItMeans(r.signal, r.gap, r.hostRankDelta, r.ecrDelta)}
               </p>
-              <p className="mt-2 border-t border-[var(--border)] pt-2 text-[11px] text-[var(--ink-3)]">
+              <p className="mt-2 border-t border-[var(--border)] pt-2 text-xs text-[var(--ink-3)]">
                 How we chose this: #{i + 1} widest market-vs-expert gap inside
                 the top {FOR_YOUR_DRAFT_TOP_N} by ADP.
               </p>
@@ -818,7 +860,7 @@ export default async function Home() {
       <MarketTable rows={tableRows} moveLabel={moveLabel} trackingSince={trackingSince} />
 
       <p className="mt-3 text-sm">
-        <Link href="/players" className="font-medium underline">
+        <Link href="/players" className="font-semibold underline">
           View the full tracked pool ({rows.length} players) →
         </Link>{" "}
         <span className="text-[var(--ink-3)]">

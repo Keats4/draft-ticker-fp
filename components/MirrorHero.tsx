@@ -44,7 +44,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
     <div className="flex flex-col gap-2 p-4">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <Link href={s.href} className="text-lg font-bold tracking-tight hover:underline">
+          <Link href={s.href} className="text-sm font-semibold tracking-tight hover:underline">
             {s.name}
           </Link>
           <p className="text-xs text-[var(--ink-3)]">{s.position}{s.posRank} · {s.team}</p>
@@ -54,7 +54,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
             {arrow && <span aria-hidden className="text-[var(--ink-2)]">{arrow} </span>}
             {s.hostRankDelta === null ? "–" : `${s.hostRankDelta > 0 ? "+" : ""}${s.hostRankDelta}`}
           </div>
-          <p className="text-[11px] text-[var(--ink-3)]">
+          <p className="text-xs text-[var(--ink-3)]">
             {s.hostRankDelta === null
               ? `no movement stored yet`
               : s.hostRankDelta === 0
@@ -67,7 +67,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
       <div className="flex flex-wrap items-center gap-2">
         {s.archetypeTag ? (
           <span
-            className="rounded-full border px-2 py-0.5 text-[11px] font-medium"
+            className="rounded-full border px-2 py-0.5 text-xs"
             style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
             title={s.archetypeReason ?? undefined}
           >
@@ -75,7 +75,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
           </span>
         ) : (
           <span
-            className="rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-[11px] text-[var(--ink-3)]"
+            className="rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-xs text-[var(--ink-3)]"
             title="No role label. Quarterbacks and tight ends carry none by design; unclear rooms stay unlabelled rather than guessed."
           >
             No role label
@@ -94,22 +94,22 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
       <dl className="grid grid-cols-3 gap-1 text-center text-xs">
         <div>
           <dt className="text-[var(--ink-3)]">ADP</dt>
-          <dd className="tabular-nums font-medium">{s.hostRank}</dd>
+          <dd className="tabular-nums font-semibold">{s.hostRank}</dd>
         </div>
         <div>
           <dt className="text-[var(--ink-3)]">ECR</dt>
-          <dd className="tabular-nums font-medium">{s.ecr ?? "–"}</dd>
+          <dd className="tabular-nums font-semibold">{s.ecr ?? "–"}</dd>
         </div>
         <div>
           <dt className="text-[var(--ink-3)]">Gap</dt>
           {/* The only coloured figure in this tile, and it carries its word. */}
           <dd
-            className="tabular-nums font-medium"
+            className="tabular-nums font-semibold"
             style={{ color: s.gap === null ? "var(--ink-3)" : valueTone(s.gap) }}
           >
             {s.gap === null ? "–" : `${s.gap > 0 ? "+" : ""}${s.gap}`}
             {valueWord(s.gap) && (
-              <span className="ml-1 text-[10px] font-normal">{valueWord(s.gap)}</span>
+              <span className="ml-1 text-xs font-normal">{valueWord(s.gap)}</span>
             )}
           </dd>
         </div>
@@ -128,7 +128,6 @@ export default function MirrorHero({
   evidence,
   catalysts,
   sentence,
-  moveTrustLevel = null,
   moveWindow,
   trackingSince,
 }: {
@@ -139,14 +138,10 @@ export default function MirrorHero({
   a: MirrorSide;
   b: MirrorSide;
   evidence: Evidence | null;
-  /** The pair's events, newest first: each side's newest verified catalyst,
+  /** Why they moved, newest first: each side's newest verified event,
    *  deduped when both sides point at the same article. */
-  catalysts: { date: string; summary: string; sourceUrl: string; player: string | null }[];
+  catalysts: { date: string; summary: string; label: string | null; sourceUrl: string; player: string | null }[];
   sentence: string;
-  /** Trust level for the move (lib/phases.ts moveTrustLevel), null when the
-   *  phase's trust level is medium or unknown. Rendered as the shared
-   *  PhaseMeter linking to the calendar. */
-  moveTrustLevel?: PhaseLevel | null;
   moveWindow: string;
   trackingSince: string;
 }) {
@@ -160,13 +155,13 @@ export default function MirrorHero({
         className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2"
         style={{ background: "var(--background)", borderColor: "var(--border)" }}
       >
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
           Today&rsquo;s lead
         </span>
         {phaseTitle && (
           <>
             <span className="text-[var(--ink-3)]" aria-hidden>·</span>
-            <Link href="/calendar" className="text-xs font-medium hover:underline">
+            <Link href="/calendar" className="text-xs hover:underline">
               {phaseTitle}
             </Link>
           </>
@@ -182,16 +177,16 @@ export default function MirrorHero({
       )}
 
       <div className="flex flex-wrap items-center gap-2 px-4 pt-3">
-        <h2 className="text-xl font-bold tracking-tight">{title}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide">{title}</h2>
         <span
-          className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+          className="rounded-full px-2 py-0.5 text-xs font-semibold"
           style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)" }}
         >
           Mirror pair
         </span>
         {evidence && (
           <span
-            className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+            className="rounded-full px-2 py-0.5 text-xs"
             title={evidence.note}
             style={
               evidence.confirmed
@@ -212,40 +207,33 @@ export default function MirrorHero({
 
       <div className="border-t border-[var(--border)] px-4 py-3">
         <p className="text-sm">{sentence}</p>
-        {moveTrustLevel && (
-          <Link
-            href="/calendar"
-            className="mt-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--ink-3)] hover:underline"
-          >
-            movement trust <PhaseMeter level={moveTrustLevel} />
-          </Link>
-        )}
         {catalysts.length > 0 ? (
-          <div
-            className="mt-2 rounded-lg border px-3 py-2"
-            style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--ink-3)]">
-              {catalysts.length > 1
-                ? "The pair's events"
-                : `The shared event · ${catalysts[0].date}`}
+          <div className="mt-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+              Why they moved
             </p>
-            <ul className={catalysts.length > 1 ? "mt-1 list-disc space-y-1.5 pl-4" : "mt-0.5"}>
+            <div className="mt-1 space-y-2">
               {catalysts.map((c) => (
-                <li key={c.sourceUrl + c.date} className="text-sm">
-                  {catalysts.length > 1 && (
-                    <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--ink-3)]">
-                      {c.date}
-                      {c.player ? ` · ${c.player}` : ""}{" — "}
-                    </span>
-                  )}
-                  {c.summary}{" "}
-                  <a href={c.sourceUrl} rel="noreferrer" className="text-[11px] underline text-[var(--ink-3)]">
-                    source
-                  </a>
-                </li>
+                <div key={c.sourceUrl + c.date}>
+                  <p className="text-xs text-[var(--ink-3)]">
+                    {c.date}
+                    {c.player ? ` · ${c.player}` : ""}
+                  </p>
+                  <p className="text-sm">{c.label ?? c.summary}</p>
+                  <details className="mt-0.5">
+                    <summary className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline">
+                      view evidence
+                    </summary>
+                    <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
+                      {c.summary}{" "}
+                      <a href={c.sourceUrl} rel="noreferrer" className="underline text-[var(--ink-3)]">
+                        source
+                      </a>
+                    </p>
+                  </details>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         ) : (
           <p className="mt-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--ink-3)]">
@@ -254,8 +242,8 @@ export default function MirrorHero({
           </p>
         )}
         <p className="mt-2 flex flex-wrap gap-x-4 text-sm">
-          <Link href={a.href} className="font-medium underline">See {a.name} →</Link>
-          <Link href={b.href} className="font-medium underline">See {b.name} →</Link>
+          <Link href={a.href} className="font-semibold underline">See {a.name} →</Link>
+          <Link href={b.href} className="font-semibold underline">See {b.name} →</Link>
         </p>
       </div>
     </section>

@@ -160,7 +160,7 @@ export default function PlayerChart({
             {markers.length > 0 && (
               <span className="flex items-center gap-1.5">
                 <span aria-hidden style={{ color: "var(--navy)" }}>◆</span>
-                Catalyst
+                Event
               </span>
             )}
           </span>
@@ -213,7 +213,7 @@ export default function PlayerChart({
         {markers.length > 0 && (
           <span className="flex items-center gap-1.5">
             <span aria-hidden style={{ color: "var(--navy)" }}>◆</span>
-            Catalyst
+            Event
           </span>
         )}
       </div>

@@ -45,7 +45,7 @@ function Gap({ v, notable, reason }: { v: number | null; notable: boolean; reaso
     >
       {v > 0 ? "+" : ""}
       {v}
-      {word && <span className="ml-1 text-[11px] font-normal">{word}</span>}
+      {word && <span className="ml-1 text-xs font-normal">{word}</span>}
     </span>
   );
 }
@@ -126,7 +126,7 @@ export default function MarketTable({
                   onClick={() => setOpenRank(isOpen ? null : r.rank)}
                 >
                   <td className="px-3 py-2.5 tabular-nums text-[var(--ink-3)]">{r.rank}</td>
-                  <td className="px-3 py-2.5 font-medium">
+                  <td className="px-3 py-2.5 font-semibold">
                     <Link href={r.href} className="hover:underline" onClick={(e) => e.stopPropagation()}>
                       {r.name}
                     </Link>

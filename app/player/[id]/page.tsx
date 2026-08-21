@@ -298,7 +298,7 @@ export default async function PlayerPage({
                 it.
               </p>
               <p className="mt-1 text-sm text-[var(--ink-2)]">
-                {whatItMeans(row.signal, row.gap, row.hostRankDelta, row.ecrDelta, row.gapReason)} Catalysts are
+                {whatItMeans(row.signal, row.gap, row.hostRankDelta, row.ecrDelta, row.gapReason)} Events are
                 hand-curated with a source and a verified flag, never scraped,
                 never guessed.
               </p>
@@ -422,7 +422,7 @@ export default async function PlayerPage({
       {/* catalyst log (incl. samples, clearly badged) */}
       {catalysts.length > 0 && (
         <section className="mt-8">
-          <h2 className="text-lg font-semibold">Catalyst log</h2>
+          <h2 className="text-lg font-semibold">Event log</h2>
           <ul className="mt-3 space-y-3">
             {catalysts.map((c) => (
               <li key={c.id} className="rounded-lg border border-[var(--border)] p-3 text-sm">

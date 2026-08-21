@@ -19,7 +19,7 @@ import { valueTone, valueWord } from "@/lib/story";
  * calendar prose has not been written yet, the phase name and trust meter
  * still render and the prose slot is simply absent, never filled with filler.
  */
-export type HeroCatalyst = { date: string; summary: string; sourceUrl: string };
+export type HeroCatalyst = { date: string; summary: string; label: string | null; sourceUrl: string };
 
 export default function HeroStory({
   href,
@@ -34,7 +34,6 @@ export default function HeroStory({
   signal,
   evidence,
   sentence,
-  moveTrustLevel = null,
   points,
   markers,
   trackingSince,
@@ -56,10 +55,6 @@ export default function HeroStory({
   signal: Signal | null;
   evidence: Evidence | null;
   sentence: string;
-  /** Trust level for the move (lib/phases.ts moveTrustLevel), null when the
-   *  phase's trust level is medium or unknown. Rendered as the shared
-   *  PhaseMeter linking to the calendar. */
-  moveTrustLevel?: PhaseLevel | null;
   points: ChartPoint[];
   markers: ChartMarker[];
   trackingSince: string;
@@ -81,13 +76,13 @@ export default function HeroStory({
         className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2"
         style={{ background: "var(--background)", borderColor: "var(--border)" }}
       >
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
           Today&rsquo;s lead
         </span>
         {phaseTitle && (
           <>
             <span className="text-[var(--ink-3)]" aria-hidden>·</span>
-            <Link href="/calendar" className="text-xs font-medium hover:underline">
+            <Link href="/calendar" className="text-xs hover:underline">
               {phaseTitle}
             </Link>
           </>
@@ -111,7 +106,7 @@ export default function HeroStory({
           <span className="text-sm text-[var(--ink-2)]">{position}{posRank} · {team}</span>
           {archetypeTag && (
             <span
-              className="rounded-full border px-2.5 py-0.5 text-xs font-medium"
+              className="rounded-full border px-2.5 py-0.5 text-xs"
               style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
               title={archetypeReason ?? undefined}
             >
@@ -125,7 +120,7 @@ export default function HeroStory({
           <SignalChip signal={signal} />
           {signal && evidence && (
             <span
-              className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+              className="rounded-full px-2 py-0.5 text-xs"
               title={evidence.note}
               style={
                 evidence.confirmed
@@ -162,40 +157,33 @@ export default function HeroStory({
 
         {/* 6. plain-language sentence */}
         <p className="mt-3 text-sm text-[var(--foreground)]">{sentence}</p>
-        {moveTrustLevel && (
-          <Link
-            href="/calendar"
-            className="mt-1 inline-flex items-center gap-1.5 text-[11px] text-[var(--ink-3)] hover:underline"
-          >
-            movement trust <PhaseMeter level={moveTrustLevel} />
-          </Link>
-        )}
 
-        {/* 7. catalyst headline with its date */}
+        {/* 7. event headline with its date; full summary behind the expander */}
         {catalyst ? (
-          <div
-            className="mt-3 rounded-lg border px-3 py-2"
-            style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--ink-3)]">
-              Catalyst · {catalyst.date}
+          <div className="mt-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+              Event · {catalyst.date}
             </p>
-            <p className="mt-0.5 text-sm">{catalyst.summary}</p>
-            <a
-              href={catalyst.sourceUrl}
-              rel="noreferrer"
-              className="mt-1 inline-block text-[11px] underline text-[var(--ink-3)]"
-            >
-              source
-            </a>
+            <p className="mt-0.5 text-sm">{catalyst.label ?? catalyst.summary}</p>
+            <details className="mt-0.5">
+              <summary className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline">
+                view evidence
+              </summary>
+              <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
+                {catalyst.summary}{" "}
+                <a href={catalyst.sourceUrl} rel="noreferrer" className="underline text-[var(--ink-3)]">
+                  source
+                </a>
+              </p>
+            </details>
           </div>
         ) : (
-          <p className="mt-3 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--ink-3)]">
-            No verified catalyst on file for this move yet.
+          <p className="mt-3 text-xs text-[var(--ink-3)]">
+            No verified event on file for this move yet.
           </p>
         )}
 
-        <Link href={href} className="mt-3 inline-block text-sm font-medium underline">
+        <Link href={href} className="mt-3 inline-block text-sm font-semibold underline">
           See the full read on {name} →
         </Link>
       </div>
