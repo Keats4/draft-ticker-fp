@@ -503,7 +503,7 @@ export default async function Home() {
             sub: `${r.position}${r.posRank} · ${r.team}`,
             arrow: d > 0 ? "▲" : "▼",
             figure: `${d > 0 ? "+" : ""}${d}`,
-            figureSub: `picks ${moveWindow}`,
+            figureSub: windowDays ? `picks in ${windowDays}d` : "picks",
             rel: relWord(d, r.ecrDelta),
             // Full sentences from the previous lead, intact behind the expander.
             detail: `${read.main}.${read.expert ? ` ${read.expert}` : ""} ${evidence}`,
