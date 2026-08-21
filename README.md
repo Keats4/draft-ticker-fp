@@ -65,8 +65,8 @@ payload exists so the typed series can always be rebuilt from source. See
 - [The live site](https://draft-ticker-fp.vercel.app) ·
   [Methodology](https://draft-ticker-fp.vercel.app/methodology) ·
   [Inside FantasyPros](https://draft-ticker-fp.vercel.app/inside-fantasypros)
-- [docs/PRD.md](docs/PRD.md), the product requirements and decision log,
-  written retrospectively and honest about the reversals
+- [docs/PRD.md](docs/PRD.md), product requirements and decision log,
+  including the major reversals and tradeoffs
 - `EVALS.md`, the grading bar for generated explanations
 - `RESEARCH_LOG.md`, findings and their provenance
 - `decisions/`, ADR-001 through ADR-005

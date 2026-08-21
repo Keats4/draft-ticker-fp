@@ -10,7 +10,8 @@ carry the analyst view. Consensus ADP carries the crowd. Player pages chart
 the two together, daily, with smoothing on the expert line. Real-Time ADP
 adds 24 hour and 7 day movement.
 
-The data is already there. None of it says whether a move matters.
+FantasyPros already has the core data. The remaining opportunity is helping
+a drafter interpret whether a move matters.
 
 A ten spot move in June looks the same on the page as a ten spot move the
 day after starters played a real game. A move with a confirmed injury behind
@@ -220,8 +221,9 @@ Every bar is published and every label traces to a rule.
 
 ## 8. Success criteria
 
-Two kinds. The first ask whether the model is right. The second ask whether
-the product gets used. Only the first can be tested with what exists today.
+Two kinds. The first ask whether the interpretation system is right. The
+second ask whether the product gets used. Only the first can be tested with
+what exists today.
 
 ### Model validation
 
