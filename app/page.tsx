@@ -148,7 +148,7 @@ function StatCard({
           ? "var(--foreground)"
           : "var(--ink-3)";
   const inner = (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
       <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">{label}</p>
       <div className="mt-1 flex items-baseline justify-between gap-2">
         <span className="text-sm font-semibold">{name}</span>
@@ -556,7 +556,7 @@ export default async function Home() {
           language. The market mechanics (hero, signals, evidence tiers,
           table) all stay below for the reader who wants them. */}
       {leadItems.length > 0 && (
-        <section className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+        <section className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
             What changed since your last mock draft
           </h2>
@@ -591,13 +591,8 @@ export default async function Home() {
                     </span>
                   )}
                   <p className="mt-0.5 text-xs text-[var(--ink-3)]">{item.reason}</p>
-                  <details className="mt-0.5">
-                    <summary
-                      className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline"
-                      style={{ textDecorationColor: "var(--gold)" }}
-                    >
-                      details
-                    </summary>
+                  <details className="mt-1">
+                    <summary className="disclose">details</summary>
                     <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
                       {item.detail}
                     </p>
@@ -695,7 +690,7 @@ export default async function Home() {
               return (
                 <div
                   key={r.fpId}
-                  className="relative rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 transition-colors hover:border-[var(--ink-3)]"
+                  className="relative rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm transition-colors hover:border-[var(--ink-3)]"
                 >
                   <div className="flex items-baseline justify-between gap-2">
                     {/* Stretched link: the whole card stays a tap target on a
@@ -754,13 +749,8 @@ export default async function Home() {
                       <p className="mt-1 text-xs text-[var(--ink-2)]">
                         {cat.short_label ?? cat.summary}
                       </p>
-                      <details className="relative z-10 mt-0.5">
-                        <summary
-                          className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline"
-                          style={{ textDecorationColor: "var(--gold)" }}
-                        >
-                          view evidence
-                        </summary>
+                      <details className="relative z-10 mt-1">
+                        <summary className="disclose disclose--gold">view evidence</summary>
                         <p className="mt-1 text-xs leading-relaxed text-[var(--ink-2)]">
                           {cat.summary}{" "}
                           <a
@@ -786,7 +776,7 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="mb-5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+      <section className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
         <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
           <span aria-hidden style={{ color: "var(--gold)" }}>◎</span> For your draft
         </p>
@@ -849,7 +839,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Movement tiles: neutral, arrow carries direction. Colouring a riser
             green and a faller red is the exact contradiction the single colour
             semantic removes, a falling host rank is a falling price. These two

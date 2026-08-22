@@ -18,6 +18,11 @@
   --pos: #15803d;          /* rising / green */
   --neg: #c0362c;          /* falling / red */
 
+  /* Product-UI accent, the FantasyPros-family blue: interactive moments
+     only (disclosure controls, selected states). Never data, never
+     direction, never value. */
+  --accent: #0f6db5;
+
   --sig-low: #c0362c;
   --sig-med: #e0a92e;
   --sig-high: #15803d;
@@ -79,6 +84,28 @@ body {
   font-weight: 600;
 }
 .sig-chip--converging:hover { border-color: var(--pos); }
+
+/* Disclosure control: <summary> as a deliberate product control rather
+   than an underlined text link. Base is the blue product-UI accent
+   ("details"); the --gold variant marks the evidence layer
+   ("view evidence"). The caret rotates when open. */
+.disclose {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 9999px;
+  padding: 1px 8px; font-size: 12px; line-height: 1.5;
+  color: var(--accent); background: var(--surface);
+  cursor: pointer; user-select: none; list-style: none;
+}
+.disclose::-webkit-details-marker { display: none; }
+.disclose::before { content: "▸"; font-size: 10px; transition: transform 0.12s; }
+details[open] > .disclose::before { transform: rotate(90deg); }
+.disclose:hover { border-color: var(--accent); }
+.disclose--gold {
+  color: var(--ink-2);
+  background: var(--gold-bg); border-color: var(--gold-border);
+}
+.disclose--gold::before { color: var(--gold); }
+.disclose--gold:hover { border-color: var(--gold); }
 
 /* signal-quality 3-segment meter (calendar) */
 .meter { display: inline-flex; gap: 3px; vertical-align: middle; }

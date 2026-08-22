@@ -67,7 +67,7 @@ export default function HeroStory({
 }) {
   return (
     <section
-      className="mb-6 overflow-hidden rounded-xl border bg-[var(--surface)]"
+      className="mb-8 overflow-hidden rounded-xl border bg-[var(--surface)] shadow-sm"
       style={{ borderColor: "var(--navy)" }}
       aria-label="Today's lead story"
     >
@@ -168,13 +168,8 @@ export default function HeroStory({
               Event · {catalyst.date}
             </span>
             <p className="mt-1 text-sm">{catalyst.label ?? catalyst.summary}</p>
-            <details className="mt-0.5">
-              <summary
-                className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline"
-                style={{ textDecorationColor: "var(--gold)" }}
-              >
-                view evidence
-              </summary>
+            <details className="mt-1">
+              <summary className="disclose disclose--gold">view evidence</summary>
               <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
                 {catalyst.summary}{" "}
                 <a href={catalyst.sourceUrl} rel="noreferrer" className="underline text-[var(--ink-3)]">
