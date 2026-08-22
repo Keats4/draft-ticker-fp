@@ -166,11 +166,11 @@ export default function EvalScorecard() {
           </div>
           <span aria-hidden className="hidden text-[var(--ink-3)] sm:block">→</span>
           <div
-            className="shrink-0 rounded-lg border px-3 py-2 text-center"
+            className="shrink-0 rounded-lg border-2 px-3.5 py-2 text-center"
             style={{ borderColor: "var(--border-info-soft)" }}
           >
-            <p className="text-base font-bold tabular-nums leading-tight">{d2.live} live</p>
-            <p className="text-[10px] text-[var(--ink-3)]">usefulness criterion pending</p>
+            <p className="text-2xl font-bold tabular-nums leading-tight">{d2.live} live</p>
+            <p className="text-[10px] text-[var(--ink-2)]">usefulness criterion pending</p>
           </div>
         </div>
       )}
