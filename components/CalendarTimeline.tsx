@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import PhaseMeter, { type PhaseLevel } from "@/components/PhaseMeter";
+import type { PhaseLevel } from "@/components/PhaseMeter";
 
 export type TimelinePhase = {
   key: string;
@@ -10,14 +10,38 @@ export type TimelinePhase = {
   signal_level: PhaseLevel;
 };
 
+const TRUST_ABBR: Record<string, string> = {
+  low: "L",
+  med: "M",
+  high: "H",
+  vhigh: "VH",
+};
+const TRUST_FULL: Record<string, string> = {
+  low: "Low",
+  med: "Medium",
+  high: "High",
+  vhigh: "Very high",
+};
+
+/** Rail-only display shortenings; the full authored title renders everywhere
+ *  else on the page. */
+const RAIL_TITLE: Record<string, string> = {
+  "Stretch Run & Fantasy Playoffs": "Stretch Run & Playoffs",
+};
+
 /**
- * The calendar's phase navigator: chronology AND trust in one strip. Each
- * phase shows its authored trust meter (discrete, categorical, the existing
- * red/gold/green semantics) so the year's signal shape is visible without
- * opening a single card. Buttons scroll to and open the phase's details
- * element; the current phase is highlighted and centred on load.
+ * The phase rail: one horizontal fantasy-year timeline, not twelve cards.
+ * Each phase carries only its number, title (max two clamped lines) and a
+ * compact categorical trust mark (mini bars + L/M/H/VH, the existing trust
+ * colours; the full word lives in the tooltip and aria-label, and in the
+ * status row and phase rows below). Windows/dates stay out of the rail —
+ * they render in the rows and expanded cards.
  *
- * Display only: trust levels come straight from the authored calendar data.
+ * Desktop: all twelve fit, no scroll, starts at phase 01. When the rail
+ * genuinely overflows (tablet/mobile) it becomes a contained scroller and
+ * the current phase is brought into view. Buttons scroll to and open the
+ * phase's details element, updating the hash. Display only: trust levels
+ * come straight from the authored calendar data.
  */
 export default function CalendarTimeline({
   phases,
@@ -31,10 +55,11 @@ export default function CalendarTimeline({
   const currentRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    // Centre the current phase in the scroller without scrolling the page.
+    // Centre the current phase ONLY when the rail actually overflows;
+    // a fully visible desktop rail must start at phase 01.
     const el = currentRef.current;
     const scroller = el?.closest("[data-timeline-scroll]");
-    if (el && scroller) {
+    if (el && scroller && scroller.scrollWidth > scroller.clientWidth + 8) {
       const r = el.getBoundingClientRect();
       const s = scroller.getBoundingClientRect();
       scroller.scrollLeft += r.left - s.left - (s.width - r.width) / 2;
@@ -50,45 +75,72 @@ export default function CalendarTimeline({
   };
 
   return (
-    <div data-timeline-scroll className="overflow-x-auto pb-1">
-      <div className="flex min-w-max items-stretch gap-1">
+    <div
+      data-timeline-scroll
+      className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1"
+    >
+      <div className="flex min-w-max items-stretch gap-0.5 lg:min-w-0">
         {phases.map((p, i) => {
           const isCurrent = i === currentIdx && !inGap;
+          const level = p.signal_level ?? "";
+          const full = TRUST_FULL[level] ?? "pending";
           return (
-            <button
-              key={p.key}
-              ref={isCurrent ? currentRef : undefined}
-              type="button"
-              onClick={() => jump(p.key)}
-              aria-current={isCurrent ? "step" : undefined}
-              className="flex w-[104px] flex-col items-center gap-1 rounded-lg border px-1.5 py-2 text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
-              style={
-                isCurrent
-                  ? { background: "var(--surface-info-strong)", borderColor: "var(--navy)" }
-                  : { background: "var(--surface)", borderColor: "var(--border)" }
-              }
-            >
-              {isCurrent ? (
+            <div key={p.key} className="flex flex-1 items-stretch gap-0.5">
+              {/* draft-season → in-season handoff: one quiet separator */}
+              {i === 8 && (
                 <span
-                  className="rounded-full px-1.5 text-[9px] font-bold uppercase tracking-wide"
-                  style={{ background: "var(--navy)", color: "var(--surface)" }}
-                >
-                  Current
-                </span>
-              ) : (
-                <span className="text-[9px] uppercase tracking-wide text-[var(--ink-3)]">
-                  {p.window}
-                </span>
+                  aria-hidden
+                  className="mx-0.5 w-px self-stretch"
+                  style={{ background: "rgba(110,116,126,0.35)" }}
+                />
               )}
-              <span
-                className={`text-[11px] leading-tight ${
-                  isCurrent ? "font-semibold" : "text-[var(--ink-2)]"
-                }`}
+              <button
+                ref={isCurrent ? currentRef : undefined}
+                type="button"
+                onClick={() => jump(p.key)}
+                aria-current={isCurrent ? "step" : undefined}
+                aria-label={`${p.title}. Movement trust: ${full}`}
+                title={`Movement trust: ${full}`}
+                className="flex w-full min-w-[78px] flex-col items-center gap-1 rounded-md border px-1 py-1.5 text-center transition-colors hover:bg-[var(--surface-info-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                style={
+                  isCurrent
+                    ? { background: "var(--surface-info-strong)", borderColor: "var(--navy)" }
+                    : { borderColor: "transparent" }
+                }
               >
-                {p.title}
-              </span>
-              <PhaseMeter level={p.signal_level} />
-            </button>
+                <span className="flex h-[14px] items-center">
+                  {isCurrent ? (
+                    <span
+                      className="rounded-full px-1.5 text-[9px] font-bold uppercase tracking-wide leading-[13px]"
+                      style={{ background: "var(--navy)", color: "var(--surface)" }}
+                    >
+                      Current
+                    </span>
+                  ) : (
+                    <span className="text-[9px] tabular-nums text-[var(--ink-3)]">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  )}
+                </span>
+                <span
+                  className={`line-clamp-2 h-[27px] w-full text-[10.5px] leading-[1.28] ${
+                    isCurrent ? "font-semibold" : "text-[var(--ink-2)]"
+                  }`}
+                >
+                  {RAIL_TITLE[p.title] ?? p.title}
+                </span>
+                <span className="flex items-center gap-1">
+                  <span aria-hidden className={`meter meter--sm ${level}`}>
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <span className="text-[9px] font-bold text-[var(--ink-2)]">
+                    {TRUST_ABBR[level] ?? "–"}
+                  </span>
+                </span>
+              </button>
+            </div>
           );
         })}
       </div>
