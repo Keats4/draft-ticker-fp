@@ -66,10 +66,13 @@ function Move({ v, trackingSince }: { v: number | null; trackingSince?: string |
       </span>
     );
   return (
-    <span className="whitespace-nowrap tabular-nums text-[var(--foreground)]">
+    <span
+      className="whitespace-nowrap tabular-nums font-medium"
+      style={{ color: v === 0 ? "var(--ink-3)" : "var(--navy)" }}
+    >
       {v !== 0 && (
-        <span aria-hidden className="mr-0.5" style={{ color: "var(--navy)" }}>
-          {v > 0 ? "▲" : "▼"}
+        <span aria-hidden className="mr-0.5">
+          {v > 0 ? "↑" : "↓"}
         </span>
       )}
       {Math.abs(v)}

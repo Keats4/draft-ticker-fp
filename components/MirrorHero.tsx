@@ -3,6 +3,7 @@ import SignalChip from "@/components/SignalChip";
 import PhaseMeter, { type PhaseLevel } from "@/components/PhaseMeter";
 import PlayerChart, { type ChartMarker, type ChartPoint } from "@/components/PlayerChart";
 import InfoDot from "@/components/InfoDot";
+import MoveStat from "@/components/MoveStat";
 import type { Signal } from "@/lib/math";
 import type { Evidence } from "@/lib/evidence";
 import { valueTone, valueWord } from "@/lib/story";
@@ -54,10 +55,6 @@ function Side({
   trackingSince: string;
   className?: string;
 }) {
-  const up = (s.hostRankDelta ?? 0) > 0;
-  // Movement is neutral by rule. The arrow carries the direction; painting a
-  // faller red would say "bad price" about a price that just got cheaper.
-  const arrow = s.hostRankDelta == null || s.hostRankDelta === 0 ? null : up ? "▲" : "▼";
   return (
     <div className={`flex flex-col gap-2 p-4 ${className}`}>
       <div className="flex items-start justify-between gap-2">
@@ -68,19 +65,15 @@ function Side({
           <p className="text-xs text-[var(--ink-3)]">{s.position}{s.posRank} · {s.team}</p>
         </div>
         <div className="text-right">
-          <div className="text-[22px] font-bold tabular-nums text-[var(--foreground)]">
-            {/* Arrow carries direction, so the figure drops its sign: the
-                two said the same thing. Zero renders without either. */}
-            {arrow && <span aria-hidden style={{ color: "var(--navy)" }}>{arrow} </span>}
-            {s.hostRankDelta === null ? "–" : Math.abs(s.hostRankDelta)}
-          </div>
-          <p className="text-xs text-[var(--ink-3)]">
-            {s.hostRankDelta === null
-              ? `no movement stored yet`
-              : s.hostRankDelta === 0
-                ? `unmoved ${moveWindow}`
-                : `picks ${up ? "gained" : "lost"} ${moveWindow}`}
-          </p>
+          <MoveStat
+            anchored
+            delta={s.hostRankDelta}
+            label={
+              s.hostRankDelta === null
+                ? "no movement stored yet"
+                : `Market move · ${moveWindow}`
+            }
+          />
         </div>
       </div>
 
@@ -129,7 +122,11 @@ function Side({
           >
             {s.gap === null ? "–" : `${s.gap > 0 ? "+" : ""}${s.gap}`}
             {valueWord(s.gap) && (
-              <span className="ml-1 text-xs font-normal">{valueWord(s.gap)}</span>
+              <span
+                className={`val-pill ${(s.gap ?? 0) > 0 ? "val-pill--pos" : "val-pill--neg"}`}
+              >
+                {valueWord(s.gap)}
+              </span>
             )}
           </dd>
         </div>
@@ -210,7 +207,7 @@ export default function MirrorHero({
         className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2"
         style={{ background: "var(--background)", borderColor: "var(--border)" }}
       >
-        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--navy-2)]">
           Today&rsquo;s lead
         </span>
         {phaseTitle && (
@@ -251,22 +248,25 @@ export default function MirrorHero({
           {/* The pair read as values: the two windows' moves side by side,
               with the opposed / same-direction state as a labelled pill. The
               full sentence (either variant) is the pill's tooltip. */}
-          <dl className="mt-2 space-y-1 text-sm">
+          <dl className="mt-3 space-y-1 border-t border-[var(--border)] pt-3 text-sm lg:mt-3">
             {[
               { label: pairSummary.aLabel, delta: pairSummary.aDelta },
               { label: pairSummary.bLabel, delta: pairSummary.bDelta },
             ].map((row) => (
               <div key={row.label} className="flex items-baseline justify-between gap-2">
                 <dt className="font-semibold">{row.label}</dt>
-                <dd className="tabular-nums font-semibold">
+                <dd
+                  className="tabular-nums font-semibold"
+                  style={{ color: "var(--navy)" }}
+                >
                   {row.delta === null || row.delta === 0 ? (
                     <span className="font-normal text-[var(--ink-3)]">
                       {row.delta === null ? "–" : `unmoved`}
                     </span>
                   ) : (
                     <>
-                      <span aria-hidden style={{ color: "var(--navy)" }}>
-                        {row.delta > 0 ? "▲" : "▼"}
+                      <span aria-hidden className="text-[0.9em]">
+                        {row.delta > 0 ? "↑" : "↓"}
                       </span>{" "}
                       {Math.abs(row.delta)}
                     </>
@@ -287,20 +287,23 @@ export default function MirrorHero({
             </span>
           </p>
           {catalysts.length > 0 ? (
-            <div className="mt-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+            <div className="mt-3 border-t border-[var(--border)] pt-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-2)]">
                 <span aria-hidden style={{ color: "var(--gold)" }}>◆ </span>
                 Events near the move
               </p>
-              <div className="mt-1 space-y-2">
+              <div className="mt-2 space-y-3">
                 {catalysts.map((c) => (
-                  <div key={c.sourceUrl + c.date}>
-                    <p className="text-xs text-[var(--ink-3)]">
-                      {c.date}
-                      {c.player ? ` · ${c.player}` : ""}
+                  <div key={c.sourceUrl + c.date} className="evt">
+                    <p className="evt-meta">
+                      Event{" "}
+                      <span className="evt-meta-sub">
+                        · {c.date}
+                        {c.player ? ` · ${c.player}` : ""}
+                      </span>
                     </p>
-                    <p className="text-sm">{c.label ?? c.summary}</p>
-                    <details className="mt-1">
+                    <p className="evt-headline evt-headline--lg">{c.label ?? c.summary}</p>
+                    <details className="mt-1.5">
                       <summary className="disclose disclose--gold">view evidence</summary>
                       <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
                         {c.summary}{" "}

@@ -38,7 +38,9 @@ export default function SignalChip({ signal }: { signal: Signal | null }) {
       ? "sig-chip sig-chip--diverging"
       : signal === "Market and experts converging"
         ? "sig-chip sig-chip--converging"
-        : "sig-chip";
+        : signal === "Both holding"
+          ? "sig-chip sig-chip--stable"
+          : "sig-chip";
 
   return (
     <span className="relative inline-block">

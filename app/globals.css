@@ -6,7 +6,7 @@
   --surface: #ffffff;      /* cards */
   --foreground: #14181f;
   --ink-2: #52514e;        /* secondary text */
-  --ink-3: #8a8f98;        /* muted */
+  --ink-3: #6e747e;        /* tertiary metadata; secondary text uses --ink-2 */
   --border: #e6e8ec;
 
   --navy: #16233d;         /* nav bar, market line */
@@ -14,6 +14,7 @@
   --gold: #e0a92e;         /* accents, expert line */
   --gold-bg: #fbf5e6;      /* cream 'what it means' panel */
   --gold-border: #ecdcae;
+  --gold-ink: #8a6b16;     /* darkened gold for small text/eyebrows */
 
   --pos: #15803d;          /* rising / green */
   --neg: #c0362c;          /* falling / red */
@@ -50,7 +51,7 @@ body {
   padding: 2px 10px; font-size: 12px; line-height: 1.4;
   /* Subtle navy tint so the neutral chip reads finished, not unpainted.
      Diverging (gold) and converging (green) stay the only special cases. */
-  background: rgba(22, 35, 61, 0.04); color: var(--foreground);
+  background: rgba(22, 35, 61, 0.06); color: var(--navy-2);
   cursor: pointer; white-space: nowrap;
   /* The longest label, "Market catching up to experts", is 203px with nowrap.
      At 390px the stat tiles are a two column grid, so each tile is ~175px and
@@ -66,6 +67,12 @@ body {
   }
 }
 .sig-chip:hover { border-color: var(--ink-3); }
+
+/* Stable: the nothing-is-happening state stays visually quiet. */
+.sig-chip--stable {
+  background: transparent;
+  color: var(--ink-2);
+}
 
 /* Opposite-direction moves: the strongest disagreement, so the chip is
    visually distinct from the neutral labels rather than reading the same. */
@@ -90,22 +97,25 @@ body {
    ("details"); the --gold variant marks the evidence layer
    ("view evidence"). The caret rotates when open. */
 .disclose {
-  display: inline-flex; align-items: center; gap: 4px;
+  display: inline-flex; align-items: center; gap: 5px;
   border: 1px solid var(--border); border-radius: 9999px;
-  padding: 1px 8px; font-size: 12px; line-height: 1.5;
+  padding: 2px 10px; font-size: 12px; font-weight: 500; line-height: 1.5;
   color: var(--accent); background: var(--surface);
   cursor: pointer; user-select: none; list-style: none;
+  transition: background 0.12s, border-color 0.12s;
 }
 .disclose::-webkit-details-marker { display: none; }
 .disclose::before { content: "▸"; font-size: 10px; transition: transform 0.12s; }
 details[open] > .disclose::before { transform: rotate(90deg); }
-.disclose:hover { border-color: var(--accent); }
+.disclose:hover { border-color: var(--accent); background: rgba(15, 109, 181, 0.06); }
+details[open] > .disclose { background: rgba(15, 109, 181, 0.08); border-color: var(--accent); }
+details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(--gold); }
 .disclose--gold {
   color: var(--ink-2);
   background: var(--gold-bg); border-color: var(--gold-border);
 }
 .disclose--gold::before { color: var(--gold); }
-.disclose--gold:hover { border-color: var(--gold); }
+.disclose--gold:hover { border-color: var(--gold); background: var(--gold-bg); }
 
 /* signal-quality 3-segment meter (calendar) */
 .meter { display: inline-flex; gap: 3px; vertical-align: middle; }
@@ -114,3 +124,68 @@ details[open] > .disclose::before { transform: rotate(90deg); }
 .meter.med   i:nth-child(-n+2) { background: var(--sig-med); }
 .meter.high  i { background: var(--sig-high); }
 .meter.vhigh i { background: var(--sig-high); }
+
+
+/* ---- Movement stat: one designed object. Direction + magnitude are a
+   single navy statistic (navy is the movement colour); the label beneath is
+   readable secondary, not faded metadata. Both directions the same colour. */
+.movestat { display: block; line-height: 1; }
+.movestat-num {
+  color: var(--navy); font-weight: 700; font-size: 22px;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+  display: block;
+}
+.movestat-num .movestat-arrow { font-size: 0.88em; font-weight: 700; margin-right: 3px; }
+.movestat-label { display: block; margin-top: 4px; font-size: 12px; line-height: 1.3; color: var(--ink-2); }
+.movestat--sm .movestat-num { font-size: 16px; }
+.movestat--sm .movestat-label { margin-top: 2px; font-size: 11px; }
+.movestat--muted .movestat-num { color: var(--ink-3); }
+/* Anchored variant: a whisper of navy surface for stats that sit alone at a
+   card edge (the hero sides), so the figure has a home. Same family. */
+.movestat--badge { background: rgba(22, 35, 61, 0.05); border-radius: 8px; padding: 6px 10px; }
+
+/* ---- Metric panel: the Market / Experts / Gap comparison as one stat
+   group on a whisper of navy, identical on every surface. */
+.metric-panel {
+  border-radius: 8px; background: rgba(22, 35, 61, 0.03);
+  padding: 7px 10px; display: flex; flex-direction: column; gap: 3px;
+}
+.metric-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; font-size: 12px; line-height: 1.5;
+}
+.metric-row dt { color: var(--ink-2); white-space: nowrap; }
+.metric-row dd {
+  font-variant-numeric: tabular-nums; font-weight: 600; text-align: right;
+  display: inline-flex; align-items: baseline; gap: 0; justify-content: flex-end;
+}
+
+/* ECR delta beside the current value: a quiet navy pill, not faded text. */
+.delta-pill {
+  display: inline-flex; align-items: baseline; gap: 2px; margin-left: 6px;
+  padding: 0 6px; border-radius: 9999px;
+  background: rgba(22, 35, 61, 0.07); color: var(--navy-2);
+  font-size: 11px; font-weight: 600; line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Gap value word: the value read as a tinted badge, colour + word together. */
+.val-pill {
+  display: inline-flex; align-items: center; margin-left: 6px;
+  padding: 0 6px; border-radius: 9999px;
+  font-size: 11px; font-weight: 600; line-height: 1.6;
+}
+.val-pill--pos { background: rgba(21, 128, 61, 0.10); color: var(--pos); }
+.val-pill--neg { background: rgba(192, 54, 44, 0.10); color: var(--neg); }
+
+/* ---- Event note: the documented-event component. Gold marks evidence:
+   a 2px gold rule, an EVENT eyebrow with metadata, then the headline
+   sentence. The full record stays behind the disclosure. */
+.evt { border-left: 2px solid var(--gold-border); padding-left: 10px; }
+.evt-meta {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gold-ink);
+}
+.evt-meta .evt-meta-sub { color: var(--ink-2); font-weight: 600; letter-spacing: 0.06em; }
+.evt-headline { margin-top: 2px; font-size: 12px; line-height: 1.55; color: var(--ink-2); }
+.evt-headline--lg { font-size: 13px; }

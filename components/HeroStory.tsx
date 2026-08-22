@@ -77,7 +77,7 @@ export default function HeroStory({
         className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2"
         style={{ background: "var(--background)", borderColor: "var(--border)" }}
       >
-        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--navy-2)]">
           Today&rsquo;s lead
         </span>
         {phaseTitle && (
@@ -162,15 +162,14 @@ export default function HeroStory({
 
         {/* 7. event headline with its date; full summary behind the expander */}
         {catalyst ? (
-          <div className="mt-3">
-            <span
-              className="inline-block rounded-full border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide"
-              style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
-            >
-              Event · {catalyst.date}
-            </span>
-            <p className="mt-1 text-sm">{catalyst.label ?? catalyst.summary}</p>
-            <details className="mt-1">
+          <div className="evt mt-3">
+            <p className="evt-meta">
+              Event <span className="evt-meta-sub">· {catalyst.date}</span>
+            </p>
+            <p className="evt-headline evt-headline--lg">
+              {catalyst.label ?? catalyst.summary}
+            </p>
+            <details className="mt-1.5">
               <summary className="disclose disclose--gold">view evidence</summary>
               <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
                 {catalyst.summary}{" "}

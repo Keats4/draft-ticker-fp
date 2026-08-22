@@ -35,6 +35,7 @@ import type { PhaseLevel } from "@/components/PhaseMeter";
 import type { ChartMarker, ChartPoint } from "@/components/PlayerChart";
 import MarketTable, { type RowLite } from "@/components/MarketTable";
 import InfoDot from "@/components/InfoDot";
+import MoveStat from "@/components/MoveStat";
 import type { FpHostRankPlayer } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -70,6 +71,10 @@ const fmtLongDate = (d: string) =>
     timeZone: "UTC",
   });
 const hrefFor = (r: MarketRow) => playerHref(r);
+
+/** Terminal period for displayed event sentences (labels and pills never
+ *  pass through this). Display only. */
+const endStop = (t: string) => t.trim().replace(/[.!?]?$/, ".");
 
 /** First-use definitions for the two core series. Display only; the market
  *  table header carries the fuller versions. */
@@ -141,26 +146,28 @@ function StatCard({
   value: string;
   /** Direction arrow, rendered navy: movement's colour is the product navy,
    *  never green or red, and direction lives in orientation alone. */
-  arrow?: "▲" | "▼";
+  arrow?: "↑" | "↓";
   tone: "cheap" | "expensive" | "neutral" | "muted";
   href?: string;
 }) {
+  // Movement tiles carry the movement colour: navy for a real figure,
+  // muted for the waiting state. Green/red stay reserved for the value read.
   const color =
     tone === "cheap"
       ? "var(--pos)"
       : tone === "expensive"
         ? "var(--neg)"
         : tone === "neutral"
-          ? "var(--foreground)"
+          ? "var(--navy)"
           : "var(--ink-3)";
   const inner = (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
-      <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--navy-2)]">{label}</p>
       <div className="mt-1 flex items-baseline justify-between gap-2">
         <span className="text-sm font-semibold">{name}</span>
         <span className="text-[22px] font-bold tabular-nums" style={{ color }}>
           {arrow && (
-            <span aria-hidden style={{ color: "var(--navy)" }}>{arrow} </span>
+            <span aria-hidden className="text-[0.88em]">{arrow} </span>
           )}
           {value}
         </span>
@@ -410,9 +417,9 @@ export default async function Home() {
         .filter((c, i, arr) => arr.findIndex((x) => x.source_url === c.source_url) === i)
         .sort((x, y) => (x.date < y.date ? 1 : -1))
         .map((c) => ({
-          date: c.date,
+          date: fmtShortDate(c.date),
           summary: c.summary,
-          label: c.short_label ?? null,
+          label: c.short_label ? endStop(c.short_label) : null,
           sourceUrl: c.source_url,
           player: c.player.name ?? null,
         }))
@@ -422,9 +429,11 @@ export default async function Home() {
   const heroX = singleHero ? extrasFor(singleHero) : null;
   const heroCatalyst = heroX?.verified[0]
     ? {
-        date: heroX.verified[0].date,
+        date: fmtShortDate(heroX.verified[0].date),
         summary: heroX.verified[0].summary,
-        label: heroX.verified[0].short_label ?? null,
+        label: heroX.verified[0].short_label
+          ? endStop(heroX.verified[0].short_label)
+          : null,
         sourceUrl: heroX.verified[0].source_url,
       }
     : null;
@@ -499,14 +508,14 @@ export default async function Home() {
     href: string;
     name: string;
     sub: string;
-    arrow: string;
-    figure: string;
+    delta: number;
     figureSub: string;
     rel: { label: string; note: string } | null;
     hostRank: number;
     ecr: number | null;
     ecrDelta: number | null;
-    reason: string;
+    evtDate: string | null;
+    evtLabel: string | null;
     detail: string;
   };
   const leadItems: LeadItem[] = daysAgo
@@ -529,11 +538,10 @@ export default async function Home() {
         // state rather than improvising one. Only the newest label shows;
         // the full sourced list lives on the player page and in the hero.
         const labelled = inWin.find((c) => c.short_label);
-        const reason = labelled?.short_label
-          ? `${fmtShortDate(labelled.date)} · ${labelled.short_label.trim().replace(/[.!?]$/, "")}`
-          : "No documented event yet";
+        const evtDate = labelled?.short_label ? fmtShortDate(labelled.date) : null;
+        const evtLabel = labelled?.short_label ? endStop(labelled.short_label) : null;
         const evidence = labelled?.short_label
-          ? `${fmtShortDate(labelled.date)}: ${labelled.short_label.trim().replace(/[.!?]?$/, ".")}`
+          ? `${fmtShortDate(labelled.date)}: ${endStop(labelled.short_label)}`
           : "No documented event is on file for this move yet.";
         const d = r.hostRankDelta!;
         return [
@@ -541,17 +549,16 @@ export default async function Home() {
             href: hrefFor(r),
             name: r.name,
             sub: `${r.position}${r.posRank} · ${r.team}`,
-            arrow: d > 0 ? "▲" : "▼",
-            // The arrow carries direction; the figure is magnitude only.
-            figure: `${Math.abs(d)}`,
-            figureSub: windowDays ? `picks · ${windowDays}d` : "picks",
+            delta: d,
+            figureSub: windowDays ? `${windowDays}-day move` : "Move",
             rel: relWord(d, r.ecrDelta),
             hostRank: r.hostRank,
             ecr: r.ecr,
             ecrDelta: r.ecrDelta,
             // Full sentences from the previous lead, intact behind the expander.
             detail: `${read.main}.${read.expert ? ` ${read.expert}` : ""} ${evidence}`,
-            reason,
+            evtDate,
+            evtLabel,
           },
         ];
       })
@@ -593,7 +600,7 @@ export default async function Home() {
           table) all stay below for the reader who wants them. */}
       {leadItems.length > 0 && (
         <section className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
             What changed since your last mock draft
           </h2>
           {/* Numbers lead, words support: the figure lands before a word is
@@ -607,12 +614,8 @@ export default async function Home() {
                   i === 0 ? "lg:border-l-0 lg:pl-0" : ""
                 } ${i === leadItems.length - 1 ? "lg:pr-0" : ""}`}
               >
-                <div className="w-24 shrink-0 text-right lg:mb-1.5 lg:flex lg:w-auto lg:items-baseline lg:gap-2 lg:text-left">
-                  <p className="text-[22px] font-bold tabular-nums leading-none">
-                    <span aria-hidden style={{ color: "var(--navy)" }}>{item.arrow} </span>
-                    {item.figure}
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--ink-3)] lg:mt-0">{item.figureSub}</p>
+                <div className="w-24 shrink-0 text-right lg:mb-2 lg:w-auto lg:text-left">
+                  <MoveStat delta={item.delta} label={item.figureSub} />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold leading-snug">
@@ -621,24 +624,22 @@ export default async function Home() {
                   </p>
                   {/* Structured comparison: the two series as labelled
                       values, first-use definitions behind the info dots. */}
-                  <dl className="mt-1.5 max-w-[240px] space-y-0.5 text-xs">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <dt className="text-[var(--ink-3)]">
+                  <dl className="metric-panel mt-2 max-w-[250px]">
+                    <div className="metric-row">
+                      <dt>
                         Market (ADP)<InfoDot text={ADP_DEF} />
                       </dt>
-                      <dd className="tabular-nums font-semibold">{item.hostRank}</dd>
+                      <dd>{item.hostRank}</dd>
                     </div>
-                    <div className="flex items-baseline justify-between gap-2">
-                      <dt className="text-[var(--ink-3)]">
+                    <div className="metric-row">
+                      <dt>
                         Experts (ECR)<InfoDot text={ECR_DEF} />
                       </dt>
-                      <dd className="tabular-nums font-semibold">
+                      <dd>
                         {item.ecr ?? "–"}
                         {item.ecrDelta !== null && item.ecrDelta !== 0 && (
-                          <span className="ml-1 font-normal text-[var(--ink-3)]">
-                            <span aria-hidden style={{ color: "var(--navy)" }}>
-                              {item.ecrDelta > 0 ? "▲" : "▼"}
-                            </span>{" "}
+                          <span className="delta-pill">
+                            <span aria-hidden>{item.ecrDelta > 0 ? "↑" : "↓"}</span>
                             {Math.abs(item.ecrDelta)}
                           </span>
                         )}
@@ -648,14 +649,25 @@ export default async function Home() {
                   {item.rel && (
                     <span
                       title={item.rel.note}
-                      className="mt-1 inline-block cursor-help rounded-full px-2 py-0.5 text-xs"
+                      className="mt-2 inline-block cursor-help rounded-full px-2 py-0.5 text-xs font-medium"
                       style={{ background: "rgba(22,35,61,0.06)", color: "var(--navy-2)" }}
                     >
                       {item.rel.label}
                     </span>
                   )}
-                  <p className="mt-1 text-xs text-[var(--ink-3)]">{item.reason}</p>
-                  <details className="mt-1">
+                  {item.evtDate ? (
+                    <div className="evt mt-2.5">
+                      <p className="evt-meta">
+                        Event <span className="evt-meta-sub">· {item.evtDate}</span>
+                      </p>
+                      <p className="evt-headline">{item.evtLabel}</p>
+                    </div>
+                  ) : (
+                    <p className="mt-2.5 text-xs text-[var(--ink-3)]">
+                      No documented event yet.
+                    </p>
+                  )}
+                  <details className="mt-2">
                     <summary className="disclose">details</summary>
                     <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
                       {item.detail}
@@ -741,7 +753,7 @@ export default async function Home() {
 
       {stories.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
             What the market repriced this week
           </h2>
           {/* One number is the headline per card; everything else is
@@ -773,47 +785,42 @@ export default async function Home() {
                     </span>
                   </div>
 
-                  <p className="mt-1.5 text-[22px] font-bold tabular-nums leading-none">
-                    {d !== null && d !== 0 && (
-                      <span aria-hidden style={{ color: "var(--navy)" }}>{d > 0 ? "▲" : "▼"} </span>
-                    )}
-                    {d === null ? "–" : Math.abs(d)}
-                    <span className="ml-2 align-baseline text-xs font-normal text-[var(--ink-3)]">
-                      Market move · {moveWindow}
-                    </span>
-                  </p>
+                  <div className="mt-2">
+                    <MoveStat delta={d} label={`Market move · ${moveWindow}`} />
+                  </div>
 
                   {/* The comparison as labelled values rather than a prose
                       line. Same data as before: current ADP and ECR, the
                       expert delta, the gap with its value word. */}
-                  <dl className="mt-2 max-w-[240px] space-y-0.5 text-xs">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <dt className="text-[var(--ink-3)]">Market (ADP)</dt>
-                      <dd className="tabular-nums font-semibold">{r.hostRank}</dd>
+                  <dl className="metric-panel mt-2 max-w-[250px]">
+                    <div className="metric-row">
+                      <dt>Market (ADP)</dt>
+                      <dd>{r.hostRank}</dd>
                     </div>
-                    <div className="flex items-baseline justify-between gap-2">
-                      <dt className="text-[var(--ink-3)]">Experts (ECR)</dt>
-                      <dd className="tabular-nums font-semibold">
+                    <div className="metric-row">
+                      <dt>Experts (ECR)</dt>
+                      <dd>
                         {r.ecr ?? "–"}
                         {r.ecrDelta !== null && r.ecrDelta !== 0 && (
-                          <span className="ml-1 font-normal text-[var(--ink-3)]">
-                            <span aria-hidden style={{ color: "var(--navy)" }}>
-                              {r.ecrDelta > 0 ? "▲" : "▼"}
-                            </span>{" "}
+                          <span className="delta-pill">
+                            <span aria-hidden>{r.ecrDelta > 0 ? "↑" : "↓"}</span>
                             {Math.abs(r.ecrDelta)}
                           </span>
                         )}
                       </dd>
                     </div>
                     {r.gap !== null && (
-                      <div className="flex items-baseline justify-between gap-2">
-                        <dt className="text-[var(--ink-3)]">Gap</dt>
-                        <dd
-                          className="tabular-nums font-semibold"
-                          style={{ color: valueTone(r.gap) }}
-                        >
+                      <div className="metric-row">
+                        <dt>Gap</dt>
+                        <dd style={{ color: valueTone(r.gap) }}>
                           {r.gap > 0 ? "+" : ""}{r.gap}
-                          {valueWord(r.gap) ? ` · ${valueWord(r.gap)}` : ""}
+                          {valueWord(r.gap) && (
+                            <span
+                              className={`val-pill ${r.gap > 0 ? "val-pill--pos" : "val-pill--neg"}`}
+                            >
+                              {valueWord(r.gap)}
+                            </span>
+                          )}
                         </dd>
                       </div>
                     )}
@@ -824,17 +831,14 @@ export default async function Home() {
                   </div>
 
                   {cat ? (
-                    <div className="mt-2.5">
-                      <span
-                        className="inline-block rounded-full border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide"
-                        style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
-                      >
-                        Event · {cat.date}
-                      </span>
-                      <p className="mt-1 text-xs text-[var(--ink-2)]">
-                        {cat.short_label ?? cat.summary}
+                    <div className="evt mt-2.5">
+                      <p className="evt-meta">
+                        Event <span className="evt-meta-sub">· {fmtShortDate(cat.date)}</span>
                       </p>
-                      <details className="relative z-10 mt-1">
+                      <p className="evt-headline">
+                        {endStop(cat.short_label ?? cat.summary)}
+                      </p>
+                      <details className="relative z-10 mt-1.5">
                         <summary className="disclose disclose--gold">view evidence</summary>
                         <p className="mt-1 text-xs leading-relaxed text-[var(--ink-2)]">
                           {cat.summary}{" "}
@@ -862,7 +866,7 @@ export default async function Home() {
       )}
 
       <section className="mb-8">
-        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+        <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
           <span aria-hidden style={{ color: "var(--gold)" }}>◎</span> For your draft
         </p>
         <p className="mt-0.5 text-xs text-[var(--ink-2)]">
@@ -883,35 +887,43 @@ export default async function Home() {
                 </div>
                 {/* Rank as a structural badge; the ranking rule lives in the
                     section heading's info dot. */}
-                <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-xs text-[var(--ink-3)]">
+                <span
+                  className="rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums"
+                  style={{ background: "rgba(22,35,61,0.07)", color: "var(--navy-2)" }}
+                >
                   #{i + 1} gap
                 </span>
               </div>
               {/* The comparison as labelled values. Gap keeps the value
                   colour and its word; movement stays neutral with an arrow. */}
-              <dl className="mt-2 max-w-[240px] space-y-0.5 text-xs">
-                <div className="flex items-baseline justify-between gap-2">
-                  <dt className="text-[var(--ink-3)]">Market (ADP)</dt>
-                  <dd className="tabular-nums font-semibold">{r.hostRank}</dd>
+              <dl className="metric-panel mt-2 max-w-[250px]">
+                <div className="metric-row">
+                  <dt>Market (ADP)</dt>
+                  <dd>{r.hostRank}</dd>
                 </div>
-                <div className="flex items-baseline justify-between gap-2">
-                  <dt className="text-[var(--ink-3)]">Experts (ECR)</dt>
-                  <dd className="tabular-nums font-semibold">{r.ecr ?? "–"}</dd>
+                <div className="metric-row">
+                  <dt>Experts (ECR)</dt>
+                  <dd>{r.ecr ?? "–"}</dd>
                 </div>
-                <div className="flex items-baseline justify-between gap-2">
-                  <dt className="text-[var(--ink-3)]">Gap</dt>
-                  <dd
-                    className="tabular-nums font-semibold"
-                    style={{ color: valueTone(r.gap) }}
-                  >
+                <div className="metric-row">
+                  <dt>Gap</dt>
+                  <dd style={{ color: valueTone(r.gap) }}>
                     {r.gap! > 0 ? "+" : ""}
                     {r.gap}
-                    {valueWord(r.gap) ? ` · ${valueWord(r.gap)}` : ""}
+                    {valueWord(r.gap) && (
+                      <span
+                        className={`val-pill ${r.gap! > 0 ? "val-pill--pos" : "val-pill--neg"}`}
+                      >
+                        {valueWord(r.gap)}
+                      </span>
+                    )}
                   </dd>
                 </div>
-                <div className="flex items-baseline justify-between gap-2">
-                  <dt className="text-[var(--ink-3)]">Move ({moveWindow})</dt>
-                  <dd className="tabular-nums font-semibold">
+                {/* Movement stays visually secondary here: this section is
+                    about disagreement, not movement. */}
+                <div className="metric-row">
+                  <dt>Move ({moveWindow})</dt>
+                  <dd className={r.hostRankDelta ? "" : "text-[var(--ink-3)]"}>
                     {r.hostRankDelta === null ? (
                       "–"
                     ) : r.hostRankDelta === 0 ? (
@@ -919,7 +931,7 @@ export default async function Home() {
                     ) : (
                       <>
                         <span aria-hidden style={{ color: "var(--navy)" }}>
-                          {r.hostRankDelta > 0 ? "▲" : "▼"}
+                          {r.hostRankDelta > 0 ? "↑" : "↓"}
                         </span>{" "}
                         {Math.abs(r.hostRankDelta)}
                       </>
@@ -950,8 +962,8 @@ export default async function Home() {
             label={riserLabel}
             name={riser.name}
             value={`${Math.abs(riser.hostRankDelta!)}`}
-            arrow="▲"
-            sub={`${riser.position}${riser.posRank} · ${riser.team} · picks gained ${moveWindow}`}
+            arrow="↑"
+            sub={`${riser.position}${riser.posRank} · ${riser.team}`}
             tone="neutral"
             href={hrefFor(riser)}
           />
@@ -963,8 +975,8 @@ export default async function Home() {
             label={fallerLabel}
             name={faller.name}
             value={`${Math.abs(faller.hostRankDelta!)}`}
-            arrow="▼"
-            sub={`${faller.position}${faller.posRank} · ${faller.team} · picks lost ${moveWindow}`}
+            arrow="↓"
+            sub={`${faller.position}${faller.posRank} · ${faller.team}`}
             tone="neutral"
             href={hrefFor(faller)}
           />
@@ -979,7 +991,7 @@ export default async function Home() {
           rather than removing the published bars from the page. */}
       <HowToReadCard hasMovement={hasMovement} />
 
-      <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+      <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
         All price moves · Top {UNIVERSE.TOP_N}
       </p>
 
