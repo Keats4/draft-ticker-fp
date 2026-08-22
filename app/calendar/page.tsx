@@ -1,7 +1,9 @@
 import Link from "next/link";
 import phasesFile from "@/data/calendar_phases.json";
-import { currentPhase, trustReading, type Phase as LibPhase } from "@/lib/phases";
-import PhaseMeter from "@/components/PhaseMeter";
+import { currentPhase, type Phase as LibPhase } from "@/lib/phases";
+import PhaseMeter, { type PhaseLevel } from "@/components/PhaseMeter";
+import CalendarTimeline from "@/components/CalendarTimeline";
+import InfoDot from "@/components/InfoDot";
 
 export const metadata = { title: "Market Calendar · Draft Ticker" };
 
@@ -17,13 +19,6 @@ type Phase = {
   sections: Record<string, string>;
 };
 
-const SECTION_TITLES: Record<string, string> = {
-  what_appears: "What information appears",
-  player_types: "Player types affected",
-  signal_strength: "How meaningful movement is",
-  // watching has no static title - see watchingLabel(), which varies by phase position
-};
-
 /** The Watching field is labelled by WHERE the phase sits relative to the one
  *  carrying current:true. No dates are parsed - `window` is a display string and
  *  nothing reads it - so ordering is the only honest source of past/now/future.
@@ -37,7 +32,7 @@ function watchingLabel(offset: "past" | "now" | "future"): string {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
+      <dt className="text-xs font-medium uppercase tracking-wide text-[var(--ink-2)]">
         {title}
       </dt>
       <dd className="mt-1 text-sm">{children}</dd>
@@ -52,6 +47,31 @@ function Pending() {
     </p>
   );
 }
+
+/** Authored player-type strings render as neutral chips when they split
+ *  cleanly on "·"; sentence-style entries stay prose. Wording untouched. */
+function PlayerTypes({ value }: { value: string }) {
+  const parts = value.split("·").map((s) => s.trim()).filter(Boolean);
+  const chippable = parts.length >= 2 && parts.every((p) => p.length <= 40);
+  if (!chippable) return <>{value}</>;
+  return (
+    <span className="flex flex-wrap gap-1.5">
+      {parts.map((p) => (
+        <span
+          key={p}
+          className="rounded-full border px-2 py-0.5 text-xs"
+          style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)", color: "var(--ink-2)" }}
+        >
+          {p}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** One concise, honest note; trust stays categorical and authored. */
+const TRUST_NOTE =
+  "Calendar trust levels are authored preseason guidance, intended to be validated against movement persistence and reversion. Categorical by design, never a percentage.";
 
 /**
  * Phases where an in-season price actually earns its place. week-1 is
@@ -75,121 +95,141 @@ export default function Calendar() {
         August. This is what each part of the fantasy year actually tells you.
       </p>
 
-      {/* timeline strip */}
-      <div className="mt-6 overflow-x-auto">
-        <div className="flex min-w-max items-start gap-0">
-          {phases.map((p, i) => (
-            <div key={p.key} className="flex flex-col items-center" style={{ width: 96 }}>
-              <div className="flex w-full items-center">
-                <span className={`h-0.5 flex-1 ${i === 0 ? "opacity-0" : ""}`} style={{ background: "var(--border)" }} />
-                <span
-                  className="h-3 w-3 rounded-full"
-                  style={{
-                    background: i === currentIdx && !inGap ? "var(--navy)" : "var(--surface)",
-                    border: `2px solid ${i === currentIdx && !inGap ? "var(--navy)" : "var(--border)"}`,
-                  }}
-                />
-                <span className={`h-0.5 flex-1 ${i === phases.length - 1 ? "opacity-0" : ""}`} style={{ background: "var(--border)" }} />
-              </div>
-              <span className={`mt-1 text-center text-[11px] ${i === currentIdx && !inGap ? "font-semibold" : "text-[var(--ink-3)]"}`}>
-                {p.title}
-              </span>
-              {i === currentIdx && !inGap && (
-                <span className="mt-1 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)" }}>
-                  YOU ARE HERE
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
+      {/* Phase navigator: chronology and trust together. Click a phase to
+          open its card below. */}
+      <div className="mt-6">
+        <CalendarTimeline
+          phases={phases.map((p) => ({
+            key: p.key,
+            title: p.title,
+            window: p.window,
+            signal_level: p.signal_level as PhaseLevel,
+          }))}
+          currentIdx={currentIdx}
+          inGap={inGap}
+        />
       </div>
 
-      {/* The trust sentence is the current phase's own reading, not a fixed
-          line: the phase carrying today's date decides it. */}
-      <p className="mt-4 rounded-md border px-3 py-2 text-sm" style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}>
-        {current && !inGap
-          ? `You are here: ${current.title}. ${trustReading(current.signal_level ?? "")}`
-          : "Between phases. No phase carries today's date, so no trust reading is shown."}
-      </p>
+      {/* Compact current-phase status. The detail lives in the open card
+          below; this says only what a passer-by needs. */}
+      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5">
+        {current && !inGap ? (
+          <>
+            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--navy-2)]">
+              Current phase
+            </span>
+            <span className="text-sm font-semibold">{current.title}</span>
+            <span className="flex items-center gap-2 text-xs text-[var(--ink-2)]">
+              Movement trust: <PhaseMeter level={current.signal_level as PhaseLevel} />
+              <InfoDot text={TRUST_NOTE} />
+            </span>
+          </>
+        ) : (
+          <span className="text-sm text-[var(--ink-2)]">
+            Between phases. No phase carries today&rsquo;s date, so no trust
+            reading is shown.
+          </span>
+        )}
+      </div>
 
-      <ol className="mt-8 space-y-5">
+      {/* One open card (the current phase); everything else is a compact,
+          expandable row. Native details/summary: keyboard accessible, no
+          state to persist, nothing authored is removed. */}
+      <ol className="mt-6 space-y-2.5">
         {phases.map((phase, i) => {
-          const isCurrent = i === currentIdx;
+          const isCurrent = i === currentIdx && !inGap;
           const offset: "past" | "now" | "future" =
-            currentIdx < 0 ? "future" : i < currentIdx ? "past" : isCurrent ? "now" : "future";
+            currentIdx < 0 ? "future" : i < currentIdx ? "past" : i === currentIdx ? "now" : "future";
           return (
-            <li
-              key={phase.key}
-              className="rounded-lg border bg-[var(--surface)] p-4"
-              style={{ borderColor: isCurrent ? "var(--navy)" : "var(--border)" }}
-            >
-              <div className="flex flex-wrap items-baseline gap-3">
-                <span className="text-sm tabular-nums text-[var(--ink-3)]">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h2 className="text-lg font-semibold">{phase.title}</h2>
-                {isCurrent && (
-                  <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)" }}>
-                    CURRENT PHASE
+            <li key={phase.key}>
+              <details
+                id={`phase-${phase.key}`}
+                open={isCurrent}
+                className="group scroll-mt-4 rounded-lg border bg-[var(--surface)]"
+                style={{ borderColor: isCurrent ? "var(--navy)" : "var(--border)" }}
+              >
+                <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 [&::-webkit-details-marker]:hidden">
+                  <span className="text-sm tabular-nums text-[var(--ink-3)]">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                )}
-                <span className="ml-auto text-xs text-[var(--ink-3)]">{phase.window}</span>
-              </div>
-
-              {IN_SEASON.has(phase.key) && (
-                <p className="mt-2 text-xs text-[var(--ink-3)]">
-                  Once games start, in-season value moves for different reasons.{" "}
-                  <Link href="/market-price-index" className="underline">
-                    Market Price Index
-                  </Link>
-                </p>
-              )}
-              {phase.card_line && (
-                <p className="mt-2 text-sm font-medium text-[var(--foreground)]">
-                  {phase.card_line}
-                </p>
-              )}
-
-              {/* Sections are split across BOTH columns so no card is ever
-                  half-empty. Previously all four sat in the left column and the
-                  right column filled only on the current phase, which left 11 of
-                  12 cards looking unfinished once real content landed. */}
-              <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-                <dl className="space-y-3">
-                  <Section title={SECTION_TITLES.what_appears}>
-                    {phase.sections.what_appears || <Pending />}
-                  </Section>
-                  <Section title={SECTION_TITLES.player_types}>
-                    {phase.sections.player_types || <Pending />}
-                  </Section>
-                </dl>
-                <div className="space-y-3">
-                  <dl className="space-y-3">
-                    <Section title={SECTION_TITLES.signal_strength}>
-                      <PhaseMeter level={phase.signal_level} />
-                    </Section>
-                    <Section title={watchingLabel(offset)}>
-                      {phase.sections.watching ? (
-                        phase.sections.watching
-                      ) : (
-                        <Pending />
-                      )}
-                    </Section>
-                  </dl>
+                  <h2 className="text-base font-semibold">{phase.title}</h2>
                   {isCurrent && (
-                    <div className="rounded-lg border p-3" style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}>
-                      <p className="text-xs font-semibold uppercase tracking-wide">How to read this phase</p>
-                      {phase.how_to_read ? (
-                        <p className="mt-1 text-sm">{phase.how_to_read}</p>
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                      style={{ background: "var(--navy)", color: "var(--surface)" }}
+                    >
+                      Current phase
+                    </span>
+                  )}
+                  <PhaseMeter level={phase.signal_level as PhaseLevel} />
+                  {phase.card_line && (
+                    <span className="hidden min-w-0 flex-1 truncate text-xs text-[var(--ink-2)] group-open:lg:hidden lg:inline">
+                      {phase.card_line}
+                    </span>
+                  )}
+                  <span className="ml-auto flex items-center gap-2 text-xs text-[var(--ink-3)]">
+                    {phase.window}
+                    <span aria-hidden className="transition-transform group-open:rotate-180">
+                      ▾
+                    </span>
+                  </span>
+                </summary>
+
+                <div className="border-t border-[var(--border)] px-4 pb-4 pt-3">
+                  {phase.card_line && (
+                    <p className="text-sm font-medium text-[var(--foreground)]">
+                      {phase.card_line}
+                    </p>
+                  )}
+                  {IN_SEASON.has(phase.key) && (
+                    <p className="mt-1.5 text-xs text-[var(--ink-3)]">
+                      Once games start, in-season value moves for different reasons.{" "}
+                      <Link href="/market-price-index" className="underline">
+                        Market Price Index
+                      </Link>
+                    </p>
+                  )}
+                  <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
+                    <dl className="space-y-3">
+                      <Section title="New information">
+                        {phase.sections.what_appears || <Pending />}
+                      </Section>
+                      <Section title="Player types affected">
+                        {phase.sections.player_types ? (
+                          <PlayerTypes value={phase.sections.player_types} />
+                        ) : (
+                          <Pending />
+                        )}
+                      </Section>
+                    </dl>
+                    <div className="space-y-3">
+                      <dl className="space-y-3">
+                        <Section title={watchingLabel(offset)}>
+                          {phase.sections.watching ? phase.sections.watching : <Pending />}
+                        </Section>
+                      </dl>
+                      {isCurrent ? (
+                        <div className="rounded-lg border p-3" style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}>
+                          <p className="text-xs font-semibold uppercase tracking-wide">How to read this phase</p>
+                          {phase.how_to_read ? (
+                            <p className="mt-1 text-sm">{phase.how_to_read}</p>
+                          ) : (
+                            <p className="mt-1 text-sm italic text-[var(--ink-3)]">
+                              Content pending, being written by hand.
+                            </p>
+                          )}
+                        </div>
                       ) : (
-                        <p className="mt-1 text-sm italic text-[var(--ink-3)]">
-                          Content pending, being written by hand.
-                        </p>
+                        <dl>
+                          <Section title="How to read this phase">
+                            {phase.how_to_read || <Pending />}
+                          </Section>
+                        </dl>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              </details>
             </li>
           );
         })}
