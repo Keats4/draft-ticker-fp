@@ -47,13 +47,12 @@ const HOME_TABLE_ROWS = 25;
 /**
  * "For your draft" eligibility bound: only players inside the top
  * FOR_YOUR_DRAFT_TOP_N by ADP are candidates, then ranked by gap as before.
- * A chosen constraint, not a fitted one (stated on the methodology page):
- * without it the module surfaces late-round quarterbacks with mathematically
- * huge gaps, which is not what a drafter means by the three decisions that
- * matter most. Display selection only; the comparison universe, the market
- * table and every signal are untouched by this bound.
+ * Now set to the same top-200 bound as the comparison universe, a chosen
+ * value with the same standing as the move thresholds (stated on the
+ * methodology page), revisited with history. Display selection only; the
+ * comparison universe, the market table and every signal are untouched.
  */
-const FOR_YOUR_DRAFT_TOP_N = 120;
+const FOR_YOUR_DRAFT_TOP_N = 200;
 
 /** "Aug 15" from a stored YYYY-MM-DD date. */
 const fmtShortDate = (d: string) =>
@@ -898,7 +897,7 @@ export default async function Home() {
         <p className="mt-0.5 text-xs text-[var(--ink-2)]">
           Largest ADP–ECR gaps · Top {FOR_YOUR_DRAFT_TOP_N}
           <InfoDot
-            text={`Ranked by the widest absolute gap between Market (ADP) and Experts (ECR) among players inside the top ${FOR_YOUR_DRAFT_TOP_N} by ADP, the range a drafter actually faces. A chosen display bound, stated on the methodology page; signals and the comparison universe are unaffected.`}
+            text={`Ranked by the widest absolute gap between Market (ADP) and Experts (ECR) among players inside the top ${FOR_YOUR_DRAFT_TOP_N} by ADP, the same bound as the comparison universe. A chosen display bound, stated on the methodology page; signals and the comparison universe are unaffected.`}
           />
         </p>
         <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -977,9 +976,8 @@ export default async function Home() {
             are the only surface where a large move carrying a "Broad
             agreement" label appears: story cards rank by signal strength and
             that label scores zero there. The old third tile, widest expert
-            gap, duplicated "For your draft" with worse selection (it
-            re-surfaced the late-round quarterbacks the top 120 bound excludes)
-            and was removed. */}
+            gap, duplicated "For your draft" with worse selection (ranked
+            purely by raw gap with no draft-table framing) and was removed. */}
         {riser ? (
           <StatCard
             label={riserLabel}

@@ -259,18 +259,14 @@ export default async function Methodology() {
           measure where comparability actually degrades.
         </p>
         <p className="mt-3 text-sm text-[var(--ink-2)]">
-          One display module carries a further bound. &ldquo;For your
-          draft&rdquo; picks its three players only from the top 120 by ADP,
-          then ranks by gap as everywhere else. The reason is what the module
-          claims to be: the three decisions that matter most at a draft table.
-          Ranked purely by raw gap, the widest disagreements in the full
-          universe are routinely late-round quarterbacks the market defers by
-          position, mathematically correct and not a decision anyone is
-          weighing in the rounds they draft. 120 is a judgment call with the
-          same standing as the move thresholds, chosen rather than fitted, and
-          will be revisited with history. It changes nothing outside that
-          module: the comparison universe, the market table, gaps and signals
-          are all unaffected.
+          One display module states its bound explicitly. &ldquo;For your
+          draft&rdquo; picks its three players from the top 200 by ADP, the
+          same top-200 bound as the comparison universe, then ranks by gap as
+          everywhere else. 200 is a judgment call with the same standing as
+          the move thresholds, chosen rather than fitted, and will be
+          revisited with history. It changes nothing outside that module: the
+          comparison universe, the market table, gaps and signals are all
+          unaffected.
         </p>
       </section>
 
