@@ -68,10 +68,11 @@ body {
 }
 .sig-chip:hover { border-color: var(--ink-3); }
 
-/* Stable: the nothing-is-happening state stays visually quiet. */
+/* Quiet family: the nothing-notable states recede with a soft neutral fill. */
 .sig-chip--stable {
-  background: transparent;
+  background: rgba(20, 24, 31, 0.045);
   color: var(--ink-2);
+  font-weight: 500;
 }
 
 /* Opposite-direction moves: the strongest disagreement, so the chip is
@@ -79,16 +80,21 @@ body {
 .sig-chip--diverging {
   background: var(--gold-bg);
   border-color: var(--gold-border);
+  color: var(--gold-ink);
   font-weight: 600;
 }
 .sig-chip--diverging:hover { border-color: var(--gold); }
 
 /* Opposite directions but the gap CLOSED. Distinct from diverging, and read
    as a positive convergence rather than a disagreement. */
+/* Convergence family ("coming into agreement", NOT "value"): deliberately
+   weaker tint and a muted forest text so it can never be read as the vivid
+   Discount green used on the Gap value pills. */
 .sig-chip--converging {
-  background: rgba(21,128,61,0.10);
-  border-color: rgba(21,128,61,0.35);
-  font-weight: 600;
+  background: rgba(21,128,61,0.07);
+  border-color: rgba(21,128,61,0.2);
+  color: #2f5d43;
+  font-weight: 500;
 }
 .sig-chip--converging:hover { border-color: var(--pos); }
 

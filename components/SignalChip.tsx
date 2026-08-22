@@ -36,7 +36,8 @@ export default function SignalChip({ signal }: { signal: Signal | null }) {
   const cls =
     signal === "Market and experts diverging"
       ? "sig-chip sig-chip--diverging"
-      : signal === "Market and experts converging"
+      : signal === "Market and experts converging" ||
+          signal === "Market catching up to experts"
         ? "sig-chip sig-chip--converging"
         : signal === "Both holding"
           ? "sig-chip sig-chip--stable"

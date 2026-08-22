@@ -512,7 +512,7 @@ export default async function Home() {
     label === "Diverging"
       ? { background: "var(--gold-bg)", border: "1px solid var(--gold-border)", color: "var(--gold-ink)" }
       : label === "Experts unmoved"
-        ? { background: "transparent", border: "1px solid var(--border)", color: "var(--ink-2)" }
+        ? { background: "rgba(20,24,31,0.045)", border: "1px solid var(--border)", color: "var(--ink-2)" }
         : { background: "rgba(22,35,61,0.08)", color: "var(--navy-2)" };
 
   type LeadItem = {
