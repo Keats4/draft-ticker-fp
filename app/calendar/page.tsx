@@ -71,7 +71,7 @@ function PlayerTypes({ value }: { value: string }) {
 
 /** One concise, honest note; trust stays categorical and authored. */
 const TRUST_NOTE =
-  "Calendar trust levels are authored preseason guidance, intended to be validated against movement persistence and reversion. Categorical by design, never a percentage.";
+  "Movement trust reflects how directly a phase's information reveals sustainable player role and usage. Authored guidance, not a measured confidence score, intended to be tested against movement persistence and reversion as history accumulates. From Week 1 onward it describes the quality of observable role evidence, not a live in-season price series - in-season pricing is still a concept preview.";
 
 /**
  * Phases where an in-season price actually earns its place. week-1 is

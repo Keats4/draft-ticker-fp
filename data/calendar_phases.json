@@ -105,7 +105,7 @@
    "window": "August",
    "start": "2026-08-06",
    "end": "2026-08-24",
-   "signal_level": "high",
+   "signal_level": "med",
    "card_line": "Starters play real snaps. This is the first usage data that comes from actual games.",
    "how_to_read": "Starters play real snaps against real defences, the first usage evidence of the year.",
    "sections": {
@@ -121,7 +121,7 @@
    "window": "late August",
    "start": "2026-08-25",
    "end": "2026-08-31",
-   "signal_level": "high",
+   "signal_level": "med",
    "card_line": "90 to 53. Cuts are facts, and facts reprice instantly.",
    "how_to_read": "A cut is a fact, not a projection: the roster spot is gone and the depth chart behind the player renames itself the same day.",
    "sections": {
@@ -137,7 +137,7 @@
    "window": "Labor Day window",
    "start": "2026-09-01",
    "end": "2026-09-08",
-   "signal_level": "high",
+   "signal_level": "med",
    "card_line": "Peak volume, short shelf life. Last week's mock is stale.",
    "how_to_read": "The information is accurate and it ages in days. A mock draft from last week no longer reflects current cost. Tracking that gap is the reason this product exists. Trust is high, but the shelf life is the shortest of any phase.",
    "sections": {
@@ -153,9 +153,9 @@
    "window": "early September",
    "start": "2026-09-09",
    "end": "2026-09-15",
-   "signal_level": "low",
-   "card_line": "The box score is a fact. The conclusion drawn from one week usually is not.",
-   "how_to_read": "The box score is fact. The conclusion drawn from one week usually is not, and overpaying for Week 1 is the most common early-season mistake. Trust what happened; distrust what one week is said to mean. The meter reflects the second half of that, because that is where the money is lost.",
+   "signal_level": "high",
+   "card_line": "First full-game usage evidence: snap share, routes, targets and real roles become observable.",
+   "how_to_read": "The first real-game evidence of role: snap counts, routes, targets and actual deployment become observable. Trust what the usage shows about roles; stay wary of season-long conclusions drawn from one box score, overpaying for one week's stat line is still the classic early-season mistake.",
    "sections": {
     "what_appears": "Real snap counts, routes, and target shares. The draft market closes and the waiver market opens.",
     "player_types": "Everyone. The patterns shift to in-season behavior: overreaction to one game, discounts on slow starts.",
@@ -169,7 +169,7 @@
    "window": "Weeks 2–9",
    "start": "2026-09-16",
    "end": "2026-11-10",
-   "signal_level": "med",
+   "signal_level": "high",
    "card_line": "Injuries and signings move rooms. Trends beat spikes.",
    "how_to_read": "Multi-week usage trends are the most reliable information of the year. One-week spikes are not a trend, and bye-week adds are rentals, not repricings. The meter is set for the spikes, not the trends, because the spikes are what you will be tempted to pay for.",
    "sections": {
@@ -201,7 +201,7 @@
    "window": "Weeks 10–17",
    "start": "2026-11-25",
    "end": "2027-01-10",
-   "signal_level": "med",
+   "signal_level": "high",
    "card_line": "Rookies take over. Averages stop describing roles.",
    "how_to_read": "A late-season role change arrives with a large usage sample behind it and few weeks left for another change. The main trap is paying for a season-long average that no longer describes the player's current role.",
    "sections": {
