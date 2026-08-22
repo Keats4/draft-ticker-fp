@@ -22,10 +22,12 @@
  * lightness band, chroma floor, normal-vision floor (27.5) and contrast.
  * Hue is therefore never the only channel carrying the sign here:
  *   1. vertical position against a labelled zero line is the primary encoding
- *   2. the below-zero region is hatched, so the poles differ by texture
- *   3. the current value is direct-labelled with its sign and a word
- *   4. the numbers above the plot state the same thing in text
- * A reader who cannot separate the two hues loses no information.
+ *   2. the current value is direct-labelled with its sign and a word
+ *   3. the numbers above the plot state the same thing in text
+ * The old below-zero hatch texture was retired in the visual-system pass in
+ * favour of matched pale washes (both at the same low opacity): the washes
+ * are context, never the carrier of the sign, so a reader who cannot
+ * separate the two hues still loses no information.
  */
 import type { ChartMarker, ChartPoint } from "@/components/PlayerChart";
 import { fmtRounds, picksToRounds, roundsPhrase } from "@/lib/rounds";
@@ -69,8 +71,8 @@ export default function GapChart({
   const single = days.length === 1;
 
   const W = 680;
-  const H = 300;
-  const M = { top: 26, right: 56, bottom: 34, left: 44 };
+  const H = 240;
+  const M = { top: 24, right: 56, bottom: 32, left: 44 };
 
   const gaps = days.map((d) => d.gap);
   const rawLo = Math.min(0, ...gaps);
@@ -105,9 +107,12 @@ export default function GapChart({
       </figcaption>
 
       {/* the plain numbers */}
-      <div className="mb-3 flex flex-wrap items-end gap-x-8 gap-y-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2">
+      <div
+        className="mb-3 flex flex-wrap items-end gap-x-8 gap-y-2 rounded-md border px-3 py-2"
+        style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
+      >
         <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">Gap now</p>
+          <p className="text-xs uppercase tracking-wide text-[var(--ink-2)]">Gap now</p>
           <p
             className="text-2xl font-semibold tabular-nums"
             style={{ color: now < 0 ? "var(--neg)" : now > 0 ? "var(--pos)" : "var(--ink-2)" }}
@@ -124,10 +129,10 @@ export default function GapChart({
           </p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">
+          <p className="text-xs uppercase tracking-wide text-[var(--ink-2)]">
             Change since {days[0].date.slice(5)}
           </p>
-          <p className="text-2xl font-semibold tabular-nums text-[var(--ink-2)]">
+          <p className="text-2xl font-semibold tabular-nums text-[var(--text-info)]">
             {single ? "n/a" : fmtRounds(delta)}
           </p>
           <p className="text-xs text-[var(--ink-3)]">
@@ -139,8 +144,8 @@ export default function GapChart({
           </p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">Direction</p>
-          <p className="text-2xl font-semibold text-[var(--ink-2)]">
+          <p className="text-xs uppercase tracking-wide text-[var(--ink-2)]">Direction</p>
+          <p className="text-2xl font-semibold text-[var(--text-info)]">
             {single ? "n/a" : delta === 0 ? "flat" : widened ? "widening" : "closing"}
           </p>
           <p className="text-xs text-[var(--ink-3)]">
@@ -162,11 +167,6 @@ export default function GapChart({
         className="w-full"
       >
         <defs>
-          {/* texture, so the two poles differ by more than hue */}
-          <pattern id="gap-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <rect width="6" height="6" fill="var(--neg)" fillOpacity="0.10" />
-            <line x1="0" y1="0" x2="0" y2="6" stroke="var(--neg)" strokeWidth="1.4" strokeOpacity="0.30" />
-          </pattern>
           <clipPath id="gap-above">
             <rect x="0" y="0" width={W} height={Math.max(0, yZero)} />
           </clipPath>
@@ -203,10 +203,12 @@ export default function GapChart({
           premium over the expert rank
         </text>
 
+        {/* Matched pale washes: context for the sign, deliberately far
+            below the navy series in visual weight. */}
         {areaPath && (
           <>
-            <path d={areaPath} fill="var(--pos)" fillOpacity="0.13" clipPath="url(#gap-above)" />
-            <path d={areaPath} fill="url(#gap-hatch)" clipPath="url(#gap-below)" />
+            <path d={areaPath} fill="var(--pos)" fillOpacity="0.06" clipPath="url(#gap-above)" />
+            <path d={areaPath} fill="var(--neg)" fillOpacity="0.06" clipPath="url(#gap-below)" />
           </>
         )}
         {linePath && (
@@ -220,12 +222,12 @@ export default function GapChart({
             </circle>
             {markerByDate.has(d.date) && (
               <g transform={`translate(${x(i)}, ${M.top - 14})`}>
-                <path d="M0 0 L6 6 L0 12 L-6 6 Z" fill="var(--navy)">
+                <path d="M0 0 L6 6 L0 12 L-6 6 Z" fill="var(--gold)" stroke="var(--surface)" strokeWidth="1">
                   <title>
                     {`${markerByDate.get(d.date)!.sample ? "SAMPLE, not real: " : ""}${markerByDate.get(d.date)!.label}`}
                   </title>
                 </path>
-                <line x1="0" y1="12" x2="0" y2={y(d.gap) - (M.top - 14) - 6} stroke="var(--navy)" strokeWidth="1" strokeOpacity="0.28" />
+                <line x1="0" y1="12" x2="0" y2={y(d.gap) - (M.top - 14) - 6} stroke="var(--gold)" strokeWidth="1" strokeOpacity="0.5" strokeDasharray="2 3" />
               </g>
             )}
             <text x={x(i)} y={H - 10} textAnchor="middle" fontSize="10" fill="var(--ink-3)">
@@ -260,14 +262,14 @@ export default function GapChart({
         </span>
         {markers.length > 0 && (
           <span className="flex items-center gap-1.5">
-            <span aria-hidden style={{ color: "var(--navy)" }}>◆</span>
+            <span aria-hidden style={{ color: "var(--gold)" }}>◆</span>
             News on file that day
           </span>
         )}
       </div>
 
-      <details className="mt-2 text-xs text-[var(--ink-3)]">
-        <summary className="cursor-pointer">Data table</summary>
+      <details className="mt-2 text-xs text-[var(--ink-2)]">
+        <summary className="disclose">Data table</summary>
         <table className="mt-1 w-full text-left">
           <thead>
             <tr>
