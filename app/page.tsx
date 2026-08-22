@@ -78,8 +78,8 @@ const endStop = (t: string) => t.trim().replace(/[.!?]?$/, ".");
 
 /** First-use definitions for the two core series. Display only; the market
  *  table header carries the fuller versions. */
-const ADP_DEF = "Market (ADP): Average Draft Position across the supported host draft boards. Lower = drafted earlier.";
-const ECR_DEF = "Experts (ECR): FantasyPros Expert Consensus Ranking.";
+const ADP_DEF = "Market (ADP): Average Draft Position across the supported host draft boards. Up means he became more valuable: his rank number fell (99 → 91 = ↑ 8 spots).";
+const ECR_DEF = "Experts (ECR): FantasyPros Expert Consensus Ranking. Up means experts moved him to a lower rank number, i.e. more valuable.";
 
 /** Surname for tight hero copy ("Jonathon Brooks" → "Brooks"), skipping
  *  generational suffixes so "Kenneth Walker III" → "Walker". */
@@ -629,7 +629,15 @@ export default async function Home() {
                       <dt>
                         Market (ADP)<InfoDot text={ADP_DEF} />
                       </dt>
-                      <dd>{item.hostRank}</dd>
+                      <dd>
+                        {item.hostRank}
+                        {item.delta !== 0 && (
+                          <span className="delta-pill">
+                            <span aria-hidden>{item.delta > 0 ? "↑" : "↓"}</span>
+                            {Math.abs(item.delta)} spots
+                          </span>
+                        )}
+                      </dd>
                     </div>
                     <div className="metric-row">
                       <dt>
@@ -640,7 +648,7 @@ export default async function Home() {
                         {item.ecrDelta !== null && item.ecrDelta !== 0 && (
                           <span className="delta-pill">
                             <span aria-hidden>{item.ecrDelta > 0 ? "↑" : "↓"}</span>
-                            {Math.abs(item.ecrDelta)}
+                            {Math.abs(item.ecrDelta)} spots
                           </span>
                         )}
                       </dd>
@@ -795,7 +803,15 @@ export default async function Home() {
                   <dl className="metric-panel mt-2 max-w-[250px]">
                     <div className="metric-row">
                       <dt>Market (ADP)</dt>
-                      <dd>{r.hostRank}</dd>
+                      <dd>
+                        {r.hostRank}
+                        {d !== null && d !== 0 && (
+                          <span className="delta-pill">
+                            <span aria-hidden>{d > 0 ? "↑" : "↓"}</span>
+                            {Math.abs(d)} spots
+                          </span>
+                        )}
+                      </dd>
                     </div>
                     <div className="metric-row">
                       <dt>Experts (ECR)</dt>
@@ -804,7 +820,7 @@ export default async function Home() {
                         {r.ecrDelta !== null && r.ecrDelta !== 0 && (
                           <span className="delta-pill">
                             <span aria-hidden>{r.ecrDelta > 0 ? "↑" : "↓"}</span>
-                            {Math.abs(r.ecrDelta)}
+                            {Math.abs(r.ecrDelta)} spots
                           </span>
                         )}
                       </dd>
@@ -839,7 +855,7 @@ export default async function Home() {
                         {endStop(cat.short_label ?? cat.summary)}
                       </p>
                       <details className="relative z-10 mt-1.5">
-                        <summary className="disclose disclose--gold">view evidence</summary>
+                        <summary className="disclose disclose--gold">Event details</summary>
                         <p className="mt-1 text-xs leading-relaxed text-[var(--ink-2)]">
                           {cat.summary}{" "}
                           <a
@@ -899,11 +915,27 @@ export default async function Home() {
               <dl className="metric-panel mt-2 max-w-[250px]">
                 <div className="metric-row">
                   <dt>Market (ADP)</dt>
-                  <dd>{r.hostRank}</dd>
+                  <dd>
+                    {r.hostRank}
+                    {r.hostRankDelta !== null && r.hostRankDelta !== 0 && (
+                      <span className="delta-pill">
+                        <span aria-hidden>{r.hostRankDelta > 0 ? "↑" : "↓"}</span>
+                        {Math.abs(r.hostRankDelta)} spots
+                      </span>
+                    )}
+                  </dd>
                 </div>
                 <div className="metric-row">
                   <dt>Experts (ECR)</dt>
-                  <dd>{r.ecr ?? "–"}</dd>
+                  <dd>
+                    {r.ecr ?? "–"}
+                    {r.ecrDelta !== null && r.ecrDelta !== 0 && (
+                      <span className="delta-pill">
+                        <span aria-hidden>{r.ecrDelta > 0 ? "↑" : "↓"}</span>
+                        {Math.abs(r.ecrDelta)} spots
+                      </span>
+                    )}
+                  </dd>
                 </div>
                 <div className="metric-row">
                   <dt>Gap</dt>
@@ -916,25 +948,6 @@ export default async function Home() {
                       >
                         {valueWord(r.gap)}
                       </span>
-                    )}
-                  </dd>
-                </div>
-                {/* Movement stays visually secondary here: this section is
-                    about disagreement, not movement. */}
-                <div className="metric-row">
-                  <dt>Move ({moveWindow})</dt>
-                  <dd className={r.hostRankDelta ? "" : "text-[var(--ink-3)]"}>
-                    {r.hostRankDelta === null ? (
-                      "–"
-                    ) : r.hostRankDelta === 0 ? (
-                      "0"
-                    ) : (
-                      <>
-                        <span aria-hidden style={{ color: "var(--navy)" }}>
-                          {r.hostRankDelta > 0 ? "↑" : "↓"}
-                        </span>{" "}
-                        {Math.abs(r.hostRankDelta)}
-                      </>
                     )}
                   </dd>
                 </div>

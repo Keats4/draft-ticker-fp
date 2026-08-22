@@ -104,7 +104,7 @@ function Side({
         trackingSince={trackingSince}
       />
 
-      <dl className="grid grid-cols-3 gap-1 text-center text-xs">
+      <dl className="mt-auto grid grid-cols-3 gap-1 border-t border-[var(--border)] pt-2.5 text-center text-xs">
         <div>
           <dt className="text-[var(--ink-3)]">ADP</dt>
           <dd className="tabular-nums font-semibold">{s.hostRank}</dd>
@@ -248,7 +248,7 @@ export default function MirrorHero({
           {/* The pair read as values: the two windows' moves side by side,
               with the opposed / same-direction state as a labelled pill. The
               full sentence (either variant) is the pill's tooltip. */}
-          <dl className="mt-3 space-y-1 border-t border-[var(--border)] pt-3 text-sm lg:mt-3">
+          <dl className="mt-2.5 space-y-1 border-t border-[var(--border)] pt-2.5 text-sm">
             {[
               { label: pairSummary.aLabel, delta: pairSummary.aDelta },
               { label: pairSummary.bLabel, delta: pairSummary.bDelta },
@@ -287,12 +287,12 @@ export default function MirrorHero({
             </span>
           </p>
           {catalysts.length > 0 ? (
-            <div className="mt-3 border-t border-[var(--border)] pt-3">
+            <div className="mt-2.5 border-t border-[var(--border)] pt-2.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-2)]">
                 <span aria-hidden style={{ color: "var(--gold)" }}>◆ </span>
                 Events near the move
               </p>
-              <div className="mt-2 space-y-3">
+              <div className="mt-2 space-y-2.5">
                 {catalysts.map((c) => (
                   <div key={c.sourceUrl + c.date} className="evt">
                     <p className="evt-meta">
@@ -304,7 +304,7 @@ export default function MirrorHero({
                     </p>
                     <p className="evt-headline evt-headline--lg">{c.label ?? c.summary}</p>
                     <details className="mt-1.5">
-                      <summary className="disclose disclose--gold">view evidence</summary>
+                      <summary className="disclose disclose--gold">Event details</summary>
                       <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
                         {c.summary}{" "}
                         <a href={c.sourceUrl} rel="noreferrer" className="underline text-[var(--ink-3)]">
@@ -322,7 +322,7 @@ export default function MirrorHero({
               <InfoDot text="These two are moving in opposite directions, but no single verified event is on file for both. The mirror is measured, not explained." />
             </p>
           )}
-          <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--border)] pt-2 text-sm lg:mt-auto lg:flex-col lg:pt-3">
+          <p className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--border)] pt-2 text-sm lg:mt-auto lg:flex-col">
             <Link href={a.href} className="font-semibold underline">See {a.name} →</Link>
             <Link href={b.href} className="font-semibold underline">See {b.name} →</Link>
           </p>

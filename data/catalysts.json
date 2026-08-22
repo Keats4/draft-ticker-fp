@@ -1069,6 +1069,36 @@
       "independent_source_count": 1
     },
     {
+      "id": "real-048-dell-higgins-environment",
+      "player": {
+        "sleeper_id": "9502",
+        "name": "Tank Dell"
+      },
+      "date": "2026-08-19",
+      "category": "environment",
+      "summary": "Teammate Jayden Higgins tore his ACL in Tuesday's joint practice with the Raiders and will miss the entire 2026 season, per Ian Rapoport; Higgins had been listed as a starting wideout on Houston's depth chart.",
+      "short_label": "Teammate Jayden Higgins tore his ACL and is out for the season",
+      "source_url": "https://www.nfl.com/news/texans-wr-jayden-higgins-torn-acl-out-2026-season",
+      "verified": true,
+      "sample": false,
+      "date_confirmed_on_source": true,
+      "sources": [
+        {
+          "url": "https://www.nfl.com/news/texans-wr-jayden-higgins-torn-acl-out-2026-season",
+          "outlet": "NFL.com Around The NFL (Ian Rapoport, NFL Network)",
+          "date_text": "Published and Updated fields render empty on the fetched page",
+          "kind": "original"
+        },
+        {
+          "url": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/texans-wr-jayden-higgins-tore-his-acl",
+          "outlet": "Pro Football Talk (credits 'multiple reports')",
+          "date_text": "Published August 19, 2026 12:25 PM",
+          "kind": "syndicated"
+        }
+      ],
+      "independent_source_count": 1
+    },
+    {
       "id": "real-044-stribling-debut",
       "player": {
         "sleeper_id": "13417",
@@ -1173,7 +1203,7 @@
       "date": "2026-08-17",
       "category": "environment",
       "summary": "SI's 49ers site reported the receiver room reshaped inside two weeks: Ricky Pearsall on injured reserve and out for the season, Deebo Samuel signed in his place, Christian Kirk not practicing, and Demarcus Robinson rested with the starters in the preseason opener.",
-      "short_label": "Pearsall is out for the season and Kirk is not practicing around him",
+      "short_label": "Pearsall is out for the season and Kirk is not practicing",
       "source_url": "https://www.si.com/nfl/49ers/onsi/49ers-wide-receiver-depth-chart-completely-changed-last-week",
       "verified": true,
       "sample": false,

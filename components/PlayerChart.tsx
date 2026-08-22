@@ -92,6 +92,12 @@ export default function PlayerChart({
   }
 
   const markerByDate = new Map(markers.map((m) => [m.date, m]));
+  // The legend must describe what THIS chart actually renders: an event
+  // marker plots only when its date is inside the plotted series, so the
+  // legend keys off the plotted count, never the player's full event list.
+  // Events outside the domain stay in the evidence rail; nothing is moved
+  // to the nearest datapoint and the series is never extended for them.
+  const plottedMarkerCount = days.filter((p) => markerByDate.has(p.date)).length;
 
   const plot = (
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="ADP and ECR by date" className="w-full">
@@ -117,10 +123,25 @@ export default function PlayerChart({
             </circle>
           )}
           {markerByDate.has(p.date) && (
-            <g transform={`translate(${x(i)}, ${M.top - 4})`}>
-              <path d="M0 0 L6 6 L0 12 L-6 6 Z" fill="var(--navy)">
-                <title>{`${markerByDate.get(p.date)!.sample ? "SAMPLE: not real: " : ""}${markerByDate.get(p.date)!.label}`}</title>
-              </path>
+            <g>
+              {/* Documented event: gold evidence language, a thin guide down
+                  the plot plus a diamond, visually distinct from the data
+                  series points. Tooltip carries date + headline. */}
+              <line
+                x1={x(i)}
+                x2={x(i)}
+                y1={M.top + 8}
+                y2={H - M.bottom}
+                stroke="var(--gold)"
+                strokeWidth="1"
+                strokeDasharray="2 3"
+                opacity="0.8"
+              />
+              <g transform={`translate(${x(i)}, ${M.top - 6})`}>
+                <path d="M0 0 L7 7 L0 14 L-7 7 Z" fill="var(--gold)" stroke="var(--surface)" strokeWidth="1.5">
+                  <title>{`${p.date} · ${markerByDate.get(p.date)!.sample ? "SAMPLE: not real: " : ""}${markerByDate.get(p.date)!.label}`}</title>
+                </path>
+              </g>
             </g>
           )}
           <text x={x(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="var(--ink-3)">{p.date.slice(5)}</text>
@@ -155,11 +176,11 @@ export default function PlayerChart({
                 Disagreement
               </span>
             )}
-            {/* The mini legend omitted the one symbol a reader cannot guess.
-                Same diamond, same wording as the full variant. */}
-            {markers.length > 0 && (
+            {/* Legend truthfulness: "Event" appears only when a marker is
+                actually plotted in this chart's date range. */}
+            {plottedMarkerCount > 0 && (
               <span className="flex items-center gap-1.5">
-                <span aria-hidden style={{ color: "var(--navy)" }}>◆</span>
+                <span aria-hidden style={{ color: "var(--gold)" }}>◆</span>
                 Event
               </span>
             )}
@@ -210,9 +231,9 @@ export default function PlayerChart({
           />
           Experts (ECR)
         </span>
-        {markers.length > 0 && (
+        {plottedMarkerCount > 0 && (
           <span className="flex items-center gap-1.5">
-            <span aria-hidden style={{ color: "var(--navy)" }}>◆</span>
+            <span aria-hidden style={{ color: "var(--gold)" }}>◆</span>
             Event
           </span>
         )}

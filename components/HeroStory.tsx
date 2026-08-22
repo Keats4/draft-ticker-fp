@@ -170,7 +170,7 @@ export default function HeroStory({
               {catalyst.label ?? catalyst.summary}
             </p>
             <details className="mt-1.5">
-              <summary className="disclose disclose--gold">view evidence</summary>
+              <summary className="disclose disclose--gold">Event details</summary>
               <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
                 {catalyst.summary}{" "}
                 <a href={catalyst.sourceUrl} rel="noreferrer" className="underline text-[var(--ink-3)]">
