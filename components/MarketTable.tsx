@@ -72,8 +72,7 @@ function Move({ v, trackingSince }: { v: number | null; trackingSince?: string |
           {v > 0 ? "▲" : "▼"}
         </span>
       )}
-      {v > 0 ? "+" : ""}
-      {v}
+      {Math.abs(v)}
     </span>
   );
 }

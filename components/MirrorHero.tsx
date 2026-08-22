@@ -51,8 +51,10 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold tabular-nums text-[var(--foreground)]">
+            {/* Arrow carries direction, so the figure drops its sign: the
+                two said the same thing. Zero renders without either. */}
             {arrow && <span aria-hidden className="text-[var(--ink-2)]">{arrow} </span>}
-            {s.hostRankDelta === null ? "–" : `${s.hostRankDelta > 0 ? "+" : ""}${s.hostRankDelta}`}
+            {s.hostRankDelta === null ? "–" : Math.abs(s.hostRankDelta)}
           </div>
           <p className="text-xs text-[var(--ink-3)]">
             {s.hostRankDelta === null
@@ -138,7 +140,7 @@ export default function MirrorHero({
   a: MirrorSide;
   b: MirrorSide;
   evidence: Evidence | null;
-  /** Why they moved, newest first: each side's newest verified event,
+  /** Events near the move, newest first: each side's newest verified event,
    *  deduped when both sides point at the same article. */
   catalysts: { date: string; summary: string; label: string | null; sourceUrl: string; player: string | null }[];
   sentence: string;
@@ -210,7 +212,7 @@ export default function MirrorHero({
         {catalysts.length > 0 ? (
           <div className="mt-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
-              Why they moved
+              Events near the move
             </p>
             <div className="mt-1 space-y-2">
               {catalysts.map((c) => (

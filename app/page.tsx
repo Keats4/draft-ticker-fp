@@ -502,8 +502,9 @@ export default async function Home() {
             name: r.name,
             sub: `${r.position}${r.posRank} · ${r.team}`,
             arrow: d > 0 ? "▲" : "▼",
-            figure: `${d > 0 ? "+" : ""}${d}`,
-            figureSub: windowDays ? `picks in ${windowDays}d` : "picks",
+            // The arrow carries direction; the figure is magnitude only.
+            figure: `${Math.abs(d)}`,
+            figureSub: windowDays ? `picks · ${windowDays}d` : "picks",
             rel: relWord(d, r.ecrDelta),
             // Full sentences from the previous lead, intact behind the expander.
             detail: `${read.main}.${read.expert ? ` ${read.expert}` : ""} ${evidence}`,
@@ -691,7 +692,7 @@ export default async function Home() {
                     {d !== null && d !== 0 && (
                       <span aria-hidden className="text-[var(--ink-3)]">{d > 0 ? "▲" : "▼"} </span>
                     )}
-                    {d === null ? "–" : `${d > 0 ? "+" : ""}${d}`}
+                    {d === null ? "–" : Math.abs(d)}
                     <span className="ml-2 align-baseline text-xs font-normal text-[var(--ink-3)]">
                       picks {moveWindow}
                     </span>
@@ -793,7 +794,7 @@ export default async function Home() {
                     ? "no movement data yet"
                     : r.hostRankDelta === 0
                       ? `unmoved ${moveWindow}`
-                      : `${r.hostRankDelta > 0 ? "▲" : "▼"} ${r.hostRankDelta > 0 ? "+" : ""}${r.hostRankDelta} ${moveWindow}`}
+                      : `${r.hostRankDelta > 0 ? "▲" : "▼"} ${Math.abs(r.hostRankDelta)} ${moveWindow}`}
                 </span>
               </p>
               <div className="mt-2">
@@ -825,7 +826,7 @@ export default async function Home() {
           <StatCard
             label={riserLabel}
             name={riser.name}
-            value={`▲ +${riser.hostRankDelta}`}
+            value={`▲ ${Math.abs(riser.hostRankDelta!)}`}
             sub={`${riser.position}${riser.posRank} · ${riser.team} · picks gained ${moveWindow}`}
             tone="neutral"
             href={hrefFor(riser)}
@@ -837,7 +838,7 @@ export default async function Home() {
           <StatCard
             label={fallerLabel}
             name={faller.name}
-            value={`▼ ${faller.hostRankDelta}`}
+            value={`▼ ${Math.abs(faller.hostRankDelta!)}`}
             sub={`${faller.position}${faller.posRank} · ${faller.team} · picks lost ${moveWindow}`}
             tone="neutral"
             href={hrefFor(faller)}
