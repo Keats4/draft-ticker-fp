@@ -22,7 +22,7 @@ const TABS = [
 export default function NavBar({
   freshness,
 }: {
-  freshness: { label: string; compact: string; live: boolean };
+  freshness: { label: string; live: boolean };
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -62,15 +62,14 @@ export default function NavBar({
                 : "rgba(224,169,46,0.18)",
               color: "#eafaf0",
             }}
-            title="Latest publish time across the contributing draft sources, as sent by the source (timezone not stated), and how many sources contributed."
+            title="Latest publish time across the contributing draft sources, as sent by the source (timezone not stated)."
           >
             <span
               aria-hidden
               className="inline-block h-1.5 w-1.5 rounded-full"
               style={{ background: freshness.live ? "#4ade80" : "#e0a92e" }}
             />
-            <span className="hidden sm:inline">{freshness.label}</span>
-            <span className="sm:hidden">{freshness.compact}</span>
+            {freshness.label}
           </span>
 
           <button

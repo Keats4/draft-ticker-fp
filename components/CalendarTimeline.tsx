@@ -39,9 +39,9 @@ const RAIL_TITLE: Record<string, string> = {
  * rows and expanded cards.
  *
  * Readability over fit: tiles take content-aware widths, so the rail is a
- * contained scroller at desktop too, starting at phase 01 (the partially
- * visible tile at the right edge is the overflow affordance). The current
- * phase is centred on mount only below the desktop breakpoint. Buttons
+ * contained scroller at desktop too. On load the current phase is centred
+ * at every width (clamped at the year's ends); an explicit #phase- hash
+ * wins instead. Buttons
  * scroll to and open the phase's details element, updating the hash.
  * Display only: trust levels come straight from the authored calendar data.
  */
@@ -57,9 +57,15 @@ export default function CalendarTimeline({
   const currentRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    // Centre the current phase only on smaller screens; desktop always
-    // starts the year at phase 01, never mid-scroll.
-    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    // Initial position: centre the current phase whenever the rail
+    // overflows, so the year reads past <- current -> future with balanced
+    // pixel space either side (the browser clamps at the year's ends, so
+    // an NFL Draft current sits at the start and a Stretch Run current at
+    // the end, with no artificial spacers). Runs once, instantly, on mount;
+    // after that the user's own scrolling is respected. An explicit
+    // #phase-<key> deep link wins outright: the native anchor scroll takes
+    // the reader to the requested phase and no centring happens.
+    if (window.location.hash.startsWith("#phase-")) return;
     const el = currentRef.current;
     const scroller = el?.closest("[data-timeline-scroll]");
     if (el && scroller && scroller.scrollWidth > scroller.clientWidth + 8) {
