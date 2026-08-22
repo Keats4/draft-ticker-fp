@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import {
   loadHostRankHistory,
   ecrSeriesFor,
@@ -504,6 +505,16 @@ export default async function Home() {
           note: "Experts moved further: ECR moved the same way, and further than the market.",
         };
   };
+  /** Display tone for the relationship pill: gold for divergence, neutral
+   *  for the unmoved state, navy for the rest. Wording carries the rest of
+   *  the distinction; semantics are untouched. */
+  const relToneStyle = (label: string): CSSProperties =>
+    label === "Diverging"
+      ? { background: "var(--gold-bg)", border: "1px solid var(--gold-border)", color: "var(--gold-ink)" }
+      : label === "Experts unmoved"
+        ? { background: "transparent", border: "1px solid var(--border)", color: "var(--ink-2)" }
+        : { background: "rgba(22,35,61,0.08)", color: "var(--navy-2)" };
+
   type LeadItem = {
     href: string;
     name: string;
@@ -615,7 +626,7 @@ export default async function Home() {
                 } ${i === leadItems.length - 1 ? "lg:pr-0" : ""}`}
               >
                 <div className="w-24 shrink-0 text-right lg:mb-2 lg:w-auto lg:text-left">
-                  <MoveStat delta={item.delta} label={item.figureSub} />
+                  <MoveStat anchored delta={item.delta} label={item.figureSub} />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold leading-snug">
@@ -624,63 +635,62 @@ export default async function Home() {
                   </p>
                   {/* Structured comparison: the two series as labelled
                       values, first-use definitions behind the info dots. */}
-                  <dl className="metric-panel mt-2 max-w-[250px]">
-                    <div className="metric-row">
-                      <dt>
-                        Market (ADP)<InfoDot text={ADP_DEF} />
-                      </dt>
-                      <dd>
-                        {item.hostRank}
-                        {item.delta !== 0 && (
-                          <span className="delta-pill">
-                            <span aria-hidden>{item.delta > 0 ? "↑" : "↓"}</span>
-                            {Math.abs(item.delta)} spots
-                          </span>
-                        )}
-                      </dd>
-                    </div>
-                    <div className="metric-row">
-                      <dt>
-                        Experts (ECR)<InfoDot text={ECR_DEF} />
-                      </dt>
-                      <dd>
-                        {item.ecr ?? "–"}
-                        {item.ecrDelta !== null && item.ecrDelta !== 0 && (
-                          <span className="delta-pill">
-                            <span aria-hidden>{item.ecrDelta > 0 ? "↑" : "↓"}</span>
-                            {Math.abs(item.ecrDelta)} spots
-                          </span>
-                        )}
-                      </dd>
-                    </div>
+                  {/* Current-state pair. The market delta lives ONCE in the
+                      headline stat above; only the expert delta appears here,
+                      riding the ECR column as a secondary pill. */}
+                  <dl className="stat-pair mt-2 max-w-[260px]">
+                    <dt>
+                      ADP<InfoDot text={ADP_DEF} />
+                    </dt>
+                    <dt>
+                      ECR<InfoDot text={ECR_DEF} />
+                    </dt>
+                    <dd>{item.hostRank}</dd>
+                    <dd>
+                      {item.ecr ?? "–"}
+                      {item.ecrDelta !== null && item.ecrDelta !== 0 && (
+                        <span className="delta-pill">
+                          <span aria-hidden>{item.ecrDelta > 0 ? "↑" : "↓"}</span>
+                          {Math.abs(item.ecrDelta)} spots
+                        </span>
+                      )}
+                    </dd>
                   </dl>
                   {item.rel && (
                     <span
                       title={item.rel.note}
                       className="mt-2 inline-block cursor-help rounded-full px-2 py-0.5 text-xs font-medium"
-                      style={{ background: "rgba(22,35,61,0.06)", color: "var(--navy-2)" }}
+                      style={relToneStyle(item.rel.label)}
                     >
                       {item.rel.label}
                     </span>
                   )}
                   {item.evtDate ? (
-                    <div className="evt mt-2.5">
+                    <div className="evt evt--wash mt-2.5">
                       <p className="evt-meta">
                         Event <span className="evt-meta-sub">· {item.evtDate}</span>
                       </p>
                       <p className="evt-headline">{item.evtLabel}</p>
+                      <details className="mt-1.5">
+                        <summary className="disclose">details</summary>
+                        <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
+                          {item.detail}
+                        </p>
+                      </details>
                     </div>
                   ) : (
-                    <p className="mt-2.5 text-xs text-[var(--ink-3)]">
-                      No documented event yet.
-                    </p>
+                    <>
+                      <p className="mt-2.5 text-xs text-[var(--ink-3)]">
+                        No documented event yet.
+                      </p>
+                      <details className="mt-1.5">
+                        <summary className="disclose">details</summary>
+                        <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
+                          {item.detail}
+                        </p>
+                      </details>
+                    </>
                   )}
-                  <details className="mt-2">
-                    <summary className="disclose">details</summary>
-                    <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
-                      {item.detail}
-                    </p>
-                  </details>
                 </div>
               </div>
             ))}
