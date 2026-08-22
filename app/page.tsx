@@ -560,7 +560,7 @@ export default async function Home() {
             name: r.name,
             sub: `${r.position}${r.posRank} · ${r.team}`,
             delta: d,
-            figureSub: windowDays ? `${windowDays}-day move` : "Move",
+            figureSub: prevDateLabel ? `Since ${prevDateLabel}` : "Move",
             rel: relWord(d, r.ecrDelta),
             hostRank: r.hostRank,
             ecr: r.ecr,
@@ -803,7 +803,7 @@ export default async function Home() {
                   </div>
 
                   <div className="mt-2">
-                    <MoveStat delta={d} label={`Market move · ${moveWindow}`} />
+                    <MoveStat delta={d} label={`Market move ${moveWindow}`} />
                   </div>
 
                   {/* The comparison as labelled values rather than a prose

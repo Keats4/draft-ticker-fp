@@ -16,7 +16,7 @@ export default function MoveStat({
 }: {
   /** Signed movement over the window; null = no data yet. */
   delta: number | null;
-  /** Window label, e.g. "5-day move" or "Market move · since Aug 16". */
+  /** Window label, e.g. "Since Aug 16" or "Market move since Aug 16". */
   label: string;
   size?: "lg" | "sm";
   /** Subtle navy surface for stats sitting alone at a card edge. */

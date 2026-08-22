@@ -71,7 +71,7 @@ function Side({
             label={
               s.hostRankDelta === null
                 ? "no movement stored yet"
-                : `Market move · ${moveWindow}`
+                : `Market move ${moveWindow}`
             }
           />
         </div>
