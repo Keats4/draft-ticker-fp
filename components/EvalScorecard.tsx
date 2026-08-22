@@ -128,65 +128,60 @@ export default function EvalScorecard() {
           figure derived from the graded cells (never the typed result). The
           complete graded evidence sits behind the disclosure below. */}
       {bothComplete && (
-        <div className="mt-3 grid grid-cols-1 items-stretch gap-2 sm:grid-cols-3">
-          <div
-            className="rounded-lg border p-3"
-            style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
-          >
-            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">
+        <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div className="shrink-0 text-center sm:text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
               Pass 1 · {p1.date}
             </p>
-            <p className="mt-1 text-xl font-bold tabular-nums text-[var(--text-info)]">
+            <p className="text-2xl font-bold tabular-nums leading-tight text-[var(--text-info)]">
               {d1.pass} / {d1.rows}
             </p>
-            <p className="text-xs text-[var(--ink-2)]">
+            <p className="text-[11px] text-[var(--ink-2)]">
               <span style={d1.fail > 0 ? { color: "var(--neg)", fontWeight: 600 } : undefined}>
                 {d1.fail} failed
               </span>{" "}
               · {d1.live} live
             </p>
           </div>
-          <div
-            className="rounded-lg border p-3"
-            style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
-          >
-            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--gold-ink)" }}>
+          <span aria-hidden className="hidden text-[var(--ink-3)] sm:block">→</span>
+          <div className="min-w-0 flex-1 text-center sm:text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--gold-ink)" }}>
               Contract defect found
             </p>
-            <p className="mt-1 text-xs leading-relaxed text-[var(--ink-2)]">
+            <p className="mt-0.5 text-[11px] leading-snug text-[var(--ink-2)]">
               The failing phrasing was instructed by the grading contract
               itself; the vocabulary / contradiction rule was amended and the
               full set re-run against identical payloads.
             </p>
           </div>
-          <div
-            className="rounded-lg border p-3"
-            style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
-          >
-            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">
+          <span aria-hidden className="hidden text-[var(--ink-3)] sm:block">→</span>
+          <div className="shrink-0 text-center sm:text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
               Pass 2 · {p2.date}
             </p>
-            <p className="mt-1 text-xl font-bold tabular-nums text-[var(--text-info)]">
+            <p className="text-2xl font-bold tabular-nums leading-tight text-[var(--text-info)]">
               {d2.pass} / {d2.rows}
             </p>
-            <p className="text-xs text-[var(--ink-2)]">
-              {d2.fail} failed · <span className="font-semibold">{d2.live} live</span>
-            </p>
+            <p className="text-[11px] text-[var(--ink-2)]">{d2.fail} failed</p>
+          </div>
+          <span aria-hidden className="hidden text-[var(--ink-3)] sm:block">→</span>
+          <div
+            className="shrink-0 rounded-lg border px-3 py-2 text-center"
+            style={{ borderColor: "var(--border-info-soft)" }}
+          >
+            <p className="text-base font-bold tabular-nums leading-tight">{d2.live} live</p>
+            <p className="text-[10px] text-[var(--ink-3)]">usefulness criterion pending</p>
           </div>
         </div>
       )}
 
       <div className="mt-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">Rubric</p>
-        <dl className="mt-1.5 grid grid-cols-1 gap-1.5 text-xs text-[var(--ink-2)] sm:grid-cols-2 lg:grid-cols-5">
-          {EVAL_COLUMNS.map((c) => (
-            <div
-              key={c.key}
-              className="rounded-md border p-2"
-              style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
-            >
-              <dt className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">{c.short}</dt>
-              <dd className="mt-0.5 text-[11px] leading-snug">{schema?.columns?.[c.key]}</dd>
+        <dl className="mt-1.5 grid grid-cols-1 divide-y divide-[var(--border)] text-xs text-[var(--ink-2)] sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-5 lg:divide-x lg:divide-[var(--border-info-soft)]">
+          {EVAL_COLUMNS.map((c, i) => (
+            <div key={c.key} className={`py-1.5 lg:py-0 ${i === 0 ? "lg:pr-3" : "lg:px-3"}`}>
+              <dt className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-2)]">{c.short}</dt>
+              <dd className="mt-0.5 text-[11px] leading-snug text-[var(--ink-3)]">{schema?.columns?.[c.key]}</dd>
             </div>
           ))}
         </dl>

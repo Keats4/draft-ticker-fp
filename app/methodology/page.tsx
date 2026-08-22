@@ -1,5 +1,6 @@
 import Link from "next/link";
 import EvalScorecard from "@/components/EvalScorecard";
+import SignalChip from "@/components/SignalChip";
 import { THRESHOLDS } from "@/lib/math";
 import { CATALYST_LOOKBACK_DAYS } from "@/lib/evidence";
 import { loadFirstAndLatestSnapshots } from "@/lib/snapshot";
@@ -16,106 +17,128 @@ const fmtLongDate = (d: string) =>
     timeZone: "UTC",
   });
 
-/* ---------- small presentational helpers (display only) ---------- */
+const REPO = "https://github.com/Keats4/draft-ticker-fp";
 
-function SectionHead({ id, title }: { id: string; title: string }) {
+/* ---------- design primitives (display only) ---------- */
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <h2 id={id} className="scroll-mt-16 text-xl font-semibold">
-      {title}
-    </h2>
+    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
+      {children}
+    </p>
   );
 }
 
-function Step({
-  label,
-  sub,
-  tone = "mist",
+function SectionHead({ id, title, badge }: { id: string; title: string; badge?: React.ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2.5">
+      <h2 id={id} className="scroll-mt-14 text-xl font-semibold">
+        {title}
+      </h2>
+      {badge}
+    </div>
+  );
+}
+
+/** Compact diagram node: sentence-case semibold title, muted meta. */
+function Node({
+  title,
+  meta,
+  tone = "plain",
+  dashed = false,
 }: {
-  label: string;
-  sub?: string;
-  tone?: "mist" | "gold" | "navy" | "plain";
+  title: string;
+  meta?: string;
+  tone?: "plain" | "mist" | "navy" | "gold";
+  dashed?: boolean;
 }) {
   const style =
-    tone === "gold"
-      ? { background: "var(--gold-bg)", borderColor: "var(--gold-border)" }
-      : tone === "navy"
-        ? { background: "var(--navy)", borderColor: "var(--navy)" }
-        : tone === "plain"
-          ? { background: "var(--surface)", borderColor: "var(--border)" }
-          : { background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" };
+    tone === "navy"
+      ? { background: "var(--navy)", borderColor: "var(--navy)" }
+      : tone === "gold"
+        ? { background: "var(--gold-bg)", borderColor: "var(--gold-border)" }
+        : tone === "mist"
+          ? { background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }
+          : { background: "var(--surface)", borderColor: "var(--border-info-soft)" };
   return (
-    <div className="min-w-0 flex-1 rounded-lg border px-2.5 py-2 text-center" style={style}>
+    <div
+      className={`rounded-lg border px-3 py-1.5 text-center ${dashed ? "border-dashed" : ""}`}
+      style={style}
+    >
       <p
-        className="text-[11px] font-bold uppercase tracking-wide leading-tight"
-        style={{ color: tone === "navy" ? "var(--surface)" : tone === "gold" ? "var(--gold-ink)" : "var(--text-info)" }}
+        className="text-[13px] font-semibold leading-tight"
+        style={{ color: tone === "navy" ? "var(--surface)" : "var(--foreground)" }}
       >
-        {label}
+        {title}
       </p>
-      {sub && (
+      {meta && (
         <p
-          className="mt-0.5 text-[10px] leading-snug"
-          style={{ color: tone === "navy" ? "rgba(255,255,255,0.75)" : "var(--ink-2)" }}
+          className="mt-0.5 text-[11px] leading-tight"
+          style={{ color: tone === "navy" ? "rgba(255,255,255,0.72)" : "var(--ink-3)" }}
         >
-          {sub}
+          {meta}
         </p>
       )}
     </div>
   );
 }
 
-function Arrow() {
-  return (
-    <span aria-hidden className="self-center px-0.5 text-sm text-[var(--ink-3)]">
-      <span className="hidden lg:inline">→</span>
-      <span className="lg:hidden">↓</span>
-    </span>
-  );
+/** Vertical connector stub. */
+function Stub() {
+  return <span aria-hidden className="mx-auto block h-2.5 w-px" style={{ background: "var(--border-info-soft)" }} />;
 }
 
-/** Leaf of the decision tree: stored rule name + user-facing display label. */
-function Leaf({ stored, display }: { stored: string; display: string }) {
+/** T-splitter / merger across a pair row. */
+function TBar({ flip = false }: { flip?: boolean }) {
   return (
-    <span className="inline-flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span
-        className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-        style={{ background: "var(--surface-info-strong)", color: "var(--text-info)" }}
-      >
-        {display}
-      </span>
-      <span className="text-[10px] text-[var(--ink-3)]">stored: “{stored}”</span>
-    </span>
-  );
-}
-
-function Branch({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div
-      className="rounded-lg border p-3"
-      style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
-    >
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">{title}</p>
-      <div className="mt-1.5 space-y-1.5 text-xs text-[var(--ink-2)]">{children}</div>
+    <div aria-hidden className="relative mx-auto h-2.5 w-1/2">
+      <span className={`absolute left-1/2 h-2.5 w-px -translate-x-1/2 ${flip ? "bottom-0" : "top-0"}`} style={{ background: "var(--border-info-soft)" }} />
+      <span className={`absolute left-0 right-0 h-px ${flip ? "top-0" : "bottom-0"}`} style={{ background: "var(--border-info-soft)" }} />
+      <span className={`absolute left-0 h-2.5 w-px ${flip ? "top-0" : "bottom-0"}`} style={{ background: "var(--border-info-soft)" }} />
+      <span className={`absolute right-0 h-2.5 w-px ${flip ? "top-0" : "bottom-0"}`} style={{ background: "var(--border-info-soft)" }} />
     </div>
   );
 }
 
-function FunnelStep({ label, why }: { label: string; why: string }) {
+/** Board membership chip for the common-board diagram. */
+function Board({ id, shared }: { id: string; shared: boolean }) {
   return (
-    <li className="flex flex-col gap-x-4 gap-y-0.5 border-l-2 pl-3 sm:flex-row sm:items-baseline" style={{ borderColor: "var(--border-info-soft)" }}>
-      <span className="w-56 shrink-0 text-sm font-semibold text-[var(--text-info)]">{label}</span>
-      <span className="text-xs text-[var(--ink-2)]">{why}</span>
-    </li>
+    <span
+      className="inline-flex h-7 w-7 items-center justify-center rounded-full border text-[12px] font-semibold"
+      style={
+        shared
+          ? { background: "var(--surface-info-strong)", borderColor: "var(--border-info-soft)", color: "var(--text-info)" }
+          : { background: "var(--surface)", borderColor: "var(--border)", color: "var(--ink-3)" }
+      }
+    >
+      {id}
+    </span>
   );
 }
 
-function LimitCard({ title, children }: { title: string; children: React.ReactNode }) {
+function RefRow({
+  n,
+  title,
+  desc,
+  href,
+  linkLabel,
+}: {
+  n: string;
+  title: string;
+  desc: string;
+  href: string;
+  linkLabel: string;
+}) {
   return (
-    <div
-      className="rounded-lg border p-3"
-      style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
-    >
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">{title}</p>
-      <div className="mt-1 text-xs leading-relaxed text-[var(--ink-2)]">{children}</div>
+    <div className="flex items-baseline gap-3 border-t border-[var(--border)] py-2.5">
+      <span className="w-6 shrink-0 text-[11px] tabular-nums text-[var(--ink-3)]">{n}</span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[13px] font-semibold leading-tight">{title}</p>
+        <p className="text-[11px] text-[var(--ink-3)]">{desc}</p>
+      </div>
+      <a href={href} className="shrink-0 text-[11px] font-medium text-[var(--accent)] hover:underline">
+        {linkLabel} →
+      </a>
     </div>
   );
 }
@@ -131,6 +154,7 @@ const NAV = [
   ["archetypes", "Archetypes"],
   ["limitations", "Limitations"],
   ["evals", "AI evals"],
+  ["reference", "Reference"],
 ] as const;
 
 export default async function Methodology() {
@@ -143,8 +167,8 @@ export default async function Methodology() {
   const startLong = seriesStart ? fmtLongDate(seriesStart) : null;
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
-      <h1 id="overview" className="scroll-mt-16 text-3xl font-bold tracking-tight">Methodology</h1>
-      <p className="mt-2 text-[var(--ink-2)]">
+      <h1 id="overview" className="scroll-mt-14 text-3xl font-bold tracking-tight">Methodology</h1>
+      <p className="mt-3 max-w-[720px] text-[var(--ink-2)]">
         Every number on the data pages (Market, Players, player pages,
         and this one) traces to a named source, a capture time, and a
         calculation defined on this page. Where one day of data cannot support a
@@ -154,17 +178,17 @@ export default async function Methodology() {
         measured.
       </p>
 
-      {/* On this page: slim sticky anchor rail */}
+      {/* compact sticky document rail */}
       <nav
         aria-label="On this page"
-        className="sticky top-0 z-10 -mx-4 mt-4 overflow-x-auto border-b border-[var(--border)] bg-[var(--background)] px-4 py-2"
+        className="sticky top-0 z-10 -mx-4 mt-6 overflow-x-auto border-b border-[var(--border)] bg-[var(--background)] px-4"
       >
-        <div className="flex min-w-max items-center gap-1">
+        <div className="flex h-10 min-w-max items-center gap-4">
           {NAV.map(([id, label]) => (
             <a
               key={id}
               href={`#${id}`}
-              className="rounded-full px-2.5 py-1 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-info-soft)] hover:text-[var(--text-info)]"
+              className="text-[13px] text-[var(--ink-2)] transition-colors hover:text-[var(--navy)]"
             >
               {label}
             </a>
@@ -172,7 +196,7 @@ export default async function Methodology() {
         </div>
       </nav>
 
-      <section className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+      <section className="mt-10 max-w-[720px]">
         <h2 className="text-xl font-semibold">What this adds</h2>
         <p className="mt-2 text-sm text-[var(--ink-2)]">
           FantasyPros already collects, stores, and even charts this series, a
@@ -189,187 +213,229 @@ export default async function Methodology() {
       </section>
 
       {/* ================= METHOD AT A GLANCE ================= */}
-      <section className="mt-8">
+      <section className="mt-16">
         <SectionHead id="glance" title="Method at a glance" />
-        <div className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-          <div className="flex flex-col gap-1 lg:flex-row lg:items-stretch">
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <Step label="FantasyPros ADP" sub="up to 5 host boards · daily composite" tone="plain" />
-              <Step label="FantasyPros ECR" sub="Draft PPR rankings · official API" tone="plain" />
+        <div className="mt-5 rounded-[10px] border border-[var(--border)] bg-[var(--surface)] px-4 py-5">
+          <div className="mx-auto max-w-[620px]">
+            {/* sources */}
+            <Eyebrow>Sources</Eyebrow>
+            <div className="mt-1.5 grid grid-cols-2 gap-2">
+              <Node title="FantasyPros ADP" meta="5 host boards · PPR composite" />
+              <Node title="FantasyPros ECR" meta="Draft PPR · official API" />
             </div>
-            <Arrow />
-            <Step label="Daily snapshots" sub="6:00 AM PT · immutable dated captures" />
-            <Arrow />
-            <Step label="Calculations" sub="ADP move · ECR move · ADP − ECR gap" />
-            <Arrow />
-            <Step label="Deterministic signal rules" sub="thresholds + fixed branch order" tone="navy" />
-            <Arrow />
-            <Step label="Evidence" sub="documented events near the move, or unexplained" tone="gold" />
-            <Arrow />
-            <Step label="Calendar context" sub="fantasy-year phase · movement trust" />
-            <Arrow />
-            <Step label="Interpretation" sub="what renders on every surface" tone="plain" />
+            <TBar flip />
+            {/* spine */}
+            <div className="mx-auto max-w-[340px]">
+              <Node title="Daily capture" meta="6:00 AM PT · immutable snapshots" tone="mist" />
+              <Stub />
+              <Node title="Calculations" meta="ADP move · ECR move · ADP − ECR gap" tone="mist" />
+              <Stub />
+              <Node title="Deterministic signal rules" meta="thresholds · fixed branch order" tone="navy" />
+            </div>
+            <TBar />
+            {/* context */}
+            <div className="grid grid-cols-2 gap-2">
+              <Node title="Evidence" meta="documented events near the move, or unexplained" tone="gold" />
+              <Node title="Calendar context" meta="fantasy-year phase · movement trust" tone="mist" />
+            </div>
+            <TBar flip />
+            <div className="relative mx-auto max-w-[340px]">
+              <Node title="Interpretation" meta="what renders on every surface" />
+              {/* quiet AI branch, downstream of the deterministic output */}
+              <span
+                aria-hidden
+                className="absolute left-full top-1/2 hidden w-6 -translate-y-1/2 border-t border-dashed lg:block"
+                style={{ borderColor: "var(--border-info-soft)" }}
+              />
+            </div>
+            <div className="mt-2 lg:absolute lg:hidden" />
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-2 text-[11px] text-[var(--ink-2)]">
-            <span className="font-semibold uppercase tracking-wide text-[var(--text-info)]">
-              Deterministic product logic
-            </span>
-            <span>— everything above. The AI explanation layer is a separate, optional downstream branch:</span>
-            <span
-              className="rounded-full border border-dashed px-2 py-0.5"
-              style={{ borderColor: "var(--border-info-soft)", color: "var(--ink-2)" }}
-            >
-              AI notes · gated behind the eval scorecard · 0 live
-            </span>
-            <span>It never assigns a signal.</span>
+          <div className="mt-3 flex justify-center lg:mt-2 lg:justify-end">
+            <div className="max-w-[240px]">
+              <Node title="AI notes" meta="gated behind the eval scorecard · 0 live · never assigns a signal" dashed />
+            </div>
           </div>
+          <p className="mt-3 border-t border-[var(--border)] pt-2 text-center text-[11px] text-[var(--ink-3)]">
+            Everything solid is deterministic product logic. The AI explanation
+            layer is a separate, optional branch after the product output.
+          </p>
         </div>
       </section>
 
       {/* ================= CORE MATH ================= */}
-      <section className="mt-8">
+      <section className="mt-16">
         <SectionHead id="math" title="Core math" />
-        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">Gap</p>
-            <p className="mt-1 text-lg font-bold tabular-nums text-[var(--text-info)]">ADP − ECR</p>
-            <p className="mt-1 text-xs text-[var(--ink-2)]">
+        <div className="mt-5 grid grid-cols-1 divide-y divide-[var(--border-info-soft)] rounded-[10px] border border-[var(--border)] bg-[var(--surface)] md:grid-cols-3 md:divide-x md:divide-y-0">
+          <div className="flex flex-col p-4">
+            <Eyebrow>Gap</Eyebrow>
+            <p className="mt-1.5 text-xl font-semibold tabular-nums text-[var(--navy)]">ADP − ECR</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-[var(--ink-2)]">
               Positive: drafted later than experts rank him — a discount to the
               expert rank. Negative: the market pays a premium.
             </p>
-            <p
-              className="mt-2 rounded-md border px-2 py-1.5 text-xs tabular-nums"
-              style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
-            >
-              <span className="text-[10px] uppercase tracking-wide text-[var(--ink-3)]">Illustrative</span>
-              <br />
-              ADP 92 · ECR 86 → Gap +6{" "}
-              <span className="val-pill val-pill--pos">discount</span>
+            <p className="mt-auto pt-3 text-xs tabular-nums text-[var(--ink-2)]">
+              <span className="text-[10px] uppercase tracking-wider text-[var(--ink-3)]">Illustrative · </span>
+              ADP 92 · ECR 86 → +6 <span className="val-pill val-pill--pos">discount</span>
             </p>
           </div>
-          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">Movement</p>
-            <p className="mt-1 text-lg font-bold tabular-nums text-[var(--text-info)]">start ADP − end ADP</p>
-            <p className="mt-1 text-xs text-[var(--ink-2)]">
-              Positive = rising = drafted earlier now = more valuable. The sign
-              convention is deliberate: up always means more valuable.
+          <div className="flex flex-col p-4">
+            <Eyebrow>Movement</Eyebrow>
+            <p className="mt-1.5 text-xl font-semibold tabular-nums text-[var(--navy)]">start − end</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-[var(--ink-2)]">
+              Window-start ADP minus window-end ADP. Positive = rising = drafted
+              earlier now = more valuable. Up always means more valuable.
             </p>
-            <p
-              className="mt-2 rounded-md border px-2 py-1.5 text-xs tabular-nums"
-              style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
-            >
-              <span className="text-[10px] uppercase tracking-wide text-[var(--ink-3)]">Illustrative</span>
-              <br />
-              99 → 92 = <span className="font-semibold" style={{ color: "var(--navy)" }}>↑ 7</span>{" "}
-              drafted 7 spots earlier
+            <p className="mt-auto pt-3 text-xs tabular-nums text-[var(--ink-2)]">
+              <span className="text-[10px] uppercase tracking-wider text-[var(--ink-3)]">Illustrative · </span>
+              99 → 92 = <span className="font-semibold" style={{ color: "var(--navy)" }}>↑ 7</span> drafted earlier
             </p>
           </div>
-          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">Published bars</p>
-            <p className="mt-1 text-xs tabular-nums text-[var(--ink-2)]">
-              ADP move counts at <span className="font-bold text-[var(--text-info)]">≥ {THRESHOLDS.HOST_RANK_MOVE} picks</span>
-              <br />
-              ECR move counts at <span className="font-bold text-[var(--text-info)]">≥ {THRESHOLDS.ECR_MOVE} ranks</span>
-              <br />
-              Gap is notable at <span className="font-bold text-[var(--text-info)]">|Gap| ≥ {THRESHOLDS.GAP_NOTABLE}</span>
+          <div className="flex flex-col p-4">
+            <Eyebrow>Published bars</Eyebrow>
+            <p className="mt-1.5 text-xl font-semibold tabular-nums text-[var(--navy)]">
+              ≥{THRESHOLDS.HOST_RANK_MOVE} · ≥{THRESHOLDS.ECR_MOVE} · ≥{THRESHOLDS.GAP_NOTABLE}
             </p>
-            <p
-              className="mt-2 inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-              style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)", color: "var(--gold-ink)" }}
-            >
-              Initial judgment calls · not historically fitted
+            <p className="mt-1.5 text-xs leading-relaxed text-[var(--ink-2)]">
+              ADP move counts at ≥ {THRESHOLDS.HOST_RANK_MOVE} picks, ECR move at ≥ {THRESHOLDS.ECR_MOVE} ranks,
+              a gap is notable at |Gap| ≥ {THRESHOLDS.GAP_NOTABLE}.
+            </p>
+            <p className="mt-auto pt-3">
+              <span
+                className="inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+                style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)", color: "var(--gold-ink)" }}
+              >
+                Initial judgment calls · not fitted
+              </span>
             </p>
           </div>
         </div>
-        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-[var(--ink-2)]">
-          <li>
-            <strong>Gap</strong> = ADP − ECR. Positive: the market drafts the
-            player later than experts rank him, a discount to the expert rank.
-            Negative: the market pays a premium relative to the expert view.
-          </li>
-          <li>
-            <strong>Movement</strong> = window-start ADP − window-end ADP, so
-            positive means rising (drafted earlier now). The window is the
-            span both series share, oldest shared date to newest: every
-            “Move” figure on the site covers{" "}
-            {startLong ?? "the first stored capture"} to the most recent
-            capture, and the dates are printed wherever the number appears.
-            The delta is computed only over host boards present on both days,
-            for the averaging reasons stated under “Sources” below. Missing
-            data renders as “–”, never as zero.
-          </li>
-          <li>
-            <strong>Signal labels</strong> are rules, not a model:
-            market-vs-expert movement compared over the same window. A label
-            appears only when both movement series exist.
-          </li>
-        </ul>
-        <p className="mt-3 text-sm text-[var(--ink-3)]">
-          These initial thresholds are judgment calls, not fitted to
-          historical data. First directional read, recorded 2026-08-20 on the
-          five days stored so far: the 3 pick price bar sits near the 80th
-          percentile of nonzero price moves over the window (26 of 172
-          comparable players cleared it), while the 2 rank expert bar sits at
-          the median of nonzero expert moves (83 of 172 cleared), so if either
-          bar is mis-set it is the expert side being too loose. Five days
-          inside one high trust phase is a direction, not a fit. The bars will
-          be percentile matched once several weeks of windows exist, and any
-          change will be recorded here.
-        </p>
+        <div className="mt-4 max-w-[720px]">
+          <ul className="list-disc space-y-2 pl-5 text-sm text-[var(--ink-2)]">
+            <li>
+              <strong>Gap</strong> = ADP − ECR. Positive: the market drafts the
+              player later than experts rank him, a discount to the expert rank.
+              Negative: the market pays a premium relative to the expert view.
+            </li>
+            <li>
+              <strong>Movement</strong> = window-start ADP − window-end ADP, so
+              positive means rising (drafted earlier now). The window is the
+              span both series share, oldest shared date to newest: every
+              “Move” figure on the site covers{" "}
+              {startLong ?? "the first stored capture"} to the most recent
+              capture, and the dates are printed wherever the number appears.
+              The delta is computed only over host boards present on both days,
+              for the averaging reasons stated under “Sources” below. Missing
+              data renders as “–”, never as zero.
+            </li>
+            <li>
+              <strong>Signal labels</strong> are rules, not a model:
+              market-vs-expert movement compared over the same window. A label
+              appears only when both movement series exist.
+            </li>
+          </ul>
+          <p className="mt-3 text-sm text-[var(--ink-3)]">
+            These initial thresholds are judgment calls, not fitted to
+            historical data. First directional read, recorded 2026-08-20 on the
+            five days stored so far: the 3 pick price bar sits near the 80th
+            percentile of nonzero price moves over the window (26 of 172
+            comparable players cleared it), while the 2 rank expert bar sits at
+            the median of nonzero expert moves (83 of 172 cleared), so if either
+            bar is mis-set it is the expert side being too loose. Five days
+            inside one high trust phase is a direction, not a fit. The bars will
+            be percentile matched once several weeks of windows exist, and any
+            change will be recorded here.
+          </p>
+        </div>
       </section>
 
       {/* ================= SIGNAL DECISION TREE ================= */}
-      <section className="mt-8">
+      <section className="mt-16">
         <SectionHead id="signals" title="How a signal is assigned" />
-        <p className="mt-2 text-sm text-[var(--ink-2)]">
-          Fixed branch order. First match wins. Rules, not a model. Each leaf
-          shows the user-facing display label first and the stored rule name
-          beneath it; display labels never alter the stored semantics.
-        </p>
-        <div className="mt-3 space-y-2">
-          <Branch title="Step 0 · Do ADP and ECR movement both exist?">
-            <p>
-              <span className="font-semibold">No</span> (day one, or an
-              unmatched expert rank) → no label. The site renders{" "}
-              <span className="font-semibold tabular-nums">“–”</span>, never a
-              guess.
+        <div
+          className="mt-5 rounded-[10px] border px-4 py-5"
+          style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
+        >
+          {/* root */}
+          <div className="text-center">
+            <p className="text-[13px] font-semibold">Do ADP and ECR movement both exist?</p>
+            <p className="mt-0.5 text-[11px] text-[var(--ink-3)]">
+              no (day one, or an unmatched expert rank) → the site renders{" "}
+              <span className="font-semibold tabular-nums text-[var(--foreground)]">“–”</span>, never a guess
             </p>
-          </Branch>
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-            <Branch title={`Neither cleared its bar (ADP < ${THRESHOLDS.HOST_RANK_MOVE}, ECR < ${THRESHOLDS.ECR_MOVE})`}>
-              <Leaf stored="Both holding" display="Stable" />
-            </Branch>
-            <Branch title="ECR alone cleared its bar">
-              <Leaf stored="Experts moving first" display="Experts leading" />
-            </Branch>
-            <Branch title="ADP alone cleared its bar">
-              <p>Did the move shrink |Gap|?</p>
-              <p className="pl-3">
-                Yes → <Leaf stored="Market catching up to experts" display="Market converging" />
-              </p>
-              <p className="pl-3">
-                No → <Leaf stored="Market moving faster" display="Market leading" />
-              </p>
-            </Branch>
-            <Branch title="Both cleared their bars">
-              <p>Same direction?</p>
-              <p className="pl-3">
-                Yes, |ADP move| ≥ 1.5 × |ECR move| →{" "}
-                <Leaf stored="Market moving faster" display="Market leading" />
-              </p>
-              <p className="pl-3">
-                Yes, under 1.5× → <Leaf stored="Broad agreement" display="Aligned move" />
-              </p>
-              <p className="pl-3">
-                Opposite, |Gap| grew → <Leaf stored="Market and experts diverging" display="Diverging" />
-              </p>
-              <p className="pl-3">
-                Opposite, |Gap| shrank → <Leaf stored="Market and experts converging" display="Converging" />
-              </p>
-            </Branch>
+            <p className="mt-1 text-[11px] text-[var(--ink-3)]">yes ↓</p>
+            <p className="mt-1 text-[13px] font-semibold">
+              Which sides cleared their bar? <span className="font-normal text-[var(--ink-3)]">(ADP ≥ {THRESHOLDS.HOST_RANK_MOVE} · ECR ≥ {THRESHOLDS.ECR_MOVE})</span>
+            </p>
           </div>
+          <div aria-hidden className="relative mx-auto mt-2.5 hidden h-2.5 w-3/4 lg:block">
+            <span className="absolute left-1/2 top-0 h-px w-px" />
+            <span className="absolute left-1/2 -top-2.5 h-2.5 w-px -translate-x-1/2" style={{ background: "var(--border-info-soft)" }} />
+            <span className="absolute left-0 right-0 top-0 h-px" style={{ background: "var(--border-info-soft)" }} />
+            {["12.5%", "37.5%", "62.5%", "87.5%"].map((l) => (
+              <span key={l} className="absolute top-0 h-2.5 w-px" style={{ left: l, background: "var(--border-info-soft)" }} />
+            ))}
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-x-4 gap-y-5 lg:mt-1.5 lg:grid-cols-4">
+            <div className="border-l pl-3 lg:border-l-0 lg:pl-0 lg:text-center" style={{ borderColor: "var(--border-info-soft)" }}>
+              <Eyebrow>Neither</Eyebrow>
+              <div className="mt-2 lg:flex lg:justify-center"><SignalChip signal="Both holding" /></div>
+              <p className="mt-1 text-[10px] text-[var(--ink-3)]">Both holding</p>
+            </div>
+            <div className="border-l pl-3 lg:border-l-0 lg:pl-0 lg:text-center" style={{ borderColor: "var(--border-info-soft)" }}>
+              <Eyebrow>ECR only</Eyebrow>
+              <div className="mt-2 lg:flex lg:justify-center"><SignalChip signal="Experts moving first" /></div>
+              <p className="mt-1 text-[10px] text-[var(--ink-3)]">Experts moving first</p>
+            </div>
+            <div className="border-l pl-3 lg:border-l-0 lg:pl-0 lg:text-center" style={{ borderColor: "var(--border-info-soft)" }}>
+              <Eyebrow>ADP only</Eyebrow>
+              <p className="mt-1.5 text-[11px] text-[var(--ink-2)]">did the move shrink |Gap|?</p>
+              <div className="mt-2 space-y-2">
+                <div>
+                  <p className="text-[10px] text-[var(--ink-3)]">shrank ↓</p>
+                  <div className="mt-0.5 lg:flex lg:justify-center"><SignalChip signal="Market catching up to experts" /></div>
+                  <p className="mt-0.5 text-[10px] text-[var(--ink-3)]">Market catching up to experts</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-[var(--ink-3)]">widened ↓</p>
+                  <div className="mt-0.5 lg:flex lg:justify-center"><SignalChip signal="Market moving faster" /></div>
+                  <p className="mt-0.5 text-[10px] text-[var(--ink-3)]">Market moving faster</p>
+                </div>
+              </div>
+            </div>
+            <div className="border-l pl-3 lg:border-l-0 lg:pl-0 lg:text-center" style={{ borderColor: "var(--border-info-soft)" }}>
+              <Eyebrow>Both</Eyebrow>
+              <p className="mt-1.5 text-[11px] text-[var(--ink-2)]">same direction?</p>
+              <div className="mt-2 space-y-2">
+                <div>
+                  <p className="text-[10px] text-[var(--ink-3)]">same · |ADP| ≥ 1.5×|ECR| ↓</p>
+                  <div className="mt-0.5 lg:flex lg:justify-center"><SignalChip signal="Market moving faster" /></div>
+                  <p className="mt-0.5 text-[10px] text-[var(--ink-3)]">Market moving faster</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-[var(--ink-3)]">same · under 1.5× ↓</p>
+                  <div className="mt-0.5 lg:flex lg:justify-center"><SignalChip signal="Broad agreement" /></div>
+                  <p className="mt-0.5 text-[10px] text-[var(--ink-3)]">Broad agreement</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-[var(--ink-3)]">opposite · |Gap| grew ↓</p>
+                  <div className="mt-0.5 lg:flex lg:justify-center"><SignalChip signal="Market and experts diverging" /></div>
+                  <p className="mt-0.5 text-[10px] text-[var(--ink-3)]">Market and experts diverging</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-[var(--ink-3)]">opposite · |Gap| shrank ↓</p>
+                  <div className="mt-0.5 lg:flex lg:justify-center"><SignalChip signal="Market and experts converging" /></div>
+                  <p className="mt-0.5 text-[10px] text-[var(--ink-3)]">Market and experts converging</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="mt-5 text-[11px] text-[var(--ink-3)]">
+            Fixed branch order. First match wins. Rules, not a model. Pills are
+            the product’s display labels (tap one for its exact rule); the
+            small line beneath each is the stored rule string.
+          </p>
         </div>
-        <details className="mt-3">
+        <details className="mt-4 max-w-[720px]">
           <summary className="disclose">Exact branch definitions</summary>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-[var(--ink-2)]">
             <li>
@@ -410,23 +476,39 @@ export default async function Methodology() {
       </section>
 
       {/* ================= COMPARISON UNIVERSE ================= */}
-      <section className="mt-8">
+      <section className="mt-16">
         <SectionHead id="universe" title="Who enters the comparison" />
-        <p className="mt-2 text-sm text-[var(--ink-2)]">
+        <p className="mt-3 max-w-[720px] text-sm text-[var(--ink-2)]">
           A gap (ADP − ECR) is only meaningful when both sources genuinely
           cover the player. Outside a comparable band, ADP is thin (drafted in
           few leagues) or ECR is in the noisy tail (experts effectively do not
           rank him), and subtracting the two produces giant, misleading gaps.
         </p>
-        <ol className="mt-3 space-y-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-          <FunnelStep label="All source players" why="Everything the FantasyPros payloads carry." />
-          <FunnelStep label="QB · RB · WR · TE only" why="Kickers and team defenses are dropped before ranking; they receive no rank, gap, signal or page." />
-          <FunnelStep label="Top 200 by ADP" why="A chosen cutoff, stated as one — the same standing as the move thresholds until history shows where comparability degrades." />
-          <FunnelStep label="Ranked by ≥ 4 of 5 host boards" why="The liquidity rule: prevents one thin host board from defining the price." />
-          <FunnelStep label="ECR inside the top 200" why="Avoids subtracting meaningful ADP from noisy expert-tail ranks; beyond it, no gap is computed rather than a fabricated one." />
-          <FunnelStep label="Comparable player" why="Gap and signal eligible. Everyone else shows “–” with the reason." />
-        </ol>
-        <details className="mt-3">
+        <div className="mx-auto mt-6 max-w-xl">
+          {[
+            ["All source players", "everything the FantasyPros payloads carry", "100%"],
+            ["QB · RB · WR · TE only", "kickers and team defenses dropped before ranking", "84%"],
+            ["Top 200 by ADP", "a chosen cutoff, stated as one", "68%"],
+            ["Ranked by ≥ 4 of 5 host boards", "liquidity rule — one thin board never defines the price", "52%"],
+            ["ECR inside the top 200", "no gap against noisy expert-tail ranks", "38%"],
+            ["Comparable player", "gap and signal eligible; everyone else shows “–” with the reason", "26%"],
+          ].map(([label, why, w], i) => (
+            <div key={label} className={i === 0 ? "" : "mt-3"}>
+              {i > 0 && <span aria-hidden className="mx-auto mb-1.5 block h-2 w-px" style={{ background: "var(--border-info-soft)" }} />}
+              <p className="text-center text-[13px] font-semibold">{label}</p>
+              <div
+                aria-hidden
+                className="mx-auto mt-1 h-1.5 rounded-full"
+                style={{ width: w, background: i === 5 ? "var(--navy)" : "var(--surface-info-strong)", border: i === 5 ? "none" : "1px solid var(--border-info-soft)" }}
+              />
+              <p className="mx-auto mt-1 max-w-[420px] text-center text-[11px] text-[var(--ink-3)]">{why}</p>
+            </div>
+          ))}
+          <p className="mt-4 text-center text-[10px] uppercase tracking-wider text-[var(--ink-3)]">
+            Bar widths show the filtering sequence only — not measured counts
+          </p>
+        </div>
+        <details className="mt-4 max-w-[720px]">
           <summary className="disclose">Universe details</summary>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-[var(--ink-2)]">
             <li>
@@ -470,65 +552,55 @@ export default async function Methodology() {
       </section>
 
       {/* ================= SOURCES ================= */}
-      <section className="mt-8">
+      <section className="mt-16">
         <SectionHead id="sources" title="Data & provenance" />
-        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="rounded-lg border p-3" style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}>
-            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--gold-ink)" }}>ADP · the price</p>
-            <ul className="mt-1 space-y-0.5 text-xs text-[var(--ink-2)]">
-              <li>FantasyPros consensus PPR composite</li>
-              <li>up to 5 host boards</li>
-              <li>captured 6:00 AM PT daily</li>
-              <li>immutable dated snapshots + raw payload</li>
-            </ul>
-          </div>
-          <div className="rounded-lg border p-3" style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}>
-            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--gold-ink)" }}>ECR · the experts</p>
-            <ul className="mt-1 space-y-0.5 text-xs text-[var(--ink-2)]">
-              <li>FantasyPros Draft PPR rankings</li>
-              <li>official API (limited public tier)</li>
-              <li>captured 6:00 AM PT, same job</li>
-              <li>own dated snapshot, date always shown</li>
-            </ul>
-          </div>
-          <div className="rounded-lg border p-3" style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}>
-            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--gold-ink)" }}>Identity</p>
-            <ul className="mt-1 space-y-0.5 text-xs text-[var(--ink-2)]">
-              <li>shared FantasyPros player_id — no join needed</li>
-              <li>reviewed FantasyPros → Sleeper mapping</li>
-              <li>unmapped rows render without extras, never a guessed match</li>
-            </ul>
-          </div>
+        <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-5 border-t border-[var(--border)] pt-4 md:grid-cols-3">
+          {[
+            ["ADP · the price", ["FantasyPros consensus PPR composite", "up to 5 host boards", "captured 6:00 AM PT daily", "immutable dated snapshots + raw payload"]],
+            ["ECR · the experts", ["FantasyPros Draft PPR rankings", "official API (limited public tier)", "captured 6:00 AM PT, same job", "own dated snapshot, date always shown"]],
+            ["Identity", ["shared FantasyPros player_id — no join needed", "reviewed FantasyPros → Sleeper mapping", "unmapped rows render without extras, never a guessed match"]],
+          ].map(([title, lines]) => (
+            <div key={title as string}>
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-2)]">
+                <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "var(--gold)" }} />
+                {title}
+              </p>
+              <ul className="mt-1.5 space-y-1 text-xs text-[var(--ink-2)]">
+                {(lines as string[]).map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* why common-board movement exists */}
-        <div className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">
-            Why movement uses only common boards
-          </p>
-          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div className="rounded-md border p-2 text-center text-xs" style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}>
-              <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-3)]">Day A</p>
-              <p className="mt-1 tabular-nums text-[var(--ink-2)]">
-                Board <span className="font-semibold text-[var(--text-info)]">A · B · C</span> · D
-              </p>
+        {/* common-board membership */}
+        <div className="mx-auto mt-8 max-w-md text-center">
+          <Eyebrow>Why movement uses only common boards</Eyebrow>
+          <div className="mt-3 space-y-2.5">
+            <div className="flex items-center justify-center gap-3">
+              <span className="w-12 text-right text-[11px] text-[var(--ink-3)]">Day A</span>
+              <span className="flex gap-1.5">
+                <Board id="A" shared /> <Board id="B" shared /> <Board id="C" shared /> <Board id="D" shared={false} />
+              </span>
             </div>
-            <div className="rounded-md border p-2 text-center text-xs" style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}>
-              <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-3)]">Day B</p>
-              <p className="mt-1 tabular-nums text-[var(--ink-2)]">
-                Board <span className="font-semibold text-[var(--text-info)]">A · B · C</span> · E
-              </p>
+            <div className="flex items-center justify-center gap-3">
+              <span className="w-12 text-right text-[11px] text-[var(--ink-3)]">Day B</span>
+              <span className="flex gap-1.5">
+                <Board id="A" shared /> <Board id="B" shared /> <Board id="C" shared /> <Board id="E" shared={false} />
+              </span>
             </div>
           </div>
-          <p className="mt-2 text-xs text-[var(--ink-2)]">
-            Movement is computed over{" "}
-            <span className="font-semibold text-[var(--text-info)]">A + B + C only</span> — never the
-            changing full composite. Movement compares only boards present on
-            both dates so host entry/exit is not mistaken for repricing.
+          <p className="mt-3 text-[13px] font-semibold text-[var(--text-info)]">
+            Movement uses A + B + C only
+          </p>
+          <p className="mx-auto mt-1 max-w-[380px] text-[11px] text-[var(--ink-3)]">
+            Movement compares only boards present on both dates so host
+            entry/exit is not mistaken for repricing.
           </p>
         </div>
 
-        <details className="mt-3">
+        <details className="mt-6 max-w-[720px]">
           <summary className="disclose">Source details</summary>
           <div className="mt-3 space-y-2 text-sm text-[var(--ink-2)]">
             <p>
@@ -578,34 +650,41 @@ export default async function Methodology() {
       </section>
 
       {/* ================= EVIDENCE & TIMING ================= */}
-      <section className="mt-8">
+      <section className="mt-16">
         <SectionHead id="evidence" title="Evidence & timing" />
-        <div className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-          <div className="flex flex-col items-stretch gap-1 text-center text-[11px] sm:flex-row">
-            <div className="flex-1 rounded-md border px-2 py-2" style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}>
-              <p className="font-bold uppercase tracking-wide" style={{ color: "var(--gold-ink)" }}>◆ Event</p>
-              <p className="mt-0.5 text-[var(--ink-2)]">may precede the window</p>
-            </div>
-            <Arrow />
-            <div className="flex-1 rounded-md border border-dashed px-2 py-2" style={{ borderColor: "var(--gold-border)", color: "var(--ink-2)" }}>
-              <p className="font-bold uppercase tracking-wide" style={{ color: "var(--gold-ink)" }}>
-                {CATALYST_LOOKBACK_DAYS}-day lookback
-              </p>
-              <p className="mt-0.5">before the older snapshot</p>
-            </div>
-            <Arrow />
-            <div className="flex-[2] rounded-md border px-2 py-2" style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}>
-              <p className="font-bold uppercase tracking-wide text-[var(--text-info)]">
-                older snapshot ══ shared movement window ══ newer snapshot
-              </p>
-              <p className="mt-0.5 text-[var(--ink-2)]">
-                a catalyst anywhere in lookback + window can back the move
-              </p>
-            </div>
+        <div className="mx-auto mt-8 max-w-2xl px-2">
+          {/* timeline */}
+          <div className="relative h-16">
+            {/* baseline segments */}
+            <span aria-hidden className="absolute left-0 top-8 w-[8%] border-t" style={{ borderColor: "var(--border)" }} />
+            <span aria-hidden className="absolute left-[8%] top-8 w-[26%] border-t border-dashed" style={{ borderColor: "var(--gold)" }} />
+            <span aria-hidden className="absolute left-[34%] right-0 top-8 h-0.5" style={{ background: "var(--navy)" }} />
+            {/* event marker */}
+            <span aria-hidden className="absolute left-[8%] top-8 -translate-x-1/2 -translate-y-1/2 text-[13px]" style={{ color: "var(--gold)" }}>◆</span>
+            <p className="absolute left-[8%] top-1 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--gold-ink)" }}>
+              Event
+            </p>
+            {/* ticks */}
+            {["34%", "100%"].map((l) => (
+              <span key={l} aria-hidden className="absolute top-6 h-4 w-px" style={{ left: l, background: "var(--ink-3)" }} />
+            ))}
+            {/* span labels */}
+            <p className="absolute left-[21%] top-10 -translate-x-1/2 whitespace-nowrap text-[10px] uppercase tracking-wider" style={{ color: "var(--gold-ink)" }}>
+              {CATALYST_LOOKBACK_DAYS}-day lookback
+            </p>
+            <p className="absolute left-[67%] top-1 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider text-[var(--text-info)]">
+              shared movement window
+            </p>
+            <p className="absolute left-[34%] top-10 -translate-x-1/2 whitespace-nowrap text-[10px] text-[var(--ink-3)]">
+              older snapshot
+            </p>
+            <p className="absolute right-0 top-10 whitespace-nowrap text-[10px] text-[var(--ink-3)]">
+              newer snapshot
+            </p>
           </div>
-          <p className="mt-2 text-[11px] text-[var(--ink-2)]">
+          <p className="mt-4 text-center text-[11px] text-[var(--ink-2)]">
             <span
-              className="mr-1.5 rounded-full border px-2 py-0.5 font-bold uppercase tracking-wide"
+              className="mr-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
               style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)", color: "var(--gold-ink)" }}
             >
               {CATALYST_LOOKBACK_DAYS} days = current assumption
@@ -614,7 +693,7 @@ export default async function Methodology() {
             boards publish asynchronously, so the composite reacts gradually.
           </p>
         </div>
-        <p className="mt-3 text-sm text-[var(--ink-2)]">
+        <p className="mt-5 max-w-[720px] text-sm text-[var(--ink-2)]">
           A catalyst is matched to a
           move if it falls inside the {CATALYST_LOOKBACK_DAYS} days before the
           older snapshot or anywhere up to the newer one, not only inside the
@@ -631,17 +710,20 @@ export default async function Methodology() {
       </section>
 
       {/* ================= ARCHETYPES ================= */}
-      <section className="mt-8">
-        <div className="flex flex-wrap items-center gap-2">
-          <SectionHead id="archetypes" title="Player archetypes" />
-          <span
-            className="rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-            style={{ background: "var(--surface-info-strong)", borderColor: "var(--border-info-soft)", color: "var(--text-info)" }}
-          >
-            Display only
-          </span>
-        </div>
-        <p className="mt-2 text-sm text-[var(--ink-2)]">
+      <section className="mt-16">
+        <SectionHead
+          id="archetypes"
+          title="Player archetypes"
+          badge={
+            <span
+              className="rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+              style={{ background: "var(--surface-info-strong)", borderColor: "var(--border-info-soft)", color: "var(--text-info)" }}
+            >
+              Display only
+            </span>
+          }
+        />
+        <p className="mt-3 max-w-[720px] text-sm text-[var(--ink-2)]">
           The tag next to a player&rsquo;s name is a <strong>role label</strong>:
           it describes what kind of news moves that player, which is what
           connects it to the catalyst layer. A handcuff moves on starter
@@ -651,28 +733,29 @@ export default async function Methodology() {
           Sleeper injury designation and rookie flag. Archetypes never
           determine signals, rankings, or selection.
         </p>
-        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-1 gap-x-10 md:grid-cols-2">
           {[
             ["Injured", "current severe designation (IR, Out, PUP, NFI, Doubtful, Suspended, COV)"],
-            ["Lead back", "team's RB1 with the next back ≥ 30 picks behind"],
-            ["Handcuff", "team's RB2, ≥ 30 picks behind the RB1"],
-            ["Committee", "any back within 30 picks of the team's RB1"],
+            ["Lead back", "RB1 · next RB ≥ 30 picks behind"],
+            ["Handcuff", "RB2 · ≥ 30 picks behind the RB1"],
+            ["Committee", "any RB within 30 picks of the team's RB1"],
             ["Alpha receiver", "first-two-round price, or WR1 ≥ 20 ahead of WR2"],
-            ["Promoted", "highest-priced eligible teammate below an Injured player"],
+            ["Promoted", "highest-priced eligible teammate below an injured player"],
             ["Rookie", "first NFL season when no stronger role applies"],
-            ["No label", "QBs and TEs by design; free agents; no rule matched"],
+            ["No label", "QBs and TEs by design · free agents · no rule matched"],
           ].map(([t, d]) => (
-            <div
-              key={t}
-              className="rounded-lg border p-2.5"
-              style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
-            >
-              <p className="text-xs font-semibold">{t}</p>
-              <p className="mt-0.5 text-[11px] leading-snug text-[var(--ink-2)]">{d}</p>
+            <div key={t} className="flex items-baseline gap-3 border-t border-[var(--border)] py-2">
+              <span
+                className="shrink-0 rounded-full border px-2 py-0.5 text-xs"
+                style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
+              >
+                {t}
+              </span>
+              <span className="text-xs text-[var(--ink-2)]">{d}</span>
             </div>
           ))}
         </div>
-        <details className="mt-3">
+        <details className="mt-4 max-w-[720px]">
           <summary className="disclose">Archetype details</summary>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-[var(--ink-2)]">
             <li><strong>Injured</strong>: current Sleeper status is IR, Out, PUP, NFI, Doubtful, Suspended or COV. Day-to-day tags are ignored as too noisy. Checked before every role rule.</li>
@@ -711,37 +794,24 @@ export default async function Methodology() {
       </section>
 
       {/* ================= LIMITATIONS ================= */}
-      <section className="mt-8">
+      <section className="mt-16">
         <SectionHead id="limitations" title="Known limitations" />
-        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          <LimitCard title="Short history">
-            History begins {startLong ?? "at the first stored capture"}, the
-            first capture of the current FantasyPros series. No chart or
-            number implies data from before that date.
-          </LimitCard>
-          <LimitCard title="Partial market">
-            The price reflects five league host boards, not all of fantasy
-            football.
-          </LimitCard>
-          <LimitCard title="Staggered reaction">
-            News enters the ADP over several days — a real repricing looks
-            like a slope rather than a step. How many days that takes has not
-            yet been measured here.
-          </LimitCard>
-          <LimitCard title="Short ECR history">
-            The expert line has fewer points than the market line until the
-            two histories are the same length.
-          </LimitCard>
-          <LimitCard title="Missing ECR">
-            Some players carry no expert rank, or sit outside the comparable
-            range, and show “–” rather than a guessed value.
-          </LimitCard>
-          <LimitCard title="No signal outcome history yet">
-            How often each label appeared and how it resolved does not exist
-            yet; it needs more stored history than currently exists.
-          </LimitCard>
+        <div className="mt-4 grid grid-cols-1 gap-x-10 md:grid-cols-2">
+          {[
+            ["Short history", `History begins ${startLong ?? "at the first stored capture"}. No chart or number implies data from before that date.`],
+            ["Partial market", "The price reflects five league host boards, not all of fantasy football."],
+            ["Staggered reaction", "News enters the ADP over several days — a real repricing looks like a slope, not a step. How long that takes has not yet been measured here."],
+            ["Short ECR history", "The expert line has fewer points than the market line until the two histories are the same length."],
+            ["Missing ECR", "Some players carry no expert rank, or sit outside the comparable range, and show “–” rather than a guessed value."],
+            ["No signal outcome history yet", "How often each label appeared and how it resolved needs more stored history than currently exists."],
+          ].map(([t, d]) => (
+            <div key={t} className="border-t border-[var(--border)] py-2.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-2)]">{t}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-[var(--ink-2)]">{d}</p>
+            </div>
+          ))}
         </div>
-        <details className="mt-3">
+        <details className="mt-4 max-w-[720px]">
           <summary className="disclose">Limitation details</summary>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-[var(--ink-2)]">
             <li>
@@ -785,38 +855,105 @@ export default async function Methodology() {
       </section>
 
       {/* ================= AI EVALS ================= */}
-      <section className="mt-8">
+      <section className="mt-16">
         <SectionHead id="evals" title="AI explanation evals" />
-        <p className="mt-2 text-sm text-[var(--ink-2)]">
+        <p className="mt-3 max-w-[720px] text-sm text-[var(--ink-2)]">
           The AI explanation layer is gated behind this scorecard. Two
           hand-graded passes are recorded below, and no note is live: the
           usefulness check in the grading contract is not yet in force, so a
           note that only paraphrases its inputs cannot yet be failed for it.
         </p>
-        <div className="mt-3">
+        <div className="mt-4">
           <EvalScorecard />
         </div>
       </section>
 
-      {/* ================= DEEP REFERENCE ================= */}
-      <section className="mt-8">
-        <h2 className="text-xl font-semibold">Deep technical reference</h2>
-        <details className="mt-3">
-          <summary className="disclose">Positional ranks</summary>
-          <p className="mt-3 text-sm text-[var(--ink-2)]">
-            Positional ranks here (TE13, WR24) are computed from FantasyPros&rsquo;
-            overall ECR across the tracked players who hold an ECR, so they can
-            differ by a place or two from the positional ranks published on their
-            site. A player they rank whom the pipeline does not cover shifts
-            every rank below him. Price-side positional rank comes from the ADP
-            payload&rsquo;s own pos_rank field; kickers and team defenses are
-            excluded from the pipeline before ranking, so their removal does not
-            distort the skill position ranks.
-          </p>
-        </details>
+      {/* ================= TECHNICAL REFERENCE ================= */}
+      <section className="mt-16" id="reference">
+        <h2 className="scroll-mt-14 text-xl font-semibold">Technical reference</h2>
+        <p className="mt-1 text-sm text-[var(--ink-3)]">
+          Implementation details, edge cases, and decision records behind the
+          rendered numbers.
+        </p>
+        <div className="mt-4 grid grid-cols-1 gap-x-10 md:grid-cols-2">
+          <div>
+            <details>
+              <summary className="flex cursor-pointer list-none items-baseline gap-3 border-t border-[var(--border)] py-2.5 [&::-webkit-details-marker]:hidden">
+                <span className="w-6 shrink-0 text-[11px] tabular-nums text-[var(--ink-3)]">01</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13px] font-semibold leading-tight">Positional ranks</span>
+                  <span className="block text-[11px] text-[var(--ink-3)]">Why TE13 / WR24 may differ from FantasyPros</span>
+                </span>
+                <span className="shrink-0 text-[11px] font-medium text-[var(--accent)]">View →</span>
+              </summary>
+              <div className="ml-9 border-l pl-4 pb-3" style={{ borderColor: "var(--border-info-soft)" }}>
+                <dl className="space-y-1.5 text-xs">
+                  <div>
+                    <dt className="font-semibold">Site rank</dt>
+                    <dd className="text-[var(--ink-2)]">FantasyPros overall ECR across the tracked players who hold an ECR.</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">Price-side rank</dt>
+                    <dd className="text-[var(--ink-2)]">The ADP payload&rsquo;s own pos_rank field.</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">Why they differ</dt>
+                    <dd className="text-[var(--ink-2)]">Pipeline coverage and excluded positions shift ranks by a place or two.</dd>
+                  </div>
+                </dl>
+                <p className="mt-2 text-[11px] leading-relaxed text-[var(--ink-3)]">
+                  Positional ranks here (TE13, WR24) are computed from FantasyPros&rsquo;
+                  overall ECR across the tracked players who hold an ECR, so they can
+                  differ by a place or two from the positional ranks published on their
+                  site. A player they rank whom the pipeline does not cover shifts
+                  every rank below him. Price-side positional rank comes from the ADP
+                  payload&rsquo;s own pos_rank field; kickers and team defenses are
+                  excluded from the pipeline before ranking, so their removal does not
+                  distort the skill position ranks.
+                </p>
+              </div>
+            </details>
+            <RefRow n="02" title="Signal semantics" desc="Stored rule strings ↔ display labels" href="#signals" linkLabel="Signals" />
+            <RefRow n="03" title="Missing data" desc="Fallbacks, out-of-range ECR and “–”" href="#limitations" linkLabel="Limitations" />
+          </div>
+          <div>
+            <RefRow n="04" title="Player identity" desc="FantasyPros IDs and Sleeper enrichment" href="#sources" linkLabel="Sources" />
+            <RefRow n="05" title="Common-board movement" desc="Why changing board membership is excluded" href="#sources" linkLabel="Sources" />
+            <RefRow n="06" title="Archetype overrides" desc="Authored corrections, display-only behaviour" href="#archetypes" linkLabel="Archetypes" />
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <Eyebrow>Decision records</Eyebrow>
+          <div className="mt-2 grid grid-cols-1 gap-x-10 md:grid-cols-2">
+            {[
+              ["ADR-001", "Snapshot storage", "Daily snapshots on Vercel Blob, not Postgres", "ADR-001-snapshot-storage.md"],
+              ["ADR-002", "Curated catalysts", "Curated catalysts, not automated news analysis", "ADR-002-curated-catalysts.md"],
+              ["ADR-003", "Interpretation layer", "Repositioning to an interpretation layer, not missing data", "ADR-003-repositioning-interpretation-layer.md"],
+              ["ADR-004", "Catalyst sourcing & verification", "Sourcing is agent-assisted; verification is human", "ADR-004-catalyst-sourcing-and-verification.md"],
+              ["ADR-005", "News-lookback preregistration", "Preregistered lookback measurement", "ADR-005-news-lookback-preregistration.md"],
+            ].map(([id, title, desc, file]) => (
+              <div key={id} className="flex items-baseline gap-3 border-t border-[var(--border)] py-2.5">
+                <span className="w-14 shrink-0 text-[11px] tabular-nums text-[var(--ink-3)]">{id}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold leading-tight">{title}</p>
+                  <p className="text-[11px] text-[var(--ink-3)]">{desc}</p>
+                </div>
+                <a
+                  href={`${REPO}/blob/master/decisions/${file}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 text-[11px] font-medium text-[var(--accent)] hover:underline"
+                >
+                  ADR →
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      <p className="mt-10 text-xs text-[var(--ink-3)]">
+      <p className="mt-16 border-t border-[var(--border)] pt-4 text-xs text-[var(--ink-3)]">
         Decision records for the storage and catalyst approaches live in the
         repository under /decisions.{" "}
         <Link href="/" className="underline">Back to the Market</Link>
