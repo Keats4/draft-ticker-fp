@@ -141,7 +141,8 @@ details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(
 /* signal-quality 3-segment meter (calendar) */
 .meter { display: inline-flex; gap: 3px; vertical-align: middle; }
 .meter i { width: 20px; height: 6px; border-radius: 3px; background: #e6e8ec; display: inline-block; }
-.meter--sm i { width: 9px; height: 4px; border-radius: 2px; }
+.meter--sm { gap: 2px; }
+.meter--sm i { width: 6px; height: 4px; border-radius: 2px; }
 .meter.low   i:nth-child(1) { background: var(--sig-low); }
 .meter.med   i:nth-child(-n+2) { background: var(--sig-med); }
 .meter.high  i { background: var(--sig-high); }

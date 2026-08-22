@@ -10,12 +10,6 @@ export type TimelinePhase = {
   signal_level: PhaseLevel;
 };
 
-const TRUST_ABBR: Record<string, string> = {
-  low: "L",
-  med: "M",
-  high: "H",
-  vhigh: "VH",
-};
 const TRUST_FULL: Record<string, string> = {
   low: "Low",
   med: "Medium",
@@ -32,9 +26,8 @@ const RAIL_TITLE: Record<string, string> = {
 /**
  * The phase rail: one horizontal fantasy-year timeline, not twelve cards.
  * Each phase carries only its number, title (max two clamped lines) and a
- * compact categorical trust mark (mini bars + L/M/H/VH, the existing trust
- * colours; the full word lives in the tooltip and aria-label, and in the
- * status row and phase rows below). Windows/dates stay out of the rail —
+ * trust row: mini bars in the existing trust colours plus the full word
+ * (Low / Medium / High / Very high). Windows/dates stay out of the rail —
  * they render in the rows and expanded cards.
  *
  * Desktop: all twelve fit, no scroll, starts at phase 01. When the rail
@@ -101,42 +94,42 @@ export default function CalendarTimeline({
                 aria-current={isCurrent ? "step" : undefined}
                 aria-label={`${p.title}. Movement trust: ${full}`}
                 title={`Movement trust: ${full}`}
-                className="flex w-full min-w-[78px] flex-col items-center gap-1 rounded-md border px-1 py-1.5 text-center transition-colors hover:bg-[var(--surface-info-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                className="flex w-full min-w-[78px] flex-col items-center gap-1 rounded-md border px-0.5 py-2 text-center transition-colors hover:bg-[var(--surface-info-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
                 style={
                   isCurrent
                     ? { background: "var(--surface-info-strong)", borderColor: "var(--navy)" }
                     : { borderColor: "transparent" }
                 }
               >
-                <span className="flex h-[14px] items-center">
+                <span className="flex h-[16px] items-center">
                   {isCurrent ? (
                     <span
-                      className="rounded-full px-1.5 text-[9px] font-bold uppercase tracking-wide leading-[13px]"
+                      className="rounded-full px-1.5 text-[10px] font-bold uppercase tracking-wide leading-[15px]"
                       style={{ background: "var(--navy)", color: "var(--surface)" }}
                     >
                       Current
                     </span>
                   ) : (
-                    <span className="text-[9px] tabular-nums text-[var(--ink-3)]">
+                    <span className="text-[10px] tabular-nums text-[var(--ink-3)]">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                   )}
                 </span>
                 <span
-                  className={`line-clamp-2 h-[27px] w-full text-[10.5px] leading-[1.28] ${
+                  className={`line-clamp-2 h-[30px] w-full text-[12px] leading-[1.25] ${
                     isCurrent ? "font-semibold" : "text-[var(--ink-2)]"
                   }`}
                 >
                   {RAIL_TITLE[p.title] ?? p.title}
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
                   <span aria-hidden className={`meter meter--sm ${level}`}>
                     <i />
                     <i />
                     <i />
                   </span>
-                  <span className="text-[9px] font-bold text-[var(--ink-2)]">
-                    {TRUST_ABBR[level] ?? "–"}
+                  <span className="whitespace-nowrap text-[10px] font-semibold text-[var(--ink-2)]">
+                    {full === "pending" ? "–" : full}
                   </span>
                 </span>
               </button>
