@@ -512,8 +512,8 @@ export default async function Home() {
     label === "Diverging"
       ? { background: "var(--gold-bg)", border: "1px solid var(--gold-border)", color: "var(--gold-ink)" }
       : label === "Experts unmoved"
-        ? { background: "rgba(20,24,31,0.045)", border: "1px solid var(--border)", color: "var(--ink-2)" }
-        : { background: "rgba(22,35,61,0.08)", color: "var(--navy-2)" };
+        ? { background: "var(--surface)", border: "1px solid var(--border-info-soft)", color: "var(--ink-2)" }
+        : { background: "var(--surface-info-strong)", border: "1px solid var(--border-info-soft)", color: "var(--text-info)" };
 
   type LeadItem = {
     href: string;
@@ -915,7 +915,7 @@ export default async function Home() {
                     section heading's info dot. */}
                 <span
                   className="rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums"
-                  style={{ background: "rgba(22,35,61,0.07)", color: "var(--navy-2)" }}
+                  style={{ background: "var(--surface-info-strong)", color: "var(--text-info)" }}
                 >
                   #{i + 1} gap
                 </span>
