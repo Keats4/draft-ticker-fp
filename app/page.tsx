@@ -512,7 +512,7 @@ export default async function Home() {
       ? { background: "var(--gold-bg)", border: "1px solid var(--gold-border)", color: "var(--gold-ink)" }
       : label === "Experts unmoved"
         ? { background: "var(--surface)", border: "1px solid var(--border-info-soft)", color: "var(--ink-2)" }
-        : { background: "var(--surface-info-strong)", border: "1px solid var(--border-info-soft)", color: "var(--text-info)" };
+        : { background: "var(--surface-info-soft)", border: "1px solid var(--border-info-soft)", color: "var(--text-info)" };
 
   type LeadItem = {
     href: string;

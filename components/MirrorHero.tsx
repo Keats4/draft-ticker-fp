@@ -280,8 +280,8 @@ export default function MirrorHero({
           <p className="mt-1.5">
             <span
               title={pairSummary.note}
-              className="inline-block cursor-help rounded-full px-2 py-0.5 text-xs font-medium"
-              style={{ background: "var(--surface-info-strong)", color: "var(--text-info)" }}
+              className="inline-block cursor-help rounded-full border px-2 py-0.5 text-xs font-medium"
+              style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)", color: "var(--text-info)" }}
             >
               {pairSummary.opposed
                 ? "Opposite directions"
