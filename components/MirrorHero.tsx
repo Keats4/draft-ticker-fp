@@ -46,12 +46,13 @@ export type MirrorSide = {
 
 function Side({
   s,
-  moveWindow,
+  moveStatLabel,
   trackingSince,
   className = "",
 }: {
   s: MirrorSide;
-  moveWindow: string;
+  /** Full movement-badge label, e.g. "7-day market move" or "Market move since Aug 16". */
+  moveStatLabel: string;
   trackingSince: string;
   className?: string;
 }) {
@@ -68,11 +69,7 @@ function Side({
           <MoveStat
             anchored
             delta={s.hostRankDelta}
-            label={
-              s.hostRankDelta === null
-                ? "no movement stored yet"
-                : `Market move ${moveWindow}`
-            }
+            label={s.hostRankDelta === null ? "no movement stored yet" : moveStatLabel}
           />
         </div>
       </div>
@@ -145,7 +142,7 @@ export default function MirrorHero({
   evidence,
   catalysts,
   pairSummary,
-  moveWindow,
+  moveStatLabel,
   trackingSince,
 }: {
   title: string;
@@ -169,7 +166,8 @@ export default function MirrorHero({
     opposed: boolean;
     note: string;
   };
-  moveWindow: string;
+  /** Full movement-badge label shared by both sides (see Side). */
+  moveStatLabel: string;
   trackingSince: string;
 }) {
   const titlePills = (
@@ -233,10 +231,10 @@ export default function MirrorHero({
           </div>
           {/* one comparison object: two panes, one hairline between */}
           <div className="grid grid-cols-1 md:grid-cols-2">
-            <Side s={a} moveWindow={moveWindow} trackingSince={trackingSince} />
+            <Side s={a} moveStatLabel={moveStatLabel} trackingSince={trackingSince} />
             <Side
               s={b}
-              moveWindow={moveWindow}
+              moveStatLabel={moveStatLabel}
               trackingSince={trackingSince}
               className="border-t border-[var(--border)] md:border-t-0 md:border-l"
             />

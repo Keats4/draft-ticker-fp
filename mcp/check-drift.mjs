@@ -26,6 +26,7 @@ const grab = (src, pattern, label) => {
 const math = read("../lib/math.ts");
 const universe = read("../lib/universe.ts");
 const evidence = read("../lib/evidence.ts");
+const windowSrc = read("../lib/window.ts");
 const server = read("./server.mjs");
 
 const truth = {
@@ -34,6 +35,7 @@ const truth = {
   TOP_N: grab(universe, /TOP_N:\s*(\d+)/, "lib/universe.ts TOP_N"),
   MIN_SOURCE_COUNT: grab(universe, /MIN_SOURCE_COUNT:\s*(\d+)/, "lib/universe.ts MIN_SOURCE_COUNT"),
   CATALYST_LOOKBACK_DAYS: grab(evidence, /CATALYST_LOOKBACK_DAYS\s*=\s*(\d+)/, "lib/evidence.ts CATALYST_LOOKBACK_DAYS"),
+  MOVE_WINDOW_DAYS: grab(windowSrc, /MOVE_WINDOW_DAYS\s*=\s*(\d+)/, "lib/window.ts MOVE_WINDOW_DAYS"),
 };
 const ported = {
   HOST_RANK_MOVE: grab(server, /const HOST_RANK_MOVE\s*=\s*(\d+(?:\.\d+)?)/, "server.mjs HOST_RANK_MOVE"),
@@ -41,6 +43,7 @@ const ported = {
   TOP_N: grab(server, /const TOP_N\s*=\s*(\d+)/, "server.mjs TOP_N"),
   MIN_SOURCE_COUNT: grab(server, /const MIN_SOURCE_COUNT\s*=\s*(\d+)/, "server.mjs MIN_SOURCE_COUNT"),
   CATALYST_LOOKBACK_DAYS: grab(server, /const CATALYST_LOOKBACK_DAYS\s*=\s*(\d+)/, "server.mjs CATALYST_LOOKBACK_DAYS"),
+  MOVE_WINDOW_DAYS: grab(server, /const MOVE_WINDOW_DAYS\s*=\s*(\d+)/, "server.mjs MOVE_WINDOW_DAYS"),
 };
 
 let failed = false;

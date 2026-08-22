@@ -21,6 +21,7 @@ const ECR_MOVE = 2;
 const TOP_N = 200;
 const MIN_SOURCE_COUNT = 4;
 const CATALYST_LOOKBACK_DAYS = 7; // lib/evidence.ts
+const MOVE_WINDOW_DAYS = 7; // lib/window.ts
 const TRACKED = new Set(["QB", "RB", "WR", "TE"]);
 
 const round1 = (n) => Math.round(n * 10) / 10;
@@ -43,11 +44,18 @@ async function getJson(url, { ttlMs = 60_000, optional = false } = {}) {
   return data;
 }
 
-// ---- shared window clamp, copied from lib/snapshot.ts loadSharedWindow:
-// the movement window is the span BOTH series cover, oldest shared date to
-// newest shared date. Dates are enumerated from the public history file
+// ---- shared window clamp, copied from lib/snapshot.ts loadSharedWindow +
+// lib/window.ts selectMoveWindow: shared dates are the span BOTH series
+// cover, and the movement window is the latest MOVE_WINDOW_DAYS calendar
+// dates of them once that much history exists, or all shared history before
+// then. Dates are enumerated from the public history file
 // (the blob list API needs a token; the history file does not) and each
 // candidate ECR file is probed, since ECR days can be missing.
+function addDaysIso(iso, n) {
+  const d = new Date(iso + "T12:00:00Z");
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
 async function loadWindow() {
   const history = await getJson(`${BLOB}/host-rank-history.json`);
   const hostDates = [...new Set(history.map((r) => r.date))].sort();
@@ -57,8 +65,12 @@ async function loadWindow() {
     if (ecr) shared.push(d);
   }
   if (shared.length < 2) throw new Error("fewer than two shared dates stored");
-  const start = shared[0];
-  const end = shared[shared.length - 1];
+  const newest = shared[shared.length - 1];
+  const cutoff = addDaysIso(newest, -(MOVE_WINDOW_DAYS - 1));
+  const inWin = shared[0] <= cutoff ? shared.filter((d) => d >= cutoff) : shared;
+  if (inWin.length < 2) throw new Error("fewer than two shared dates inside the movement window");
+  const start = inWin[0];
+  const end = inWin[inWin.length - 1];
   const [hostFirst, hostLatest, ecrFirst, ecrLatest] = await Promise.all([
     getJson(`${BLOB}/host-rank/${start}.json`),
     getJson(`${BLOB}/host-rank/${end}.json`),

@@ -112,7 +112,7 @@ export default async function PlayerPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [{ first, latest, ecrPrev, ecrLatest, ecrSnaps }, history] =
+  const [{ first, latest, ecrPrev, ecrLatest, ecrSnaps, rolling }, history] =
     await Promise.all([loadSharedWindow(), loadHostRankHistory()]);
   // Movement/signal compare over the window BOTH series cover (lib/snapshot.ts
   // loadSharedWindow); the CHART still uses the full ECR series.
@@ -139,7 +139,11 @@ export default async function PlayerPage({
   const prevDateLabel = previous
     ? new Date(previous.date + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
     : null;
-  const moveWindow = prevDateLabel ? `since ${prevDateLabel}` : "since tracking began";
+  const moveWindow = rolling
+    ? "over the last 7 days"
+    : prevDateLabel
+      ? `since ${prevDateLabel}`
+      : "since tracking began";
 
   // "Tracking since" is the earliest STORED host rank date, never a
   // hardcoded date: the series begins at its own first capture.

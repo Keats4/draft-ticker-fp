@@ -324,13 +324,18 @@ export default async function Methodology() {
               </li>
               <li>
                 <strong>Movement</strong> = window-start ADP − window-end ADP, so
-                positive means rising (drafted earlier now). The window is the
-                span both series share, oldest shared date to newest: every
-                “Move” figure on the site covers{" "}
-                {startLong ?? "the first stored capture"} to the most recent
-                capture, and the dates are printed wherever the number appears.
-                The delta is computed only over host boards present on both days,
-                for the averaging reasons stated under “Sources” below. Missing
+                positive means rising (drafted earlier now). Primary movement
+                figures use the latest seven calendar dates once seven days of
+                shared history exist; before then, they use all available shared
+                history. Movement is computed between the earliest and latest
+                valid shared snapshots in that window and only across host
+                boards present on both endpoint dates, for the averaging reasons
+                stated under “Sources” below. Missing capture days are never
+                fabricated or interpolated; if a day is absent, the window
+                simply starts at the earliest real date inside it. The
+                seven-day span is a product window choice, not a historically
+                calibrated constant, and it is separate from the seven-day
+                catalyst lookback under “Catalyst window details”. Missing
                 data renders as “–”, never as zero.
               </li>
               <li>

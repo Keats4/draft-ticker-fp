@@ -1,4 +1,5 @@
 import { list, put } from "@vercel/blob";
+import { selectMoveWindow } from "./window";
 import type { EcrSnapshot, Snapshot } from "@/lib/types";
 
 /**
@@ -164,23 +165,27 @@ export async function loadFirstAndLatestSnapshots(): Promise<{
 }
 
 /**
- * Both series clamped to the window they SHARE: the earliest date present in
- * both the host rank series and the ECR series, through the latest date
- * present in both. Every movement comparison (host rank delta, ECR delta,
- * every "since <date>" sentence, every "who moved first" signal) must be
- * measured over the same span; first-and-latest of each series taken
- * independently silently compares, say, one day of price movement against a
- * week of expert movement whenever the two series start on different days.
+ * Both series clamped to the window they SHARE, then to the canonical
+ * rolling span (lib/window.ts selectMoveWindow): shared dates are those
+ * present in both the host rank series and the ECR series, and the window is
+ * the latest MOVE_WINDOW_DAYS calendar dates of them once that much history
+ * exists, or all shared history before then. Every movement comparison (host
+ * rank delta, ECR delta, the window sentence, every "who moved first"
+ * signal) must be measured over the same span; first-and-latest of each
+ * series taken independently silently compares, say, one day of price
+ * movement against a week of expert movement whenever the two series start
+ * on different days.
  *
- * - fewer than two shared dates: no movement window exists. `first` and
+ * - no selectable window (fewer than two usable shared dates): `first` and
  *   `ecrPrev` come back null (so no deltas render anywhere), while `latest`
  *   and `ecrLatest` are the newest of each series so current values still
- *   show.
- * - two or more shared dates: `first`/`ecrPrev` sit on the window start,
- *   `latest`/`ecrLatest` on the window end. When one series has run ahead of
- *   the other, the newest unshared day is deliberately NOT used: a true
- *   sentence about a shorter window beats a longer window only one series
- *   covers.
+ *   show. `rolling` is false.
+ * - otherwise: `first`/`ecrPrev` sit on the window start, `latest`/
+ *   `ecrLatest` on the window end, and `rolling` reports whether the full
+ *   span is covered (consumer copy: "Last 7 days" vs "Since <start>"). When
+ *   one series has run ahead of the other, the newest unshared day is
+ *   deliberately NOT used: a true sentence about a shorter window beats a
+ *   longer window only one series covers.
  *
  * `ecrSnaps` is the full stored ECR series for the charts, untouched by the
  * clamp; the chart may honestly draw dates the movement window excludes.
@@ -191,6 +196,7 @@ export async function loadSharedWindow(): Promise<{
   ecrPrev: EcrSnapshot | null;
   ecrLatest: EcrSnapshot | null;
   ecrSnaps: EcrSnapshot[];
+  rolling: boolean;
 }> {
   const [hostBlobs, ecrSnaps] = await Promise.all([
     (async () => {
@@ -211,8 +217,9 @@ export async function loadSharedWindow(): Promise<{
   );
   const ecrByDate = new Map(ecrSnaps.map((s) => [s.date, s]));
   const shared = [...hostByDate.keys()].filter((d) => ecrByDate.has(d)).sort();
-  const start = shared[0] ?? null;
-  const end = shared.length > 1 ? shared[shared.length - 1] : null;
+  const win = selectMoveWindow(shared);
+  const start = win?.start ?? null;
+  const end = win?.end ?? null;
 
   if (!start || !end) {
     const newestHost = [...hostByDate.keys()].sort().pop();
@@ -225,6 +232,7 @@ export async function loadSharedWindow(): Promise<{
       ecrPrev: null,
       ecrLatest: ecrSnaps[ecrSnaps.length - 1] ?? null,
       ecrSnaps,
+      rolling: false,
     };
   }
 
@@ -241,6 +249,7 @@ export async function loadSharedWindow(): Promise<{
       ecrPrev: null,
       ecrLatest: ecrSnaps[ecrSnaps.length - 1] ?? null,
       ecrSnaps,
+      rolling: false,
     };
   }
   return {
@@ -249,6 +258,7 @@ export async function loadSharedWindow(): Promise<{
     ecrPrev: ecrByDate.get(start) ?? null,
     ecrLatest: ecrByDate.get(end) ?? null,
     ecrSnaps,
+    rolling: win!.rolling,
   };
 }
 

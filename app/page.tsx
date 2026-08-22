@@ -185,7 +185,7 @@ function StatCard({
 }
 
 export default async function Home() {
-  const [{ first, latest, ecrPrev, ecrLatest, ecrSnaps }, history] =
+  const [{ first, latest, ecrPrev, ecrLatest, ecrSnaps, rolling }, history] =
     await Promise.all([loadSharedWindow(), loadHostRankHistory()]);
   // The move window is the span BOTH series cover (lib/snapshot.ts
   // loadSharedWindow): host rank delta and ECR delta are measured over the
@@ -224,8 +224,23 @@ export default async function Home() {
   const prevDateLabel = previous
     ? new Date(previous.date + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
     : null;
-  const moveLabel = prevDateLabel ? `Move (since ${prevDateLabel})` : "Move";
-  const moveWindow = prevDateLabel ? `since ${prevDateLabel}` : "since tracking began";
+  // Window copy: once the shared history covers the full rolling span the
+  // badges stop naming a date ("Last 7 days"); before that they say
+  // "Since <start>". Same canonical window either way (lib/window.ts).
+  const moveLabel = rolling
+    ? "Move (last 7 days)"
+    : prevDateLabel
+      ? `Move (since ${prevDateLabel})`
+      : "Move";
+  const moveWindow = rolling
+    ? "last 7 days"
+    : prevDateLabel
+      ? `since ${prevDateLabel}`
+      : "since tracking began";
+  const moveStatLabel = rolling
+    ? "7-day market move"
+    : `Market move ${moveWindow}`;
+  const moveWindowProse = rolling ? "over the last 7 days" : moveWindow;
   const riserLabel = prevDateLabel ? `Biggest riser (${moveWindow})` : "Biggest riser";
   const fallerLabel = prevDateLabel ? `Biggest faller (${moveWindow})` : "Biggest faller";
 
@@ -560,7 +575,7 @@ export default async function Home() {
             name: r.name,
             sub: `${r.position}${r.posRank} · ${r.team}`,
             delta: d,
-            figureSub: prevDateLabel ? `Since ${prevDateLabel}` : "Move",
+            figureSub: rolling ? "Last 7 days" : prevDateLabel ? `Since ${prevDateLabel}` : "Move",
             rel: relWord(d, r.ecrDelta),
             hostRank: r.hostRank,
             ecr: r.ecr,
@@ -716,16 +731,16 @@ export default async function Home() {
             note: isOpposed(bestPair.a, bestPair.b)
               ? `Same backfield, opposite directions. ${lastName(bestPair.a.name)} ${
                   (bestPair.a.hostRankDelta ?? 0) > 0 ? "up" : "down"
-                } ${Math.abs(bestPair.a.hostRankDelta ?? 0)} ${moveWindow}, ${lastName(bestPair.b.name)} ${
+                } ${Math.abs(bestPair.a.hostRankDelta ?? 0)} ${moveWindowProse}, ${lastName(bestPair.b.name)} ${
                   (bestPair.b.hostRankDelta ?? 0) > 0 ? "up" : "down"
                 } ${Math.abs(bestPair.b.hostRankDelta ?? 0)}.`
-              : `Both halves of this backfield moved the SAME way ${moveWindow} (${bestPair.a.name} ${
+              : `Both halves of this backfield moved the SAME way ${moveWindowProse} (${bestPair.a.name} ${
                   (bestPair.a.hostRankDelta ?? 0) > 0 ? "+" : ""
                 }${bestPair.a.hostRankDelta}, ${bestPair.b.name} ${
                   (bestPair.b.hostRankDelta ?? 0) > 0 ? "+" : ""
                 }${bestPair.b.hostRankDelta}), so the mirror is not showing in the price today. Shown as measured, not as a story it is not telling.`,
           }}
-          moveWindow={moveWindow}
+          moveStatLabel={moveStatLabel}
           trackingSince={trackingSince}
         />
       ) : singleHero ? (
@@ -803,7 +818,7 @@ export default async function Home() {
                   </div>
 
                   <div className="mt-2">
-                    <MoveStat delta={d} label={`Market move ${moveWindow}`} />
+                    <MoveStat delta={d} label={moveStatLabel} />
                   </div>
 
                   {/* The comparison as labelled values rather than a prose
