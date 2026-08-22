@@ -34,6 +34,7 @@ import MirrorHero, { type MirrorSide } from "@/components/MirrorHero";
 import type { PhaseLevel } from "@/components/PhaseMeter";
 import type { ChartMarker, ChartPoint } from "@/components/PlayerChart";
 import MarketTable, { type RowLite } from "@/components/MarketTable";
+import InfoDot from "@/components/InfoDot";
 import type { FpHostRankPlayer } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +70,11 @@ const fmtLongDate = (d: string) =>
     timeZone: "UTC",
   });
 const hrefFor = (r: MarketRow) => playerHref(r);
+
+/** First-use definitions for the two core series. Display only; the market
+ *  table header carries the fuller versions. */
+const ADP_DEF = "Market (ADP): Average Draft Position across the supported host draft boards. Lower = drafted earlier.";
+const ECR_DEF = "Experts (ECR): FantasyPros Expert Consensus Ranking.";
 
 /** Surname for tight hero copy ("Jonathon Brooks" → "Brooks"), skipping
  *  generational suffixes so "Kenneth Walker III" → "Walker". */
@@ -455,15 +461,39 @@ export default async function Home() {
   for (const r of ranked) {
     if (leadEligible(r) && !leadPool.some((p) => p.fpId === r.fpId)) leadPool.push(r);
   }
-  /** Display copy only: four-word market-versus-expert relationship for the
-   *  lead's scan line. Reads the published bars, introduces nothing new. */
-  const relWord = (hd: number, ed: number | null): string | null => {
+  /** Display copy only: compact market-versus-expert relationship state for
+   *  the lead's scan line. Same branches and bars as before; the label is a
+   *  product state and the old sentence lives on as the pill's tooltip. */
+  const relWord = (
+    hd: number,
+    ed: number | null
+  ): { label: string; note: string } | null => {
     if (ed == null) return null;
-    if (Math.abs(ed) < THRESHOLDS.ECR_MOVE) return "Experts haven't moved";
-    if (ed * hd < 0) return "Experts went the other way";
+    if (Math.abs(ed) < THRESHOLDS.ECR_MOVE)
+      return {
+        label: "Experts unmoved",
+        note: `Experts haven't moved: ECR shifted less than ${THRESHOLDS.ECR_MOVE} ranks over this window.`,
+      };
+    if (ed * hd < 0)
+      return {
+        label: "Diverging",
+        note: "Experts went the other way: ECR moved opposite to the market move.",
+      };
     const ratio = Math.abs(ed) / Math.abs(hd);
-    if (ratio >= 2 / 3 && ratio <= 1.5) return "Experts matched it";
-    return ratio < 1 ? "Experts trailed it" : "Experts moved further";
+    if (ratio >= 2 / 3 && ratio <= 1.5)
+      return {
+        label: "Aligned",
+        note: "Experts matched it: ECR moved the same way, within 2/3x to 1.5x of the market move.",
+      };
+    return ratio < 1
+      ? {
+          label: "Market leading",
+          note: "Experts trailed it: ECR moved the same way, but less than the market.",
+        }
+      : {
+          label: "Experts leading",
+          note: "Experts moved further: ECR moved the same way, and further than the market.",
+        };
   };
   type LeadItem = {
     href: string;
@@ -472,7 +502,10 @@ export default async function Home() {
     arrow: string;
     figure: string;
     figureSub: string;
-    rel: string | null;
+    rel: { label: string; note: string } | null;
+    hostRank: number;
+    ecr: number | null;
+    ecrDelta: number | null;
     reason: string;
     detail: string;
   };
@@ -513,6 +546,9 @@ export default async function Home() {
             figure: `${Math.abs(d)}`,
             figureSub: windowDays ? `picks · ${windowDays}d` : "picks",
             rel: relWord(d, r.ecrDelta),
+            hostRank: r.hostRank,
+            ecr: r.ecr,
+            ecrDelta: r.ecrDelta,
             // Full sentences from the previous lead, intact behind the expander.
             detail: `${read.main}.${read.expert ? ` ${read.expert}` : ""} ${evidence}`,
             reason,
@@ -583,15 +619,42 @@ export default async function Home() {
                     <Link href={item.href} className="hover:underline">{item.name}</Link>{" "}
                     <span className="font-normal text-[var(--ink-3)]">{item.sub}</span>
                   </p>
+                  {/* Structured comparison: the two series as labelled
+                      values, first-use definitions behind the info dots. */}
+                  <dl className="mt-1.5 max-w-[240px] space-y-0.5 text-xs">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <dt className="text-[var(--ink-3)]">
+                        Market (ADP)<InfoDot text={ADP_DEF} />
+                      </dt>
+                      <dd className="tabular-nums font-semibold">{item.hostRank}</dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <dt className="text-[var(--ink-3)]">
+                        Experts (ECR)<InfoDot text={ECR_DEF} />
+                      </dt>
+                      <dd className="tabular-nums font-semibold">
+                        {item.ecr ?? "–"}
+                        {item.ecrDelta !== null && item.ecrDelta !== 0 && (
+                          <span className="ml-1 font-normal text-[var(--ink-3)]">
+                            <span aria-hidden style={{ color: "var(--navy)" }}>
+                              {item.ecrDelta > 0 ? "▲" : "▼"}
+                            </span>{" "}
+                            {Math.abs(item.ecrDelta)}
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                  </dl>
                   {item.rel && (
                     <span
-                      className="mt-0.5 inline-block rounded-full px-2 py-0.5 text-xs"
+                      title={item.rel.note}
+                      className="mt-1 inline-block cursor-help rounded-full px-2 py-0.5 text-xs"
                       style={{ background: "rgba(22,35,61,0.06)", color: "var(--navy-2)" }}
                     >
-                      {item.rel}
+                      {item.rel.label}
                     </span>
                   )}
-                  <p className="mt-0.5 text-xs text-[var(--ink-3)]">{item.reason}</p>
+                  <p className="mt-1 text-xs text-[var(--ink-3)]">{item.reason}</p>
                   <details className="mt-1">
                     <summary className="disclose">details</summary>
                     <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
@@ -602,9 +665,6 @@ export default async function Home() {
               </div>
             ))}
           </div>
-          <p className="mt-4 border-t border-[var(--border)] pt-2 text-xs text-[var(--ink-3)]">
-            The numbers, signals and sources behind each of these are below.
-          </p>
         </section>
       )}
 
@@ -618,8 +678,13 @@ export default async function Home() {
           b={sideFor(bestPair.b)}
           evidence={pairEvidence}
           catalysts={pairCatalysts}
-          sentence={
-            isOpposed(bestPair.a, bestPair.b)
+          pairSummary={{
+            aLabel: lastName(bestPair.a.name),
+            aDelta: bestPair.a.hostRankDelta,
+            bLabel: lastName(bestPair.b.name),
+            bDelta: bestPair.b.hostRankDelta,
+            opposed: isOpposed(bestPair.a, bestPair.b),
+            note: isOpposed(bestPair.a, bestPair.b)
               ? `Same backfield, opposite directions. ${lastName(bestPair.a.name)} ${
                   (bestPair.a.hostRankDelta ?? 0) > 0 ? "up" : "down"
                 } ${Math.abs(bestPair.a.hostRankDelta ?? 0)} ${moveWindow}, ${lastName(bestPair.b.name)} ${
@@ -629,8 +694,8 @@ export default async function Home() {
                   (bestPair.a.hostRankDelta ?? 0) > 0 ? "+" : ""
                 }${bestPair.a.hostRankDelta}, ${bestPair.b.name} ${
                   (bestPair.b.hostRankDelta ?? 0) > 0 ? "+" : ""
-                }${bestPair.b.hostRankDelta}), so the mirror is not showing in the price today. Shown as measured, not as a story it is not telling.`
-          }
+                }${bestPair.b.hostRankDelta}), so the mirror is not showing in the price today. Shown as measured, not as a story it is not telling.`,
+          }}
           moveWindow={moveWindow}
           trackingSince={trackingSince}
         />
@@ -714,26 +779,45 @@ export default async function Home() {
                     )}
                     {d === null ? "–" : Math.abs(d)}
                     <span className="ml-2 align-baseline text-xs font-normal text-[var(--ink-3)]">
-                      picks {moveWindow}
+                      Market move · {moveWindow}
                     </span>
                   </p>
 
-                  <p className="mt-1 text-xs text-[var(--ink-2)]">
-                    {r.ecrDelta === null
-                      ? "Experts: no data"
-                      : r.ecrDelta === 0
-                        ? "Experts unmoved"
-                        : `Experts ${r.ecrDelta > 0 ? "▲" : "▼"} ${Math.abs(r.ecrDelta)}`}
+                  {/* The comparison as labelled values rather than a prose
+                      line. Same data as before: current ADP and ECR, the
+                      expert delta, the gap with its value word. */}
+                  <dl className="mt-2 max-w-[240px] space-y-0.5 text-xs">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <dt className="text-[var(--ink-3)]">Market (ADP)</dt>
+                      <dd className="tabular-nums font-semibold">{r.hostRank}</dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <dt className="text-[var(--ink-3)]">Experts (ECR)</dt>
+                      <dd className="tabular-nums font-semibold">
+                        {r.ecr ?? "–"}
+                        {r.ecrDelta !== null && r.ecrDelta !== 0 && (
+                          <span className="ml-1 font-normal text-[var(--ink-3)]">
+                            <span aria-hidden style={{ color: "var(--navy)" }}>
+                              {r.ecrDelta > 0 ? "▲" : "▼"}
+                            </span>{" "}
+                            {Math.abs(r.ecrDelta)}
+                          </span>
+                        )}
+                      </dd>
+                    </div>
                     {r.gap !== null && (
-                      <>
-                        {" · "}
-                        <span style={{ color: valueTone(r.gap) }}>
-                          Gap {r.gap > 0 ? "+" : ""}{r.gap}
-                          {valueWord(r.gap) ? ` ${valueWord(r.gap)}` : ""}
-                        </span>
-                      </>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <dt className="text-[var(--ink-3)]">Gap</dt>
+                        <dd
+                          className="tabular-nums font-semibold"
+                          style={{ color: valueTone(r.gap) }}
+                        >
+                          {r.gap > 0 ? "+" : ""}{r.gap}
+                          {valueWord(r.gap) ? ` · ${valueWord(r.gap)}` : ""}
+                        </dd>
+                      </div>
                     )}
-                  </p>
+                  </dl>
 
                   <div className="relative z-10 mt-2">
                     <SignalChip signal={r.signal} />
@@ -782,8 +866,10 @@ export default async function Home() {
           <span aria-hidden style={{ color: "var(--gold)" }}>◎</span> For your draft
         </p>
         <p className="mt-0.5 text-xs text-[var(--ink-2)]">
-          Where ADP and the experts disagree most inside the top{" "}
-          {FOR_YOUR_DRAFT_TOP_N} by ADP, the picks a drafter actually faces.
+          Largest ADP–ECR gaps · Top {FOR_YOUR_DRAFT_TOP_N}
+          <InfoDot
+            text={`Ranked by the widest absolute gap between Market (ADP) and Experts (ECR) among players inside the top ${FOR_YOUR_DRAFT_TOP_N} by ADP, the range a drafter actually faces. A chosen display bound, stated on the methodology page; signals and the comparison universe are unaffected.`}
+          />
         </p>
         <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
           {forYourDraft.map((r, i) => (
@@ -795,46 +881,55 @@ export default async function Home() {
                   </Link>
                   <p className="text-xs text-[var(--ink-3)]">{r.position}{r.posRank} · {r.team}</p>
                 </div>
-                <span className="text-xs text-[var(--ink-3)]">{i + 1}</span>
-              </div>
-              <p className="mt-2 text-sm">
-                {/* Value read: coloured, and the word carries the same meaning
-                    so colour is never the only signal. */}
-                <span
-                  className="tabular-nums font-semibold"
-                  style={{ color: valueTone(r.gap) }}
-                >
-                  {r.gap! > 0 ? "+" : ""}
-                  {r.gap} gap
-                  {valueWord(r.gap) ? `, ${valueWord(r.gap)}` : ""}
-                </span>{" "}
-                {/* Movement: neutral text, direction in the arrow. */}
-                <span className="text-[var(--ink-3)]">
-                  ·{" "}
-                  {r.hostRankDelta === null
-                    ? "no movement data yet"
-                    : r.hostRankDelta === 0
-                      ? `unmoved ${moveWindow}`
-                      : (
-                        <>
-                          <span aria-hidden style={{ color: "var(--navy)" }}>
-                            {r.hostRankDelta > 0 ? "▲" : "▼"}
-                          </span>{" "}
-                          {Math.abs(r.hostRankDelta)} {moveWindow}
-                        </>
-                      )}
+                {/* Rank as a structural badge; the ranking rule lives in the
+                    section heading's info dot. */}
+                <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-xs text-[var(--ink-3)]">
+                  #{i + 1} gap
                 </span>
-              </p>
+              </div>
+              {/* The comparison as labelled values. Gap keeps the value
+                  colour and its word; movement stays neutral with an arrow. */}
+              <dl className="mt-2 max-w-[240px] space-y-0.5 text-xs">
+                <div className="flex items-baseline justify-between gap-2">
+                  <dt className="text-[var(--ink-3)]">Market (ADP)</dt>
+                  <dd className="tabular-nums font-semibold">{r.hostRank}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <dt className="text-[var(--ink-3)]">Experts (ECR)</dt>
+                  <dd className="tabular-nums font-semibold">{r.ecr ?? "–"}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <dt className="text-[var(--ink-3)]">Gap</dt>
+                  <dd
+                    className="tabular-nums font-semibold"
+                    style={{ color: valueTone(r.gap) }}
+                  >
+                    {r.gap! > 0 ? "+" : ""}
+                    {r.gap}
+                    {valueWord(r.gap) ? ` · ${valueWord(r.gap)}` : ""}
+                  </dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <dt className="text-[var(--ink-3)]">Move ({moveWindow})</dt>
+                  <dd className="tabular-nums font-semibold">
+                    {r.hostRankDelta === null ? (
+                      "–"
+                    ) : r.hostRankDelta === 0 ? (
+                      "0"
+                    ) : (
+                      <>
+                        <span aria-hidden style={{ color: "var(--navy)" }}>
+                          {r.hostRankDelta > 0 ? "▲" : "▼"}
+                        </span>{" "}
+                        {Math.abs(r.hostRankDelta)}
+                      </>
+                    )}
+                  </dd>
+                </div>
+              </dl>
               <div className="mt-2">
                 <SignalChip signal={r.signal} />
               </div>
-              <p className="mt-2 text-xs text-[var(--ink-2)]">
-                {whatItMeans(r.signal, r.gap, r.hostRankDelta, r.ecrDelta)}
-              </p>
-              <p className="mt-2 border-t border-[var(--border)] pt-2 text-xs text-[var(--ink-3)]">
-                How we chose this: #{i + 1} widest market-vs-expert gap inside
-                the top {FOR_YOUR_DRAFT_TOP_N} by ADP.
-              </p>
             </div>
           ))}
         </div>
@@ -884,8 +979,8 @@ export default async function Home() {
           rather than removing the published bars from the page. */}
       <HowToReadCard hasMovement={hasMovement} />
 
-      <p className="mb-2 text-sm text-[var(--ink-2)]">
-        Every price move in the top 200, and how much to believe each one.
+      <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+        All price moves · Top {UNIVERSE.TOP_N}
       </p>
 
       <MarketTable rows={tableRows} moveLabel={moveLabel} trackingSince={trackingSince} />
@@ -895,10 +990,10 @@ export default async function Home() {
           View the full tracked pool ({rows.length} players) →
         </Link>{" "}
         <span className="text-[var(--ink-3)]">
-          Showing the top {Math.min(HOME_TABLE_ROWS, rows.length)} by ADP here.
-          Gaps and signals are computed only inside the comparison universe, the top{" "}
-          {UNIVERSE.TOP_N} by ADP; the Players page lists every tracked
-          player, comparable or not.
+          Top {Math.min(HOME_TABLE_ROWS, rows.length)} by ADP shown
+          <InfoDot
+            text={`Gaps and signals are computed only inside the comparison universe, the top ${UNIVERSE.TOP_N} by ADP; the Players page lists every tracked player, comparable or not.`}
+          />
         </span>
       </p>
 

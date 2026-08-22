@@ -2,6 +2,7 @@ import Link from "next/link";
 import SignalChip from "@/components/SignalChip";
 import PhaseMeter, { type PhaseLevel } from "@/components/PhaseMeter";
 import PlayerChart, { type ChartMarker, type ChartPoint } from "@/components/PlayerChart";
+import InfoDot from "@/components/InfoDot";
 import type { Signal } from "@/lib/math";
 import type { Evidence } from "@/lib/evidence";
 import { valueTone, valueWord } from "@/lib/story";
@@ -146,7 +147,7 @@ export default function MirrorHero({
   b,
   evidence,
   catalysts,
-  sentence,
+  pairSummary,
   moveWindow,
   trackingSince,
 }: {
@@ -160,7 +161,17 @@ export default function MirrorHero({
   /** Events near the move, newest first: each side's newest verified event,
    *  deduped when both sides point at the same article. */
   catalysts: { date: string; summary: string; label: string | null; sourceUrl: string; player: string | null }[];
-  sentence: string;
+  /** Structured pair read: the two deltas plus the opposed/same-direction
+   *  state. `note` is the full honest sentence (both variants unchanged) and
+   *  renders as the status pill's tooltip rather than as standing prose. */
+  pairSummary: {
+    aLabel: string;
+    aDelta: number | null;
+    bLabel: string;
+    bDelta: number | null;
+    opposed: boolean;
+    note: string;
+  };
   moveWindow: string;
   trackingSince: string;
 }) {
@@ -208,17 +219,14 @@ export default function MirrorHero({
             <Link href="/calendar" className="text-xs hover:underline">
               {phaseTitle}
             </Link>
+            {/* The phase's one-line explanation moved behind the info dot;
+                the full calendar context lives on /calendar. */}
+            {phaseProse && <InfoDot text={phaseProse} />}
           </>
         )}
         <span className="text-xs text-[var(--ink-3)]">Movement trust:</span>
         <PhaseMeter level={phaseLevel} />
       </div>
-
-      {phaseProse && (
-        <p className="border-b border-[var(--border)] px-4 py-2 text-xs text-[var(--ink-2)]">
-          {phaseProse}
-        </p>
-      )}
 
       {/* Below lg the title row keeps its original place above the sides;
           on lg it lives in the context rail instead. Same content once each. */}
@@ -240,7 +248,44 @@ export default function MirrorHero({
           <div className="hidden flex-wrap items-center gap-2 lg:flex">
             {titlePills}
           </div>
-          <p className="text-sm lg:mt-2">{sentence}</p>
+          {/* The pair read as values: the two windows' moves side by side,
+              with the opposed / same-direction state as a labelled pill. The
+              full sentence (either variant) is the pill's tooltip. */}
+          <dl className="mt-2 space-y-1 text-sm">
+            {[
+              { label: pairSummary.aLabel, delta: pairSummary.aDelta },
+              { label: pairSummary.bLabel, delta: pairSummary.bDelta },
+            ].map((row) => (
+              <div key={row.label} className="flex items-baseline justify-between gap-2">
+                <dt className="font-semibold">{row.label}</dt>
+                <dd className="tabular-nums font-semibold">
+                  {row.delta === null || row.delta === 0 ? (
+                    <span className="font-normal text-[var(--ink-3)]">
+                      {row.delta === null ? "–" : `unmoved`}
+                    </span>
+                  ) : (
+                    <>
+                      <span aria-hidden style={{ color: "var(--navy)" }}>
+                        {row.delta > 0 ? "▲" : "▼"}
+                      </span>{" "}
+                      {Math.abs(row.delta)}
+                    </>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-1.5">
+            <span
+              title={pairSummary.note}
+              className="inline-block cursor-help rounded-full px-2 py-0.5 text-xs"
+              style={{ background: "rgba(22,35,61,0.06)", color: "var(--navy-2)" }}
+            >
+              {pairSummary.opposed
+                ? "Opposite directions"
+                : "Same direction · not mirroring"}
+            </span>
+          </p>
           {catalysts.length > 0 ? (
             <div className="mt-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
@@ -269,9 +314,9 @@ export default function MirrorHero({
               </div>
             </div>
           ) : (
-            <p className="mt-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--ink-3)]">
-              These two are moving in opposite directions, but no single verified
-              event is on file for both. The mirror is measured, not explained.
+            <p className="mt-2 text-xs text-[var(--ink-3)]">
+              No shared verified event on file
+              <InfoDot text="These two are moving in opposite directions, but no single verified event is on file for both. The mirror is measured, not explained." />
             </p>
           )}
           <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--border)] pt-2 text-sm lg:mt-auto lg:flex-col lg:pt-3">

@@ -4,6 +4,29 @@ import { useState } from "react";
 import type { Signal } from "@/lib/math";
 import { SIGNAL_META } from "@/lib/signals";
 
+/**
+ * Display-layer label map: the stored Signal strings (lib/math.ts) are the
+ * deterministic states and are unchanged; the chip renders a compact product
+ * label for each. The popover keeps the full stored name, blurb and numeric
+ * rule, so the precise meaning is one tap away. Mapping:
+ *   Market moving faster           -> Market leading
+ *   Experts moving first           -> Experts leading
+ *   Market catching up to experts  -> Market converging
+ *   Market and experts converging  -> Converging
+ *   Market and experts diverging   -> Diverging
+ *   Broad agreement                -> Aligned move
+ *   Both holding                   -> Stable
+ */
+const DISPLAY_LABEL: Record<Signal, string> = {
+  "Market moving faster": "Market leading",
+  "Experts moving first": "Experts leading",
+  "Market catching up to experts": "Market converging",
+  "Market and experts converging": "Converging",
+  "Market and experts diverging": "Diverging",
+  "Broad agreement": "Aligned move",
+  "Both holding": "Stable",
+};
+
 /** Clickable signal chip; opens a popover stating the rule in numbers. */
 export default function SignalChip({ signal }: { signal: Signal | null }) {
   const [open, setOpen] = useState(false);
@@ -25,7 +48,7 @@ export default function SignalChip({ signal }: { signal: Signal | null }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
-        {signal}
+        {DISPLAY_LABEL[signal]}
         <span aria-hidden className="text-[var(--ink-3)]">
           ⓘ
         </span>

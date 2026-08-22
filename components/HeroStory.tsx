@@ -2,6 +2,7 @@ import Link from "next/link";
 import SignalChip from "@/components/SignalChip";
 import PhaseMeter, { type PhaseLevel } from "@/components/PhaseMeter";
 import PlayerChart, { type ChartMarker, type ChartPoint } from "@/components/PlayerChart";
+import InfoDot from "@/components/InfoDot";
 import type { Signal } from "@/lib/math";
 import type { Evidence } from "@/lib/evidence";
 import { valueTone, valueWord } from "@/lib/story";
@@ -85,17 +86,14 @@ export default function HeroStory({
             <Link href="/calendar" className="text-xs hover:underline">
               {phaseTitle}
             </Link>
+            {/* The phase's one-line explanation moved behind the info dot;
+                the full calendar context lives on /calendar. */}
+            {phaseProse && <InfoDot text={phaseProse} />}
           </>
         )}
         <span className="text-xs text-[var(--ink-3)]">Movement trust:</span>
         <PhaseMeter level={phaseLevel} />
       </div>
-
-      {phaseProse && (
-        <p className="border-b border-[var(--border)] px-4 py-2 text-xs text-[var(--ink-2)]">
-          {phaseProse}
-        </p>
-      )}
 
       {/* Desktop: facts left (7), chart + figures right (5), so the module
           has no full-width text region. Below lg the original stacked order
