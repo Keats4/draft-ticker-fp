@@ -44,8 +44,12 @@ export const TRUST_READING: Record<PhaseLevel, string> = {
  * phase name on the cards: the meter is the judgment, the calendar is the
  * why.
  *
- * `med` returns null ON PURPOSE: the meter appears only when the level
- * changes how the move should be read.
+ * Every valid level renders. `med` used to return null when it was the
+ * unmarked default; the 2026-08-22 role-evidence recalibration made Low,
+ * Medium and High three meaningful information regimes, so suppressing
+ * Medium became an unexplained semantic hole (the calendar, homepage strip
+ * and the player page's own prose all state Medium). Null is now reserved
+ * for unknown levels only.
  *
  * WHICH PHASE GOVERNS: callers derive the level from currentPhase(today),
  * the phase at the move window's NEWEST date. Trust is a statement about
@@ -54,7 +58,7 @@ export const TRUST_READING: Record<PhaseLevel, string> = {
  * the window's first day.
  */
 export function moveTrustLevel(level: string): PhaseLevel | null {
-  if (isPhaseLevel(level)) return level === "med" ? null : level;
+  if (isPhaseLevel(level)) return level;
   console.error(
     `[calendar] unhandled signal_level "${level}" in moveTrustLevel. Add it to SIGNAL_LEVELS in lib/phases.ts.`
   );

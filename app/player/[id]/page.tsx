@@ -37,7 +37,7 @@ const PHASES = (phasesFile as { phases: LibPhase[] }).phases;
 // The move-trust meter reads the phase current at the window's NEWEST date
 // (today): trust is a statement about what movement observed now is worth,
 // so the newer phase governs when a window spans a phase boundary. See
-// moveTrustLevel in lib/phases.ts. Null at "med" on purpose.
+// moveTrustLevel in lib/phases.ts. Null only for unknown levels.
 const CURRENT_PHASE = currentPhase(PHASES).phase ?? {
   title: "unknown",
   signal_level: "unknown",
