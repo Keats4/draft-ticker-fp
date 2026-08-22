@@ -68,7 +68,7 @@ function Move({ v, trackingSince }: { v: number | null; trackingSince?: string |
   return (
     <span className="whitespace-nowrap tabular-nums text-[var(--foreground)]">
       {v !== 0 && (
-        <span aria-hidden className="mr-0.5 text-[var(--ink-2)]">
+        <span aria-hidden className="mr-0.5" style={{ color: "var(--navy)" }}>
           {v > 0 ? "▲" : "▼"}
         </span>
       )}

@@ -161,12 +161,18 @@ export default function HeroStory({
         {/* 7. event headline with its date; full summary behind the expander */}
         {catalyst ? (
           <div className="mt-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+            <span
+              className="inline-block rounded-full border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide"
+              style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
+            >
               Event · {catalyst.date}
-            </p>
-            <p className="mt-0.5 text-sm">{catalyst.label ?? catalyst.summary}</p>
+            </span>
+            <p className="mt-1 text-sm">{catalyst.label ?? catalyst.summary}</p>
             <details className="mt-0.5">
-              <summary className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline">
+              <summary
+                className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline"
+                style={{ textDecorationColor: "var(--gold)" }}
+              >
                 view evidence
               </summary>
               <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">

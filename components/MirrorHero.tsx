@@ -53,7 +53,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
           <div className="text-2xl font-bold tabular-nums text-[var(--foreground)]">
             {/* Arrow carries direction, so the figure drops its sign: the
                 two said the same thing. Zero renders without either. */}
-            {arrow && <span aria-hidden className="text-[var(--ink-2)]">{arrow} </span>}
+            {arrow && <span aria-hidden style={{ color: "var(--navy)" }}>{arrow} </span>}
             {s.hostRankDelta === null ? "–" : Math.abs(s.hostRankDelta)}
           </div>
           <p className="text-xs text-[var(--ink-3)]">
@@ -212,6 +212,7 @@ export default function MirrorHero({
         {catalysts.length > 0 ? (
           <div className="mt-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+              <span aria-hidden style={{ color: "var(--gold)" }}>◆ </span>
               Events near the move
             </p>
             <div className="mt-1 space-y-2">
@@ -223,7 +224,10 @@ export default function MirrorHero({
                   </p>
                   <p className="text-sm">{c.label ?? c.summary}</p>
                   <details className="mt-0.5">
-                    <summary className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline">
+                    <summary
+                      className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline"
+                      style={{ textDecorationColor: "var(--gold)" }}
+                    >
                       view evidence
                     </summary>
                     <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">

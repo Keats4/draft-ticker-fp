@@ -43,7 +43,9 @@ body {
   display: inline-flex; align-items: center; gap: 4px;
   border: 1px solid var(--border); border-radius: 9999px;
   padding: 2px 10px; font-size: 12px; line-height: 1.4;
-  background: var(--surface); color: var(--foreground);
+  /* Subtle navy tint so the neutral chip reads finished, not unpainted.
+     Diverging (gold) and converging (green) stay the only special cases. */
+  background: rgba(22, 35, 61, 0.04); color: var(--foreground);
   cursor: pointer; white-space: nowrap;
   /* The longest label, "Market catching up to experts", is 203px with nowrap.
      At 390px the stat tiles are a two column grid, so each tile is ~175px and

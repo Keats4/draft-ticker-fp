@@ -125,6 +125,7 @@ function StatCard({
   name,
   sub,
   value,
+  arrow,
   tone,
   href,
 }: {
@@ -132,6 +133,9 @@ function StatCard({
   name: string;
   sub: string;
   value: string;
+  /** Direction arrow, rendered navy: movement's colour is the product navy,
+   *  never green or red, and direction lives in orientation alone. */
+  arrow?: "▲" | "▼";
   tone: "cheap" | "expensive" | "neutral" | "muted";
   href?: string;
 }) {
@@ -149,6 +153,9 @@ function StatCard({
       <div className="mt-1 flex items-baseline justify-between gap-2">
         <span className="text-sm font-semibold">{name}</span>
         <span className="text-2xl font-bold tabular-nums" style={{ color }}>
+          {arrow && (
+            <span aria-hidden style={{ color: "var(--navy)" }}>{arrow} </span>
+          )}
           {value}
         </span>
       </div>
@@ -558,10 +565,14 @@ export default async function Home() {
               once. Full sentences stay intact behind the expander. */}
           <div className="mt-3 space-y-4">
             {leadItems.map((item) => (
-              <div key={item.href} className="flex items-start gap-4">
+              <div
+                key={item.href}
+                className="flex items-start gap-4 border-l-2 pl-3"
+                style={{ borderColor: "var(--navy)" }}
+              >
                 <div className="w-24 shrink-0 text-right">
                   <p className="text-2xl font-bold tabular-nums leading-none">
-                    <span aria-hidden className="text-[var(--ink-3)]">{item.arrow} </span>
+                    <span aria-hidden style={{ color: "var(--navy)" }}>{item.arrow} </span>
                     {item.figure}
                   </p>
                   <p className="mt-1 text-xs text-[var(--ink-3)]">{item.figureSub}</p>
@@ -571,10 +582,20 @@ export default async function Home() {
                     <Link href={item.href} className="hover:underline">{item.name}</Link>{" "}
                     <span className="font-normal text-[var(--ink-3)]">{item.sub}</span>
                   </p>
-                  {item.rel && <p className="text-xs text-[var(--ink-2)]">{item.rel}</p>}
-                  <p className="text-xs text-[var(--ink-3)]">{item.reason}</p>
+                  {item.rel && (
+                    <span
+                      className="mt-0.5 inline-block rounded-full px-2 py-0.5 text-xs"
+                      style={{ background: "rgba(22,35,61,0.06)", color: "var(--navy-2)" }}
+                    >
+                      {item.rel}
+                    </span>
+                  )}
+                  <p className="mt-0.5 text-xs text-[var(--ink-3)]">{item.reason}</p>
                   <details className="mt-0.5">
-                    <summary className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline">
+                    <summary
+                      className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline"
+                      style={{ textDecorationColor: "var(--gold)" }}
+                    >
                       details
                     </summary>
                     <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
@@ -667,12 +688,15 @@ export default async function Home() {
               Fixed rhythm: name, market move, expert move + gap, signal,
               reason. Movement stays neutral with an arrow; the gap is the
               only coloured figure and carries its word. */}
-          <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {stories.map((r) => {
               const cat = topCatalystFor(r.sleeperId);
               const d = r.hostRankDelta;
               return (
-                <div key={r.fpId} className="relative rounded-lg p-1 transition-colors hover:bg-[var(--surface)]">
+                <div
+                  key={r.fpId}
+                  className="relative rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 transition-colors hover:border-[var(--ink-3)]"
+                >
                   <div className="flex items-baseline justify-between gap-2">
                     {/* Stretched link: the whole card stays a tap target on a
                         phone, while the expander and the signal chip are
@@ -688,9 +712,9 @@ export default async function Home() {
                     </span>
                   </div>
 
-                  <p className="mt-1 text-2xl font-bold tabular-nums leading-none">
+                  <p className="mt-1.5 text-2xl font-bold tabular-nums leading-none">
                     {d !== null && d !== 0 && (
-                      <span aria-hidden className="text-[var(--ink-3)]">{d > 0 ? "▲" : "▼"} </span>
+                      <span aria-hidden style={{ color: "var(--navy)" }}>{d > 0 ? "▲" : "▼"} </span>
                     )}
                     {d === null ? "–" : Math.abs(d)}
                     <span className="ml-2 align-baseline text-xs font-normal text-[var(--ink-3)]">
@@ -720,15 +744,21 @@ export default async function Home() {
                   </div>
 
                   {cat ? (
-                    <div className="mt-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+                    <div className="mt-2.5">
+                      <span
+                        className="inline-block rounded-full border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide"
+                        style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
+                      >
                         Event · {cat.date}
-                      </p>
-                      <p className="mt-0.5 text-xs text-[var(--ink-2)]">
+                      </span>
+                      <p className="mt-1 text-xs text-[var(--ink-2)]">
                         {cat.short_label ?? cat.summary}
                       </p>
                       <details className="relative z-10 mt-0.5">
-                        <summary className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline">
+                        <summary
+                          className="cursor-pointer select-none text-xs text-[var(--ink-3)] underline"
+                          style={{ textDecorationColor: "var(--gold)" }}
+                        >
                           view evidence
                         </summary>
                         <p className="mt-1 text-xs leading-relaxed text-[var(--ink-2)]">
@@ -794,7 +824,14 @@ export default async function Home() {
                     ? "no movement data yet"
                     : r.hostRankDelta === 0
                       ? `unmoved ${moveWindow}`
-                      : `${r.hostRankDelta > 0 ? "▲" : "▼"} ${Math.abs(r.hostRankDelta)} ${moveWindow}`}
+                      : (
+                        <>
+                          <span aria-hidden style={{ color: "var(--navy)" }}>
+                            {r.hostRankDelta > 0 ? "▲" : "▼"}
+                          </span>{" "}
+                          {Math.abs(r.hostRankDelta)} {moveWindow}
+                        </>
+                      )}
                 </span>
               </p>
               <div className="mt-2">
@@ -826,7 +863,8 @@ export default async function Home() {
           <StatCard
             label={riserLabel}
             name={riser.name}
-            value={`▲ ${Math.abs(riser.hostRankDelta!)}`}
+            value={`${Math.abs(riser.hostRankDelta!)}`}
+            arrow="▲"
             sub={`${riser.position}${riser.posRank} · ${riser.team} · picks gained ${moveWindow}`}
             tone="neutral"
             href={hrefFor(riser)}
@@ -838,7 +876,8 @@ export default async function Home() {
           <StatCard
             label={fallerLabel}
             name={faller.name}
-            value={`▼ ${Math.abs(faller.hostRankDelta!)}`}
+            value={`${Math.abs(faller.hostRankDelta!)}`}
+            arrow="▼"
             sub={`${faller.position}${faller.posRank} · ${faller.team} · picks lost ${moveWindow}`}
             tone="neutral"
             href={hrefFor(faller)}
