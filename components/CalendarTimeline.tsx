@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { PhaseLevel } from "@/components/PhaseMeter";
+import PhaseMeter, { type PhaseLevel } from "@/components/PhaseMeter";
 
 export type TimelinePhase = {
   key: string;
@@ -16,19 +16,11 @@ const TRUST_FULL: Record<string, string> = {
   high: "High",
 };
 
-/** Existing categorical trust colours; the dot is small, the word does the
- *  talking. */
-const TRUST_DOT: Record<string, string> = {
-  low: "var(--sig-low)",
-  med: "var(--sig-med)",
-  high: "var(--sig-high)",
-};
-
 /** Content-aware minimum widths so long titles breathe instead of wrapping
  *  aggressively; still systematic (three length categories, not per-phase
  *  hand tuning). */
 const minWidthFor = (title: string) =>
-  title.length <= 9 ? "104px" : title.length <= 17 ? "120px" : "136px";
+  title.length <= 9 ? "108px" : title.length <= 17 ? "122px" : "140px";
 
 /** Rail-only display shortenings; the full authored title renders everywhere
  *  else on the page. */
@@ -38,10 +30,13 @@ const RAIL_TITLE: Record<string, string> = {
 
 /**
  * The phase rail: one horizontal fantasy-year timeline, not twelve cards.
- * Each phase carries only its number, title (max two clamped lines) and a
- * trust row: a small dot in the existing categorical trust colour plus the
- * full word (Low / Medium / High). Windows/dates stay out of the rail —
- * they render in the rows and expanded cards.
+ * Each phase reads top to bottom: number on a chronological waypoint line,
+ * title (max two clamped lines), then the shared PhaseMeter — the same
+ * three-segment trust meter plus full word used by the status row and the
+ * phase rows, so trust is one visual language everywhere. The backbone line
+ * plus per-phase waypoints make the object read as the fantasy year, not a
+ * row of labels. Windows/dates stay out of the rail — they render in the
+ * rows and expanded cards.
  *
  * Readability over fit: tiles take content-aware widths, so the rail is a
  * contained scroller at desktop too, starting at phase 01 (the partially
@@ -87,7 +82,14 @@ export default function CalendarTimeline({
       data-timeline-scroll
       className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1"
     >
-      <div className="flex min-w-max items-stretch gap-0.5 lg:min-w-0">
+      <div className="relative flex min-w-max items-stretch gap-0.5">
+        {/* chronological backbone: scrolls with the phases, sits under the
+            waypoint dots */}
+        <span
+          aria-hidden
+          className="absolute left-3 right-3 top-[33.5px] h-px"
+          style={{ background: "var(--border-info-soft)" }}
+        />
         {phases.map((p, i) => {
           const isCurrent = i === currentIdx && !inGap;
           const level = p.signal_level ?? "";
@@ -109,7 +111,7 @@ export default function CalendarTimeline({
                 aria-current={isCurrent ? "step" : undefined}
                 aria-label={`${p.title}. Movement trust: ${full}`}
                 title={`Movement trust: ${full}`}
-                className="flex w-full flex-col items-center gap-1 rounded-md border px-1.5 py-2.5 text-center transition-colors hover:bg-[var(--surface-info-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                className="relative flex w-full flex-col items-center rounded-md border px-1.5 pb-3 pt-2.5 text-center transition-colors hover:bg-[var(--surface-info-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
                 style={{
                   minWidth: minWidthFor(RAIL_TITLE[p.title] ?? p.title),
                   ...(isCurrent
@@ -117,10 +119,10 @@ export default function CalendarTimeline({
                     : { borderColor: "transparent" }),
                 }}
               >
-                <span className="flex h-[16px] items-center">
+                <span className="flex h-[15px] items-center">
                   {isCurrent ? (
                     <span
-                      className="rounded-full px-1.5 text-[10px] font-bold uppercase tracking-wide leading-[15px]"
+                      className="rounded-full px-1.5 text-[10px] font-bold uppercase tracking-wide leading-[14px]"
                       style={{ background: "var(--navy)", color: "var(--surface)" }}
                     >
                       Current
@@ -131,22 +133,25 @@ export default function CalendarTimeline({
                     </span>
                   )}
                 </span>
+                {/* waypoint on the backbone line */}
                 <span
-                  className={`line-clamp-2 h-[34px] w-full text-[13px] leading-[1.3] ${
-                    isCurrent ? "font-semibold" : "text-[var(--ink-2)]"
+                  aria-hidden
+                  className="z-10 mt-1 inline-block h-[7px] w-[7px] rounded-full border"
+                  style={
+                    isCurrent
+                      ? { background: "var(--navy)", borderColor: "var(--navy)" }
+                      : { background: "var(--surface)", borderColor: "var(--border-info-soft)" }
+                  }
+                />
+                <span
+                  className={`mt-2 line-clamp-2 h-[36px] w-full text-[13.5px] leading-[1.3] ${
+                    isCurrent ? "font-semibold" : "font-medium text-[var(--ink-2)]"
                   }`}
                 >
                   {RAIL_TITLE[p.title] ?? p.title}
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <span
-                    aria-hidden
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{ background: TRUST_DOT[level] ?? "var(--border)" }}
-                  />
-                  <span className="whitespace-nowrap text-[11px] font-medium text-[var(--ink-2)]">
-                    {full === "pending" ? "–" : full}
-                  </span>
+                <span className="mt-1" title={`Movement trust: ${full}`}>
+                  <PhaseMeter level={p.signal_level} />
                 </span>
               </button>
             </div>
