@@ -22,9 +22,9 @@
   /* Blue-mist information system: near-neutral cool surfaces derived from
      the navy, for informational pills, stat panels and movement badges.
      Almost gray at a glance, but with the brand's cool cast. */
-  --surface-info-soft: #f3f6fa;
-  --surface-info-strong: #eef2f7;
-  --border-info-soft: #dce3ec;
+  --surface-info-soft: #eef3fa;
+  --surface-info-strong: #e5ecf6;
+  --border-info-soft: #cfdae9;
   --text-info: var(--navy-2);
   /* Convergence sage: "coming into agreement", deliberately far paler than
      the vivid Discount value green. */
