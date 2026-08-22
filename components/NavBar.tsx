@@ -31,7 +31,7 @@ export default function NavBar({
 
   return (
     <header style={{ background: "var(--navy)" }} className="text-white">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-4 py-3">
         <Link href="/" className="flex items-center gap-2 font-bold">
           <span aria-hidden style={{ color: "var(--gold)" }}>▚</span>
           Draft Ticker

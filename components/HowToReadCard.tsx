@@ -57,40 +57,43 @@ export default function HowToReadCard({ hasMovement = true }: { hasMovement?: bo
   }
 
   return (
-    <div className="relative mb-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm">
+    <div className="relative mb-3 border-y border-[var(--border)] py-3 text-sm">
       <button
         onClick={dismiss}
         aria-label="Dismiss"
-        className="absolute right-3 top-3 text-[var(--ink-3)] hover:text-[var(--foreground)]"
+        className="absolute right-0 top-3 text-[var(--ink-3)] hover:text-[var(--foreground)]"
       >
         ✕
       </button>
       <p className="font-semibold">How to read this</p>
-      <p className="mt-1">
-        <span className="font-semibold">Numbers</span> = where the league host
-        boards rank him (ADP) vs. where experts rank him (ECR).
-      </p>
-      <p className="mt-1">
-        <span className="font-semibold" style={{ color: "var(--pos)" }}>
-          Green
-        </span>{" "}
-        means a discount, the market prices him below the expert rank.{" "}
-        <span className="font-semibold" style={{ color: "var(--neg)" }}>
-          Red
-        </span>{" "}
-        means a premium, you pay ahead of it. It applies to the value read
-        only, the gap and the rounds figure.
-      </p>
-      <p className="mt-1">
-        <span className="font-semibold">Movement is neutral.</span> An arrow
-        shows the direction, because a falling ADP is a falling price, not a bad
-        one. Every green or red figure carries a word too, so nothing depends on
-        colour alone. Colour on a labelled pill, like a signal chip or the trust
-        meter, is just the label&apos;s colour.
-      </p>
-      <p className="mt-1">
-        <span className="font-semibold">Tap any row</span> for what it means.
-      </p>
+      {/* Desktop: the three explanations sit in columns so the explainer uses
+          the row instead of stacking into a tall block. Same words, same
+          order; below lg it reads exactly as before. */}
+      <div className="mt-1 space-y-1 lg:grid lg:grid-cols-3 lg:gap-x-6 lg:space-y-0">
+        <p>
+          <span className="font-semibold">Numbers</span> = where the league host
+          boards rank him (ADP) vs. where experts rank him (ECR).{" "}
+          <span className="font-semibold">Tap any row</span> for what it means.
+        </p>
+        <p>
+          <span className="font-semibold" style={{ color: "var(--pos)" }}>
+            Green
+          </span>{" "}
+          means a discount, the market prices him below the expert rank.{" "}
+          <span className="font-semibold" style={{ color: "var(--neg)" }}>
+            Red
+          </span>{" "}
+          means a premium, you pay ahead of it. It applies to the value read
+          only, the gap and the rounds figure.
+        </p>
+        <p>
+          <span className="font-semibold">Movement is neutral.</span> An arrow
+          shows the direction, because a falling ADP is a falling price, not a bad
+          one. Every green or red figure carries a word too, so nothing depends on
+          colour alone. Colour on a labelled pill, like a signal chip or the trust
+          meter, is just the label&apos;s colour.
+        </p>
+      </div>
       <p className="mt-2 border-t border-[var(--border)] pt-2 text-xs text-[var(--ink-2)]">
         <span className="font-medium">Thresholds:</span> a move counts at ≥
         {THRESHOLDS.HOST_RANK_MOVE} picks · an expert move at ≥

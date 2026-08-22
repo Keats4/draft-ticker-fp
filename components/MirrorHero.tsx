@@ -11,11 +11,18 @@ import { valueTone, valueWord } from "@/lib/story";
  *
  * Same three axes as the single hero (calendar phase, archetype, signal) but
  * doubled and squared up, so the two halves read as a matched pair and the
- * opposition is visible before you read a word. The shared event sits
- * underneath both, spanning, because it is the thing that makes them one story.
+ * opposition is visible before you read a word.
+ *
+ * Desktop composition (lg+): a 9 / 9 / 7 internal grid (36/36/28). The two player
+ * columns sit side by side; the pair's context (title, interpretation,
+ * evidence state, events near the move, links) lives in a right-hand rail
+ * rather than a full-width block underneath, so no horizontal region of the
+ * module is left without a purpose. Below lg the module keeps the original
+ * stacked hierarchy: title, side A, side B, context.
  *
  * Which pair appears (and whether a pair appears at all) is decided by
- * pairStrength() in lib/story.ts. Nothing here is hardcoded.
+ * pairStrength() in lib/story.ts. Nothing here is hardcoded. Layout only:
+ * every figure, label, pill and sentence is the same data as before.
  */
 export type MirrorSide = {
   href: string;
@@ -35,13 +42,23 @@ export type MirrorSide = {
   posRank: number;
 };
 
-function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: string; trackingSince: string }) {
+function Side({
+  s,
+  moveWindow,
+  trackingSince,
+  className = "",
+}: {
+  s: MirrorSide;
+  moveWindow: string;
+  trackingSince: string;
+  className?: string;
+}) {
   const up = (s.hostRankDelta ?? 0) > 0;
   // Movement is neutral by rule. The arrow carries the direction; painting a
   // faller red would say "bad price" about a price that just got cheaper.
   const arrow = s.hostRankDelta == null || s.hostRankDelta === 0 ? null : up ? "▲" : "▼";
   return (
-    <div className="flex flex-col gap-2 p-4">
+    <div className={`flex flex-col gap-2 p-4 ${className}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <Link href={s.href} className="text-sm font-semibold tracking-tight hover:underline">
@@ -50,7 +67,7 @@ function Side({ s, moveWindow, trackingSince }: { s: MirrorSide; moveWindow: str
           <p className="text-xs text-[var(--ink-3)]">{s.position}{s.posRank} · {s.team}</p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold tabular-nums text-[var(--foreground)]">
+          <div className="text-[22px] font-bold tabular-nums text-[var(--foreground)]">
             {/* Arrow carries direction, so the figure drops its sign: the
                 two said the same thing. Zero renders without either. */}
             {arrow && <span aria-hidden style={{ color: "var(--navy)" }}>{arrow} </span>}
@@ -147,6 +164,31 @@ export default function MirrorHero({
   moveWindow: string;
   trackingSince: string;
 }) {
+  const titlePills = (
+    <>
+      <h2 className="text-sm font-semibold uppercase tracking-wide">{title}</h2>
+      <span
+        className="rounded-full px-2 py-0.5 text-xs font-semibold"
+        style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)" }}
+      >
+        Mirror pair
+      </span>
+      {evidence && (
+        <span
+          className="rounded-full px-2 py-0.5 text-xs"
+          title={evidence.note}
+          style={
+            evidence.confirmed
+              ? { background: "rgba(21,128,61,0.12)", color: "var(--pos)" }
+              : { background: "var(--background)", color: "var(--ink-3)", border: "1px solid var(--border)" }
+          }
+        >
+          {evidence.label}
+        </span>
+      )}
+    </>
+  );
+
   return (
     <section
       className="mb-8 overflow-hidden rounded-xl border bg-[var(--surface)] shadow-sm"
@@ -178,74 +220,65 @@ export default function MirrorHero({
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 px-4 pt-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide">{title}</h2>
-        <span
-          className="rounded-full px-2 py-0.5 text-xs font-semibold"
-          style={{ background: "var(--gold-bg)", border: "1px solid var(--gold-border)" }}
-        >
-          Mirror pair
-        </span>
-        {evidence && (
-          <span
-            className="rounded-full px-2 py-0.5 text-xs"
-            title={evidence.note}
-            style={
-              evidence.confirmed
-                ? { background: "rgba(21,128,61,0.12)", color: "var(--pos)" }
-                : { background: "var(--background)", color: "var(--ink-3)", border: "1px solid var(--border)" }
-            }
-          >
-            {evidence.label}
-          </span>
-        )}
+      {/* Below lg the title row keeps its original place above the sides;
+          on lg it lives in the context rail instead. Same content once each. */}
+      <div className="flex flex-wrap items-center gap-2 px-4 pt-3 lg:hidden">
+        {titlePills}
       </div>
 
-      {/* the two squares, mirrored across a centre rule */}
-      <div className="mt-1 grid grid-cols-1 divide-y divide-[var(--border)] md:grid-cols-2 md:divide-x md:divide-y-0">
+      {/* the two player columns and the context rail: 9 / 9 / 7 on lg */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_9fr_7fr]">
         <Side s={a} moveWindow={moveWindow} trackingSince={trackingSince} />
-        <Side s={b} moveWindow={moveWindow} trackingSince={trackingSince} />
-      </div>
+        <Side
+          s={b}
+          moveWindow={moveWindow}
+          trackingSince={trackingSince}
+          className="border-t border-[var(--border)] md:border-t-0 md:border-l"
+        />
 
-      <div className="border-t border-[var(--border)] px-4 py-3">
-        <p className="text-sm">{sentence}</p>
-        {catalysts.length > 0 ? (
-          <div className="mt-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
-              <span aria-hidden style={{ color: "var(--gold)" }}>◆ </span>
-              Events near the move
-            </p>
-            <div className="mt-1 space-y-2">
-              {catalysts.map((c) => (
-                <div key={c.sourceUrl + c.date}>
-                  <p className="text-xs text-[var(--ink-3)]">
-                    {c.date}
-                    {c.player ? ` · ${c.player}` : ""}
-                  </p>
-                  <p className="text-sm">{c.label ?? c.summary}</p>
-                  <details className="mt-1">
-                    <summary className="disclose disclose--gold">view evidence</summary>
-                    <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
-                      {c.summary}{" "}
-                      <a href={c.sourceUrl} rel="noreferrer" className="underline text-[var(--ink-3)]">
-                        source
-                      </a>
-                    </p>
-                  </details>
-                </div>
-              ))}
-            </div>
+        <aside className="flex flex-col border-t border-[var(--border)] p-4 md:col-span-2 lg:col-span-1 lg:border-t-0 lg:border-l">
+          <div className="hidden flex-wrap items-center gap-2 lg:flex">
+            {titlePills}
           </div>
-        ) : (
-          <p className="mt-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--ink-3)]">
-            These two are moving in opposite directions, but no single verified
-            event is on file for both. The mirror is measured, not explained.
+          <p className="text-sm lg:mt-2">{sentence}</p>
+          {catalysts.length > 0 ? (
+            <div className="mt-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">
+                <span aria-hidden style={{ color: "var(--gold)" }}>◆ </span>
+                Events near the move
+              </p>
+              <div className="mt-1 space-y-2">
+                {catalysts.map((c) => (
+                  <div key={c.sourceUrl + c.date}>
+                    <p className="text-xs text-[var(--ink-3)]">
+                      {c.date}
+                      {c.player ? ` · ${c.player}` : ""}
+                    </p>
+                    <p className="text-sm">{c.label ?? c.summary}</p>
+                    <details className="mt-1">
+                      <summary className="disclose disclose--gold">view evidence</summary>
+                      <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
+                        {c.summary}{" "}
+                        <a href={c.sourceUrl} rel="noreferrer" className="underline text-[var(--ink-3)]">
+                          source
+                        </a>
+                      </p>
+                    </details>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="mt-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--ink-3)]">
+              These two are moving in opposite directions, but no single verified
+              event is on file for both. The mirror is measured, not explained.
+            </p>
+          )}
+          <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--border)] pt-2 text-sm lg:mt-auto lg:flex-col lg:pt-3">
+            <Link href={a.href} className="font-semibold underline">See {a.name} →</Link>
+            <Link href={b.href} className="font-semibold underline">See {b.name} →</Link>
           </p>
-        )}
-        <p className="mt-2 flex flex-wrap gap-x-4 text-sm">
-          <Link href={a.href} className="font-semibold underline">See {a.name} →</Link>
-          <Link href={b.href} className="font-semibold underline">See {b.name} →</Link>
-        </p>
+        </aside>
       </div>
     </section>
   );

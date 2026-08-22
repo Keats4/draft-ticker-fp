@@ -152,7 +152,7 @@ function StatCard({
       <p className="text-xs uppercase tracking-wide text-[var(--ink-3)]">{label}</p>
       <div className="mt-1 flex items-baseline justify-between gap-2">
         <span className="text-sm font-semibold">{name}</span>
-        <span className="text-2xl font-bold tabular-nums" style={{ color }}>
+        <span className="text-[22px] font-bold tabular-nums" style={{ color }}>
           {arrow && (
             <span aria-hidden style={{ color: "var(--navy)" }}>{arrow} </span>
           )}
@@ -539,7 +539,7 @@ export default async function Home() {
   }));
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
+    <main className="mx-auto max-w-[1280px] px-4 py-8">
       <header className="mb-5">
         <h1 className="text-3xl font-bold tracking-tight">Draft Ticker</h1>
         <p className="mt-1 text-sm text-[var(--ink-2)]">
@@ -563,19 +563,20 @@ export default async function Home() {
           {/* Numbers lead, words support: the figure lands before a word is
               read. Same positions on every row so the eye learns the pattern
               once. Full sentences stay intact behind the expander. */}
-          <div className="mt-3 space-y-4">
-            {leadItems.map((item) => (
+          <div className="mt-3 space-y-4 lg:grid lg:grid-cols-3 lg:space-y-0">
+            {leadItems.map((item, i) => (
               <div
                 key={item.href}
-                className="flex items-start gap-4 border-l-2 pl-3"
-                style={{ borderColor: "var(--navy)" }}
+                className={`flex items-start gap-4 border-l-2 border-[var(--navy)] pl-3 lg:block lg:border-l lg:border-[var(--border)] lg:px-5 ${
+                  i === 0 ? "lg:border-l-0 lg:pl-0" : ""
+                } ${i === leadItems.length - 1 ? "lg:pr-0" : ""}`}
               >
-                <div className="w-24 shrink-0 text-right">
-                  <p className="text-2xl font-bold tabular-nums leading-none">
+                <div className="w-24 shrink-0 text-right lg:mb-1.5 lg:flex lg:w-auto lg:items-baseline lg:gap-2 lg:text-left">
+                  <p className="text-[22px] font-bold tabular-nums leading-none">
                     <span aria-hidden style={{ color: "var(--navy)" }}>{item.arrow} </span>
                     {item.figure}
                   </p>
-                  <p className="mt-1 text-xs text-[var(--ink-3)]">{item.figureSub}</p>
+                  <p className="mt-1 text-xs text-[var(--ink-3)] lg:mt-0">{item.figureSub}</p>
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold leading-snug">
@@ -707,7 +708,7 @@ export default async function Home() {
                     </span>
                   </div>
 
-                  <p className="mt-1.5 text-2xl font-bold tabular-nums leading-none">
+                  <p className="mt-1.5 text-[22px] font-bold tabular-nums leading-none">
                     {d !== null && d !== 0 && (
                       <span aria-hidden style={{ color: "var(--navy)" }}>{d > 0 ? "▲" : "▼"} </span>
                     )}
@@ -776,7 +777,7 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
+      <section className="mb-8">
         <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--ink-3)]">
           <span aria-hidden style={{ color: "var(--gold)" }}>◎</span> For your draft
         </p>
@@ -784,9 +785,9 @@ export default async function Home() {
           Where ADP and the experts disagree most inside the top{" "}
           {FOR_YOUR_DRAFT_TOP_N} by ADP, the picks a drafter actually faces.
         </p>
-        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
           {forYourDraft.map((r, i) => (
-            <div key={r.fpId} className="rounded-lg border border-[var(--border)] p-3">
+            <div key={r.fpId} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <Link href={hrefFor(r)} className="font-semibold hover:underline">

@@ -97,7 +97,11 @@ export default function HeroStory({
         </p>
       )}
 
-      <div className="p-4">
+      {/* Desktop: facts left (7), chart + figures right (5), so the module
+          has no full-width text region. Below lg the original stacked order
+          is unchanged. Layout only. */}
+      <div className="p-4 lg:grid lg:grid-cols-[7fr_5fr] lg:gap-x-6">
+        <div>
         {/* 2. player + archetype */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <Link href={href} className="text-2xl font-bold tracking-tight hover:underline">
@@ -131,7 +135,7 @@ export default function HeroStory({
               {evidence.label}
             </span>
           )}
-          <span className="ml-auto flex items-center gap-3 text-xs tabular-nums text-[var(--ink-3)]">
+          <span className="ml-auto flex items-center gap-3 text-xs tabular-nums text-[var(--ink-3)] lg:hidden">
             <span>ADP {hostRank}</span>
             <span>ECR {ecr ?? "–"}</span>
             {/* The value read: the only coloured number in the hero, and the
@@ -145,8 +149,8 @@ export default function HeroStory({
           </span>
         </div>
 
-        {/* 5. mini chart with the disagreement band */}
-        <div className="mt-3">
+        {/* 5 (mobile position). mini chart with the disagreement band */}
+        <div className="mt-3 lg:hidden">
           <PlayerChart
             variant="mini"
             points={points}
@@ -187,6 +191,28 @@ export default function HeroStory({
         <Link href={href} className="mt-3 inline-block text-sm font-semibold underline">
           See the full read on {name} →
         </Link>
+        </div>
+
+        {/* Desktop right column: the chart with ADP / ECR / gap directly
+            beneath it. Same data as the mobile strip above. */}
+        <div className="hidden lg:block">
+          <PlayerChart
+            variant="mini"
+            points={points}
+            markers={markers}
+            trackingSince={trackingSince}
+          />
+          <p className="mt-2 flex items-center justify-center gap-4 text-xs tabular-nums text-[var(--ink-3)]">
+            <span>ADP {hostRank}</span>
+            <span>ECR {ecr ?? "–"}</span>
+            {gap !== null && (
+              <span style={{ color: valueTone(gap) }}>
+                Gap {gap > 0 ? "+" : ""}{gap}
+                {valueWord(gap) ? ` ${valueWord(gap)}` : ""}
+              </span>
+            )}
+          </p>
+        </div>
       </div>
     </section>
   );

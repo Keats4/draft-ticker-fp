@@ -45,7 +45,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <NavBar freshness={freshness} />
         <div className="flex-1">{children}</div>
         <footer className="mt-10 border-t border-[var(--border)] px-4 py-5 text-xs text-[var(--ink-3)]">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-1">
+          <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-x-4 gap-y-1">
             <span>Draft Ticker</span>
             <Link href="/methodology" className="underline">
               Methodology
