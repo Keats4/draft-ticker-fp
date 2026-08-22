@@ -111,31 +111,82 @@ export default function EvalScorecard() {
   const p1 = grades.pass_1 as unknown as Pass;
   const p2 = grades.pass_2 as unknown as Pass;
   const rows = p2.rows ?? [];
+  const d1 = deriveResult(p1.rows, p1.result?.live ?? 0);
+  const d2 = deriveResult(p2.rows, p2.result?.live ?? 0);
+  const bothComplete =
+    p1.rows.every((r) => isComplete(r.grades)) &&
+    p2.rows.every((r) => isComplete(r.grades));
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className="text-sm font-semibold">Explanation eval scorecard</p>
-        <p className="text-xs text-[var(--ink-3)]">{schema?.graded_by}</p>
+        <p className="text-xs font-semibold text-[var(--ink-2)]">{schema?.graded_by}</p>
       </div>
 
-      <PassBanner n={1} p={p1} />
-      <PassBanner n={2} p={p2} />
-
-      <p className="mt-2 text-[11px] text-[var(--ink-3)]">
-        Every verdict above is computed from the cells below: a note passes only
-        if all five are marked pass. The values recorded in the file are shown
-        beside the computed ones so a disagreement is visible rather than
-        assumed away.
-      </p>
+      {/* Summary first: the two passes and the finding between them, every
+          figure derived from the graded cells (never the typed result). The
+          complete graded evidence sits behind the disclosure below. */}
+      {bothComplete && (
+        <div className="mt-3 grid grid-cols-1 items-stretch gap-2 sm:grid-cols-3">
+          <div
+            className="rounded-lg border p-3"
+            style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">
+              Pass 1 · {p1.date}
+            </p>
+            <p className="mt-1 text-xl font-bold tabular-nums text-[var(--text-info)]">
+              {d1.pass} / {d1.rows}
+            </p>
+            <p className="text-xs text-[var(--ink-2)]">
+              <span style={d1.fail > 0 ? { color: "var(--neg)", fontWeight: 600 } : undefined}>
+                {d1.fail} failed
+              </span>{" "}
+              · {d1.live} live
+            </p>
+          </div>
+          <div
+            className="rounded-lg border p-3"
+            style={{ background: "var(--gold-bg)", borderColor: "var(--gold-border)" }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--gold-ink)" }}>
+              Contract defect found
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--ink-2)]">
+              The failing phrasing was instructed by the grading contract
+              itself; the vocabulary / contradiction rule was amended and the
+              full set re-run against identical payloads.
+            </p>
+          </div>
+          <div
+            className="rounded-lg border p-3"
+            style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">
+              Pass 2 · {p2.date}
+            </p>
+            <p className="mt-1 text-xl font-bold tabular-nums text-[var(--text-info)]">
+              {d2.pass} / {d2.rows}
+            </p>
+            <p className="text-xs text-[var(--ink-2)]">
+              {d2.fail} failed · <span className="font-semibold">{d2.live} live</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="mt-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-3)]">Rubric</p>
-        <dl className="mt-1 space-y-1 text-xs text-[var(--ink-2)]">
+        <dl className="mt-1.5 grid grid-cols-1 gap-1.5 text-xs text-[var(--ink-2)] sm:grid-cols-2 lg:grid-cols-5">
           {EVAL_COLUMNS.map((c) => (
-            <div key={c.key}>
-              <dt className="inline font-medium">{c.short}: </dt>
-              <dd className="inline">{schema?.columns?.[c.key]}</dd>
+            <div
+              key={c.key}
+              className="rounded-md border p-2"
+              style={{ background: "var(--surface-info-soft)", borderColor: "var(--border-info-soft)" }}
+            >
+              <dt className="text-[10px] font-bold uppercase tracking-wide text-[var(--ink-2)]">{c.short}</dt>
+              <dd className="mt-0.5 text-[11px] leading-snug">{schema?.columns?.[c.key]}</dd>
             </div>
           ))}
         </dl>
@@ -153,6 +204,16 @@ export default function EvalScorecard() {
         </p>
       </div>
 
+      <details className="mt-3">
+        <summary className="disclose">View all 13 graded cases</summary>
+        <PassBanner n={1} p={p1} />
+        <PassBanner n={2} p={p2} />
+        <p className="mt-2 text-[11px] text-[var(--ink-3)]">
+          Every verdict is computed from the cells below: a note passes only
+          if all five are marked pass. The values recorded in the file are
+          shown beside the computed ones so a disagreement is visible rather
+          than assumed away.
+        </p>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
@@ -241,6 +302,7 @@ export default function EvalScorecard() {
       </div>
 
       <p className="mt-2 text-[11px] text-[var(--ink-3)]">{schema?.passes}</p>
+      </details>
     </div>
   );
 }
