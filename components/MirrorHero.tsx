@@ -198,16 +198,12 @@ export default function MirrorHero({
   );
 
   return (
-    <section
-      className="mb-8 overflow-hidden rounded-xl border bg-[var(--surface)] shadow-sm"
-      style={{ borderColor: "var(--navy)" }}
-      aria-label="Today's lead story: mirror pair"
-    >
-      <div
-        className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2"
-        style={{ background: "var(--background)", borderColor: "var(--border)" }}
-      >
-        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--navy-2)]">
+    <section className="mb-8" aria-label="Today's lead story: mirror pair">
+      {/* Full-width introduction for the row beneath: the lead eyebrow with
+          phase and trust. No enclosing outline; the two cards below size
+          independently, so the canvas shows under the shorter one. */}
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
           Today&rsquo;s lead
         </span>
         {phaseTitle && (
@@ -221,27 +217,33 @@ export default function MirrorHero({
             {phaseProse && <InfoDot text={phaseProse} />}
           </>
         )}
-        <span className="text-xs text-[var(--ink-3)]">Movement trust:</span>
+        <span className="text-xs text-[var(--ink-2)]">Movement trust:</span>
         <PhaseMeter level={phaseLevel} />
       </div>
 
-      {/* Below lg the title row keeps its original place above the sides;
-          on lg it lives in the context rail instead. Same content once each. */}
-      <div className="flex flex-wrap items-center gap-2 px-4 pt-3 lg:hidden">
-        {titlePills}
-      </div>
+      {/* Two independently sized cards: the comparison (72) and the context
+          panel (28). items-start stops the players from inheriting the
+          taller rail's height; the rail may run lower on its own. */}
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[72fr_28fr]">
+        <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
+          {/* Below lg the pair title keeps its original place above the
+              sides; on lg it lives in the context card instead. */}
+          <div className="flex flex-wrap items-center gap-2 px-4 pt-3 lg:hidden">
+            {titlePills}
+          </div>
+          {/* one comparison object: two panes, one hairline between */}
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <Side s={a} moveWindow={moveWindow} trackingSince={trackingSince} />
+            <Side
+              s={b}
+              moveWindow={moveWindow}
+              trackingSince={trackingSince}
+              className="border-t border-[var(--border)] md:border-t-0 md:border-l"
+            />
+          </div>
+        </div>
 
-      {/* the two player columns and the context rail: 9 / 9 / 7 on lg */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_9fr_7fr]">
-        <Side s={a} moveWindow={moveWindow} trackingSince={trackingSince} />
-        <Side
-          s={b}
-          moveWindow={moveWindow}
-          trackingSince={trackingSince}
-          className="border-t border-[var(--border)] md:border-t-0 md:border-l"
-        />
-
-        <aside className="flex flex-col border-t border-[var(--border)] p-4 md:col-span-2 lg:col-span-1 lg:border-t-0 lg:border-l">
+        <aside className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
           <div className="hidden flex-wrap items-center gap-2 lg:flex">
             {titlePills}
           </div>
@@ -322,7 +324,7 @@ export default function MirrorHero({
               <InfoDot text="These two are moving in opposite directions, but no single verified event is on file for both. The mirror is measured, not explained." />
             </p>
           )}
-          <p className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--border)] pt-2 text-sm lg:mt-auto lg:flex-col">
+          <p className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 border-t border-[var(--border)] pt-2 text-sm lg:flex-col">
             <Link href={a.href} className="font-semibold underline">See {a.name} →</Link>
             <Link href={b.href} className="font-semibold underline">See {b.name} →</Link>
           </p>
