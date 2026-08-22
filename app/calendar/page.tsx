@@ -13,7 +13,7 @@ type Phase = {
   window: string;
   start: string;
   end: string;
-  signal_level: "low" | "med" | "high" | "vhigh" | null;
+  signal_level: "low" | "med" | "high" | null;
   card_line: string;
   how_to_read: string;
   sections: Record<string, string>;

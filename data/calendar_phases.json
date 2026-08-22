@@ -5,7 +5,7 @@
    "key": "stable slug",
    "title": "display name",
    "window": "approximate calendar window, display only",
-   "signal_level": "one of low | med | high | vhigh | null - drives the signal-quality meter; null renders 'pending'. Split ratings from the source doc are rounded DOWN to the more cautious level and the nuance is kept in how_to_read.",
+   "signal_level": "one of low | med | high | null - drives the signal-quality meter; null renders 'pending'. Split ratings from the source doc are rounded DOWN to the more cautious level and the nuance is kept in how_to_read.",
    "card_line": "one sentence, the lead line on the phase card AND the line the homepage hero shows next to the phase name. Keep it short.",
    "how_to_read": "the TRUST WHY prose: why movement in this phase deserves the trust level it has. Renders in the gold panel on the current phase. Empty = pending.",
    "sections": "what_appears | player_types | signal_strength | watching - authored by Navi and rendered VERBATIM. signal_strength is driven by signal_level, not by this string."
@@ -89,7 +89,7 @@
    "window": "late July–early Aug",
    "start": "2026-07-22",
    "end": "2026-08-05",
-   "signal_level": "high",
+   "signal_level": "med",
    "card_line": "First-team reps in pads: the first evidence from real competition.",
    "how_to_read": "First-team reps in pads are the first evidence produced under real competition: contact, installs, and coaches choosing who runs with the starters. The caveat: coaches rotate packages all camp, so a raw rep count without package context can overstate a role.",
    "sections": {
@@ -201,7 +201,7 @@
    "window": "Weeks 10–17",
    "start": "2026-11-25",
    "end": "2027-01-10",
-   "signal_level": "vhigh",
+   "signal_level": "med",
    "card_line": "Rookies take over. Averages stop describing roles.",
    "how_to_read": "A late-season role change arrives with a large usage sample behind it and few weeks left for another change. The main trap is paying for a season-long average that no longer describes the player's current role.",
    "sections": {

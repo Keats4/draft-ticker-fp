@@ -1,12 +1,11 @@
 /** Calendar trust meter. Shared by /calendar and the homepage hero so the two
  *  can never drift apart. null level renders "pending", never a fake bar. */
-export type PhaseLevel = "low" | "med" | "high" | "vhigh" | null;
+export type PhaseLevel = "low" | "med" | "high" | null;
 
 const LEVEL_LABEL: Record<string, string> = {
   low: "Low",
   med: "Medium",
   high: "High",
-  vhigh: "Very high",
 };
 
 export default function PhaseMeter({ level }: { level: PhaseLevel }) {

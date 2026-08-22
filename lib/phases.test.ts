@@ -13,8 +13,8 @@ const phases = (phasesFile as { phases: { key: string; signal_level: string }[] 
 
 describe("calendar phase trust levels", () => {
   // The guard. The first version of this map handled three levels while the
-  // data carried four, and `preseason` at vhigh is the phase immediately after
-  // training camp, so it would have degraded to a generic sentence within days.
+  // data carried four; the calendar was recalibrated to three authored tiers
+  // on 2026-08-22 (vhigh retired), and this keeps map and data in lockstep.
   it("every signal_level in the data has a trust reading", () => {
     for (const p of phases) {
       expect(
@@ -37,9 +37,9 @@ describe("calendar phase trust levels", () => {
     }
   });
 
-  it("the data still carries the four levels this was written against", () => {
+  it("the data still carries the three levels this was written against", () => {
     const used = [...new Set(phases.map((p) => p.signal_level))].sort();
-    expect(used).toEqual(["high", "low", "med", "vhigh"]);
+    expect(used).toEqual(["high", "low", "med"]);
   });
 
   it("an unknown level returns text that reads as a defect, not as copy", () => {

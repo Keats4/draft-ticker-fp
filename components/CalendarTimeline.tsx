@@ -14,8 +14,21 @@ const TRUST_FULL: Record<string, string> = {
   low: "Low",
   med: "Medium",
   high: "High",
-  vhigh: "Very high",
 };
+
+/** Existing categorical trust colours; the dot is small, the word does the
+ *  talking. */
+const TRUST_DOT: Record<string, string> = {
+  low: "var(--sig-low)",
+  med: "var(--sig-med)",
+  high: "var(--sig-high)",
+};
+
+/** Content-aware minimum widths so long titles breathe instead of wrapping
+ *  aggressively; still systematic (three length categories, not per-phase
+ *  hand tuning). */
+const minWidthFor = (title: string) =>
+  title.length <= 9 ? "104px" : title.length <= 17 ? "120px" : "136px";
 
 /** Rail-only display shortenings; the full authored title renders everywhere
  *  else on the page. */
@@ -26,15 +39,16 @@ const RAIL_TITLE: Record<string, string> = {
 /**
  * The phase rail: one horizontal fantasy-year timeline, not twelve cards.
  * Each phase carries only its number, title (max two clamped lines) and a
- * trust row: mini bars in the existing trust colours plus the full word
- * (Low / Medium / High / Very high). Windows/dates stay out of the rail —
+ * trust row: a small dot in the existing categorical trust colour plus the
+ * full word (Low / Medium / High). Windows/dates stay out of the rail —
  * they render in the rows and expanded cards.
  *
- * Desktop: all twelve fit, no scroll, starts at phase 01. When the rail
- * genuinely overflows (tablet/mobile) it becomes a contained scroller and
- * the current phase is brought into view. Buttons scroll to and open the
- * phase's details element, updating the hash. Display only: trust levels
- * come straight from the authored calendar data.
+ * Readability over fit: tiles take content-aware widths, so the rail is a
+ * contained scroller at desktop too, starting at phase 01 (the partially
+ * visible tile at the right edge is the overflow affordance). The current
+ * phase is centred on mount only below the desktop breakpoint. Buttons
+ * scroll to and open the phase's details element, updating the hash.
+ * Display only: trust levels come straight from the authored calendar data.
  */
 export default function CalendarTimeline({
   phases,
@@ -48,8 +62,9 @@ export default function CalendarTimeline({
   const currentRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    // Centre the current phase ONLY when the rail actually overflows;
-    // a fully visible desktop rail must start at phase 01.
+    // Centre the current phase only on smaller screens; desktop always
+    // starts the year at phase 01, never mid-scroll.
+    if (window.matchMedia("(min-width: 1024px)").matches) return;
     const el = currentRef.current;
     const scroller = el?.closest("[data-timeline-scroll]");
     if (el && scroller && scroller.scrollWidth > scroller.clientWidth + 8) {
@@ -94,12 +109,13 @@ export default function CalendarTimeline({
                 aria-current={isCurrent ? "step" : undefined}
                 aria-label={`${p.title}. Movement trust: ${full}`}
                 title={`Movement trust: ${full}`}
-                className="flex w-full min-w-[78px] flex-col items-center gap-1 rounded-md border px-0.5 py-2 text-center transition-colors hover:bg-[var(--surface-info-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
-                style={
-                  isCurrent
+                className="flex w-full flex-col items-center gap-1 rounded-md border px-1.5 py-2.5 text-center transition-colors hover:bg-[var(--surface-info-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                style={{
+                  minWidth: minWidthFor(RAIL_TITLE[p.title] ?? p.title),
+                  ...(isCurrent
                     ? { background: "var(--surface-info-strong)", borderColor: "var(--navy)" }
-                    : { borderColor: "transparent" }
-                }
+                    : { borderColor: "transparent" }),
+                }}
               >
                 <span className="flex h-[16px] items-center">
                   {isCurrent ? (
@@ -116,19 +132,19 @@ export default function CalendarTimeline({
                   )}
                 </span>
                 <span
-                  className={`line-clamp-2 h-[30px] w-full text-[12px] leading-[1.25] ${
+                  className={`line-clamp-2 h-[34px] w-full text-[13px] leading-[1.3] ${
                     isCurrent ? "font-semibold" : "text-[var(--ink-2)]"
                   }`}
                 >
                   {RAIL_TITLE[p.title] ?? p.title}
                 </span>
-                <span className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
-                  <span aria-hidden className={`meter meter--sm ${level}`}>
-                    <i />
-                    <i />
-                    <i />
-                  </span>
-                  <span className="whitespace-nowrap text-[10px] font-semibold text-[var(--ink-2)]">
+                <span className="flex items-center gap-1.5">
+                  <span
+                    aria-hidden
+                    className="inline-block h-2 w-2 rounded-full"
+                    style={{ background: TRUST_DOT[level] ?? "var(--border)" }}
+                  />
+                  <span className="whitespace-nowrap text-[11px] font-medium text-[var(--ink-2)]">
                     {full === "pending" ? "–" : full}
                   </span>
                 </span>

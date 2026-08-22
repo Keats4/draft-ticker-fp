@@ -3,12 +3,13 @@
  * values that actually exist in data/calendar_phases.json.
  *
  * This file exists because the first version of the trust reading hardcoded
- * three levels (high, med, low) while the data carries four. `stretch-run` is
- * `vhigh` (preseason was too, until 2026-08-20 when it was reset to `high`),
- * and preseason is the phase immediately after training camp, so an unhandled
- * level would have degraded to a generic sentence within days rather than in
- * November. It failed quietly, which is the failure mode this repo keeps
- * cataloguing.
+ * three levels (high, med, low) while the data carried four. `stretch-run`
+ * was `vhigh` (preseason was too, until 2026-08-20 when it was reset to
+ * `high`), and an unhandled level would have degraded to a generic sentence
+ * quietly, which is the failure mode this repo keeps cataloguing. On
+ * 2026-08-22 the calendar was recalibrated to three tiers and `vhigh` was
+ * retired: authored guidance does not support a fourth tier of apparent
+ * precision until history can earn it.
  *
  * Two sides are now enforced, so neither half can drift without something going
  * red:
@@ -18,7 +19,7 @@
  *     lib/phases.test.ts
  */
 
-export const SIGNAL_LEVELS = ["low", "med", "high", "vhigh"] as const;
+export const SIGNAL_LEVELS = ["low", "med", "high"] as const;
 export type PhaseLevel = (typeof SIGNAL_LEVELS)[number];
 
 export function isPhaseLevel(v: string): v is PhaseLevel {
@@ -34,7 +35,6 @@ export const TRUST_READING: Record<PhaseLevel, string> = {
   low: "Movement now usually reverses.",
   med: "Movement now is worth noting rather than acting on.",
   high: "Movement now is worth taking seriously.",
-  vhigh: "Movement now is the strongest evidence the offseason calendar offers.",
 };
 
 /**
