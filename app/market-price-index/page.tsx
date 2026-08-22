@@ -12,7 +12,7 @@ const W = 720, H = 240, PAD = 36;
 const YEAR = [
   { m: "Jan", v: 96 }, { m: "Feb", v: 95 }, { m: "Mar", v: 92 }, { m: "Apr", v: 88 },
   { m: "May", v: 84 }, { m: "Jun", v: 82 }, { m: "Jul", v: 74 }, { m: "Aug", v: 70 },
-  { m: "Sep", v: 66 }, { m: "Oct", v: 72 }, { m: "Nov", v: 61 }, { m: "Dec", v: 58 },
+  { m: "Sep", v: 66 }, { m: "Oct", v: 72 }, { m: "Nov", v: 67 }, { m: "Dec", v: 65 },
 ];
 
 export default function MarketPriceIndex() {
@@ -41,33 +41,37 @@ export default function MarketPriceIndex() {
       </p>
 
       <figure className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Illustrative year-long market price with two regimes" className="w-full">
+        {/* Below sm the figure scrolls horizontally at a legible size rather
+            than shrinking its labels to unreadable. */}
+        <div className="overflow-x-auto">
+          <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Illustrative year-long market price with two regimes" className="w-full min-w-[640px] sm:min-w-0">
           {/* regime bands */}
           <rect x={PAD} y={PAD} width={handoffX - PAD} height={H - 2 * PAD} fill="var(--gold-bg)" opacity="0.6" />
           <rect x={handoffX} y={PAD} width={W - PAD - handoffX} height={H - 2 * PAD} fill="#eef2f7" />
           <text x={(PAD + handoffX) / 2} y={PAD + 14} textAnchor="middle" fontSize="11" fill="var(--ink-2)" fontWeight="600">Draft Market</text>
           <text x={(PAD + handoffX) / 2} y={PAD + 28} textAnchor="middle" fontSize="9" fill="var(--ink-3)">priced by: ADP · Jan–Aug</text>
           <text x={(handoffX + W - PAD) / 2} y={PAD + 14} textAnchor="middle" fontSize="11" fill="var(--ink-2)" fontWeight="600">In-Season Market</text>
-          <text x={(handoffX + W - PAD) / 2} y={PAD + 28} textAnchor="middle" fontSize="9" fill="var(--ink-3)">priced by: ownership % · Sep–Dec</text>
+          <text x={(handoffX + W - PAD) / 2} y={PAD + 28} textAnchor="middle" fontSize="9" fill="var(--ink-3)">priced by: ownership / FAAB · Sep–Dec</text>
           {/* handoff divider */}
           <line x1={handoffX} x2={handoffX} y1={PAD} y2={H - PAD} stroke="var(--navy)" strokeWidth="1" strokeDasharray="4 3" />
-          <text x={handoffX + 4} y={H - PAD - 4} fontSize="9" fill="var(--navy)">Week 1 handoff</text>
+          <text x={handoffX - 5} y={H - PAD - 6} textAnchor="end" fontSize="9" fill="var(--navy)">Week 1 handoff</text>
           {/* value line */}
           <path d={linePath} fill="none" stroke="var(--navy)" strokeWidth="2.5" strokeLinecap="round" />
           {/* FAAB clearing-price tick, earnings-date style (in-season, illustrative) */}
           <g transform={`translate(${x(9)}, ${y(YEAR[9].v)})`}>
-            <rect x={-4} y={-4} width={8} height={8} fill="var(--gold)" stroke="var(--surface)" strokeWidth="1.5" />
             <line x1={0} y1={6} x2={0} y2={H - PAD - y(YEAR[9].v)} stroke="var(--gold)" strokeWidth="1" strokeDasharray="2 2" />
-            <text x={0} y={H - PAD - y(YEAR[9].v) + 12} textAnchor="middle" fontSize="8" fill="var(--gold)" fontWeight="600">FAAB $34</text>
+            <rect x={-27} y={-21} width={54} height={14} rx={3} fill="var(--surface)" opacity="0.92" stroke="var(--gold-border)" strokeWidth="1" />
+            <text x={0} y={-10.5} textAnchor="middle" fontSize="8.5" fill="var(--gold-ink, var(--gold))" fontWeight="600">FAAB $34</text>
+            <rect x={-4} y={-4} width={8} height={8} fill="var(--gold)" stroke="var(--surface)" strokeWidth="1.5" />
           </g>
           {YEAR.map((p, i) => (
             <text key={p.m} x={x(i)} y={H - PAD + 14} textAnchor="middle" fontSize="9" fill="var(--ink-3)">{p.m}</text>
           ))}
         </svg>
+        </div>
         <figcaption className="mt-2 text-xs text-[var(--ink-3)]">
-          Illustrative. A persistent “priced by: [regime]” label rides the line; in the
-          in-season band, FAAB clearing prices render as dated, earnings-style ticks, and
-          divergences (high roster %, low start % → “held but not trusted”) surface as callouts.
+          Illustrative concept: ADP prices the draft market; after the Week 1
+          handoff, roster demand and FAAB become the in-season price signals.
         </figcaption>
       </figure>
 
