@@ -57,7 +57,7 @@ function Side({
   className?: string;
 }) {
   return (
-    <div className={`flex flex-col gap-2 p-4 ${className}`}>
+    <div className={`flex flex-col gap-1.5 p-3 ${className}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <Link href={s.href} className="text-sm font-semibold tracking-tight hover:underline">
@@ -101,7 +101,7 @@ function Side({
         trackingSince={trackingSince}
       />
 
-      <dl className="mt-auto grid grid-cols-3 gap-1 border-t border-[var(--border)] pt-2.5 text-center text-xs">
+      <dl className="mt-auto grid grid-cols-3 gap-1 border-t border-[var(--border)] pt-2 text-center text-xs">
         <div>
           <dt className="text-[var(--ink-3)]">ADP</dt>
           <dd className="tabular-nums font-semibold">{s.hostRank}</dd>
@@ -202,7 +202,7 @@ export default function MirrorHero({
           independently, so the canvas shows under the shorter one. */}
       {/* The phase and trust context moved to the page hero (stated once
           per viewport); the eyebrow is just the section name now. */}
-      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <div className="mb-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
           Today&rsquo;s lead
         </span>

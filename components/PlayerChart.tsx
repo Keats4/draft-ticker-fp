@@ -45,7 +45,7 @@ export default function PlayerChart({
 }) {
   const mini = variant === "mini";
   const W = 680;
-  const H = mini ? 190 : 300;
+  const H = mini ? 168 : 300;
   const M = mini
     ? { top: 16, right: 14, bottom: 24, left: 34 }
     : { top: 22, right: 20, bottom: 30, left: 42 };
@@ -155,7 +155,7 @@ export default function PlayerChart({
 
   if (mini) {
     return (
-      <div className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-2">
+      <div className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-1.5">
         {plot}
         <div className="flex flex-wrap items-center justify-between gap-2 px-1 pb-0.5 text-[11px] text-[var(--ink-3)]">
           <span className="flex items-center gap-3">

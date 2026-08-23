@@ -653,7 +653,7 @@ export default async function Home() {
           language. The market mechanics (hero, signals, evidence tiers,
           table) all stay below for the reader who wants them. */}
       {leadItems.length > 0 && (
-        <section className="mb-7 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 pb-3.5 pt-3 shadow-sm">
+        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 pb-3.5 pt-3 shadow-sm">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
             What changed since your last mock draft
           </h2>
