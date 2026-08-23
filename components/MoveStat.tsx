@@ -13,6 +13,7 @@ export default function MoveStat({
   label,
   size = "lg",
   anchored = false,
+  bare = false,
 }: {
   /** Signed movement over the window; null = no data yet. */
   delta: number | null;
@@ -21,15 +22,23 @@ export default function MoveStat({
   size?: "lg" | "sm";
   /** Subtle navy surface for stats sitting alone at a card edge. */
   anchored?: boolean;
+  /** Number only: the label is announced to screen readers but not drawn.
+   *  For surfaces whose section heading already names the shared window. */
+  bare?: boolean;
 }) {
   const cls =
     (size === "sm" ? "movestat movestat--sm" : "movestat") +
     (anchored ? " movestat--badge" : "");
+  const labelEl = bare ? (
+    <span className="sr-only">{label}</span>
+  ) : (
+    <span className="movestat-label">{label}</span>
+  );
   if (delta === null || delta === 0) {
     return (
       <span className={`${cls} movestat--muted`}>
         <span className="movestat-num">{delta === null ? "–" : "0"}</span>
-        <span className="movestat-label">{label}</span>
+        {labelEl}
       </span>
     );
   }
@@ -42,7 +51,7 @@ export default function MoveStat({
         {Math.abs(delta)}
         <span className="sr-only">{delta > 0 ? "picks gained" : "picks lost"}</span>
       </span>
-      <span className="movestat-label">{label}</span>
+      {labelEl}
     </span>
   );
 }

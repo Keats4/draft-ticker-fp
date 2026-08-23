@@ -613,7 +613,7 @@ export default async function Home() {
           used to ride the Today's Lead eyebrow lives here instead, so it is
           stated once per viewport. No CTAs, no marketing furniture: the
           product below is the pitch. */}
-      <header className="mb-6 grid grid-cols-1 gap-x-8 gap-y-3 lg:grid-cols-[65fr_35fr] lg:items-end">
+      <header className="mb-5 grid grid-cols-1 gap-x-8 gap-y-3 lg:grid-cols-[65fr_35fr] lg:items-end">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--navy-2)]">
             Draft Ticker
@@ -653,9 +653,13 @@ export default async function Home() {
           language. The market mechanics (hero, signals, evidence tiers,
           table) all stay below for the reader who wants them. */}
       {leadItems.length > 0 && (
-        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 pb-3.5 pt-3 shadow-sm">
+        <section className="mb-5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 pb-3.5 pt-3 shadow-sm">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
-            What changed since your last mock draft
+            {rolling
+              ? "What changed in the last 7 days"
+              : prevDateLabel
+                ? `What changed since ${prevDateLabel}`
+                : "What changed since your last mock draft"}
           </h2>
           {/* Numbers lead, words support: the figure lands before a word is
               read. Same positions on every row so the eye learns the pattern
@@ -664,14 +668,19 @@ export default async function Home() {
             {leadItems.map((item, i) => (
               <div
                 key={item.href}
-                className={`flex items-start gap-4 border-l-2 border-[var(--navy)] pl-3 lg:block lg:border-l lg:border-[var(--border)] lg:px-5 ${
+                className={`border-l-2 border-[var(--navy)] pl-3 lg:border-l lg:border-[var(--border)] lg:px-5 ${
                   i === 0 ? "lg:border-l-0 lg:pl-0" : ""
                 } ${i === leadItems.length - 1 ? "lg:pr-0" : ""}`}
               >
-                <div className="w-24 shrink-0 text-right lg:mb-2 lg:w-auto lg:text-left">
-                  <MoveStat anchored delta={item.delta} label={item.figureSub} />
-                </div>
-                <div className="min-w-0">
+                {/* Compact 2-column composition: the number anchors the left,
+                    identity/prices/state stack on the right, and the evidence
+                    spans the full cell width beneath. The section heading
+                    names the shared window, so the badge is number-only. */}
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0">
+                    <MoveStat bare anchored delta={item.delta} label={item.figureSub} />
+                  </div>
+                  <div className="min-w-0">
                   <p className="text-sm font-semibold leading-snug">
                     <Link href={item.href} className="hover:underline">{item.name}</Link>{" "}
                     <span className="font-normal text-[var(--ink-3)]">{item.sub}</span>
@@ -681,7 +690,7 @@ export default async function Home() {
                   {/* Current-state pair. The market delta lives ONCE in the
                       headline stat above; only the expert delta appears here,
                       riding the ECR column as a secondary pill. */}
-                  <dl className="stat-pair mt-2 max-w-[260px]">
+                  <dl className="stat-pair mt-1.5 max-w-[260px]">
                     <dt>
                       ADP<InfoDot text={ADP_DEF} />
                     </dt>
@@ -702,13 +711,15 @@ export default async function Home() {
                   {item.rel && (
                     <span
                       title={item.rel.note}
-                      className="mt-2 inline-block cursor-help rounded-full px-2 py-0.5 text-xs font-medium"
+                      className="mt-1.5 inline-block cursor-help rounded-full px-2 py-0.5 text-xs font-medium"
                       style={relToneStyle(item.rel.label)}
                     >
                       {item.rel.label}
                     </span>
                   )}
-                  {item.evtDate ? (
+                  </div>
+                </div>
+                {item.evtDate ? (
                     <details className="evt evt--wash mt-2">
                       {/* Meta row and headline live in the summary so they are
                           always visible; the pill on the right is the only
@@ -739,7 +750,6 @@ export default async function Home() {
                       </details>
                     </>
                   )}
-                </div>
               </div>
             ))}
           </div>
