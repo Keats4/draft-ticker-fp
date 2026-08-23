@@ -22,7 +22,7 @@
   {
    "key": "nfl-draft",
    "title": "NFL Draft",
-   "window": "late April",
+   "window": "Late April",
    "start": "2026-04-23",
    "end": "2026-04-30",
    "signal_level": "med",
@@ -38,7 +38,7 @@
   {
    "key": "rookie-minicamp",
    "title": "Rookie Minicamp",
-   "window": "early May",
+   "window": "Early May",
    "start": "2026-05-01",
    "end": "2026-05-17",
    "signal_level": "low",
@@ -70,7 +70,7 @@
   {
    "key": "mandatory-minicamp",
    "title": "Mandatory Minicamp",
-   "window": "mid-June",
+   "window": "Mid-June",
    "start": "2026-06-09",
    "end": "2026-07-21",
    "signal_level": "low",
@@ -86,7 +86,7 @@
   {
    "key": "training-camp",
    "title": "Training Camp",
-   "window": "late July–early Aug",
+   "window": "Late July–Early August",
    "start": "2026-07-22",
    "end": "2026-08-05",
    "signal_level": "med",
@@ -118,7 +118,7 @@
   {
    "key": "cutdowns",
    "title": "Roster Cutdowns",
-   "window": "late August",
+   "window": "Late August",
    "start": "2026-08-25",
    "end": "2026-08-31",
    "signal_level": "med",
@@ -134,7 +134,7 @@
   {
    "key": "final-draft-weekends",
    "title": "Final Draft Weekends",
-   "window": "Labor Day window",
+   "window": "Labor Day Window",
    "start": "2026-09-01",
    "end": "2026-09-08",
    "signal_level": "med",
@@ -150,7 +150,7 @@
   {
    "key": "week-1",
    "title": "Week 1",
-   "window": "early September",
+   "window": "Early September",
    "start": "2026-09-09",
    "end": "2026-09-15",
    "signal_level": "high",
@@ -182,7 +182,7 @@
   {
    "key": "trade-deadlines",
    "title": "Trade Deadlines",
-   "window": "NFL early Nov · leagues mid–late Nov",
+   "window": "NFL: Early November · Fantasy: Mid–Late November",
    "start": "2026-11-11",
    "end": "2026-11-24",
    "signal_level": "high",
