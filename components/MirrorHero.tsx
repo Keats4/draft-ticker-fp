@@ -200,23 +200,12 @@ export default function MirrorHero({
       {/* Full-width introduction for the row beneath: the lead eyebrow with
           phase and trust. No enclosing outline; the two cards below size
           independently, so the canvas shows under the shorter one. */}
+      {/* The phase and trust context moved to the page hero (stated once
+          per viewport); the eyebrow is just the section name now. */}
       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
           Today&rsquo;s lead
         </span>
-        {phaseTitle && (
-          <>
-            <span className="text-[var(--ink-3)]" aria-hidden>·</span>
-            <Link href="/calendar" className="text-xs hover:underline">
-              {phaseTitle}
-            </Link>
-            {/* The phase's one-line explanation moved behind the info dot;
-                the full calendar context lives on /calendar. */}
-            {phaseProse && <InfoDot text={phaseProse} />}
-          </>
-        )}
-        <span className="text-xs text-[var(--ink-2)]">Movement trust:</span>
-        <PhaseMeter level={phaseLevel} />
       </div>
 
       {/* Two independently sized cards: the comparison (72) and the context

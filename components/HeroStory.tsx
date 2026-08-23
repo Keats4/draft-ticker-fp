@@ -77,22 +77,10 @@ export default function HeroStory({
         className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2"
         style={{ background: "var(--background)", borderColor: "var(--border)" }}
       >
+        {/* Phase and trust context moved to the page hero. */}
         <span className="text-xs font-semibold uppercase tracking-wide text-[var(--navy-2)]">
           Today&rsquo;s lead
         </span>
-        {phaseTitle && (
-          <>
-            <span className="text-[var(--ink-3)]" aria-hidden>·</span>
-            <Link href="/calendar" className="text-xs hover:underline">
-              {phaseTitle}
-            </Link>
-            {/* The phase's one-line explanation moved behind the info dot;
-                the full calendar context lives on /calendar. */}
-            {phaseProse && <InfoDot text={phaseProse} />}
-          </>
-        )}
-        <span className="text-xs text-[var(--ink-3)]">Movement trust:</span>
-        <PhaseMeter level={phaseLevel} />
       </div>
 
       {/* Desktop: facts left (7), chart + figures right (5), so the module

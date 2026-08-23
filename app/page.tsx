@@ -32,7 +32,7 @@ import HowToReadCard from "@/components/HowToReadCard";
 import SignalChip from "@/components/SignalChip";
 import HeroStory from "@/components/HeroStory";
 import MirrorHero, { type MirrorSide } from "@/components/MirrorHero";
-import type { PhaseLevel } from "@/components/PhaseMeter";
+import PhaseMeter, { type PhaseLevel } from "@/components/PhaseMeter";
 import type { ChartMarker, ChartPoint } from "@/components/PlayerChart";
 import MarketTable, { type RowLite } from "@/components/MarketTable";
 import InfoDot from "@/components/InfoDot";
@@ -607,16 +607,45 @@ export default async function Home() {
   }));
 
   return (
-    <main className="mx-auto max-w-[1280px] px-4 py-8">
-      <header className="mb-5">
-        <h1 className="text-3xl font-bold tracking-tight">Draft Ticker</h1>
-        <p className="mt-1 text-sm text-[var(--ink-2)]">
-          Daily ADP movement, measured against expert consensus.
-        </p>
-        {!live && (
-          <p className="mt-2 inline-block rounded border border-[var(--gold-border)] bg-[var(--gold-bg)] px-2 py-1 text-xs">
-            FIXTURE DATA: not live.
+    <main className="mx-auto max-w-[1280px] px-4 pb-8 pt-6">
+      {/* Compact hero: what the product is, then where the season stands.
+          Same content column as every module; the phase/trust context that
+          used to ride the Today's Lead eyebrow lives here instead, so it is
+          stated once per viewport. No CTAs, no marketing furniture: the
+          product below is the pitch. */}
+      <header className="mb-6 grid grid-cols-1 gap-x-8 gap-y-3 lg:grid-cols-[65fr_35fr] lg:items-end">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--navy-2)]">
+            Draft Ticker
           </p>
+          <h1 className="mt-1 text-[26px] font-bold leading-tight tracking-tight">
+            Know what changed — and how much to care.
+          </h1>
+          <p className="mt-1.5 max-w-[560px] text-sm leading-relaxed text-[var(--ink-2)]">
+            Draft Ticker tracks rolling 7-day ADP movement against expert
+            consensus, documented events, and where we are in the fantasy
+            calendar.
+          </p>
+          {!live && (
+            <p className="mt-2 inline-block rounded border border-[var(--gold-border)] bg-[var(--gold-bg)] px-2 py-1 text-xs">
+              FIXTURE DATA: not live.
+            </p>
+          )}
+        </div>
+        {phase && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 lg:justify-end">
+            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--ink-3)]">
+              Current phase
+            </span>
+            <Link href="/calendar" className="text-sm font-medium hover:underline">
+              {phase.title}
+            </Link>
+            {phase.card_line && <InfoDot text={phase.card_line} />}
+            <span className="flex items-center gap-2">
+              <span className="text-xs text-[var(--ink-2)]">Movement trust:</span>
+              <PhaseMeter level={phase.signal_level ?? null} />
+            </span>
+          </div>
         )}
       </header>
 
@@ -624,14 +653,14 @@ export default async function Home() {
           language. The market mechanics (hero, signals, evidence tiers,
           table) all stay below for the reader who wants them. */}
       {leadItems.length > 0 && (
-        <section className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
+        <section className="mb-7 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 pb-3.5 pt-3 shadow-sm">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
             What changed since your last mock draft
           </h2>
           {/* Numbers lead, words support: the figure lands before a word is
               read. Same positions on every row so the eye learns the pattern
               once. Full sentences stay intact behind the expander. */}
-          <div className="mt-3 space-y-4 lg:grid lg:grid-cols-3 lg:space-y-0">
+          <div className="mt-2.5 space-y-4 lg:grid lg:grid-cols-3 lg:space-y-0">
             {leadItems.map((item, i) => (
               <div
                 key={item.href}
@@ -680,18 +709,23 @@ export default async function Home() {
                     </span>
                   )}
                   {item.evtDate ? (
-                    <div className="evt evt--wash mt-2.5">
-                      <p className="evt-meta">
-                        Event <span className="evt-meta-sub">· {item.evtDate}</span>
+                    <details className="evt evt--wash mt-2">
+                      {/* Meta row and headline live in the summary so they are
+                          always visible; the pill on the right is the only
+                          disclosure affordance. Expanded copy is unchanged. */}
+                      <summary className="evt-summary">
+                        <span className="flex items-baseline justify-between gap-2">
+                          <span className="evt-meta">
+                            Event <span className="evt-meta-sub">· {item.evtDate}</span>
+                          </span>
+                          <span className="disclose disclose--sm">details</span>
+                        </span>
+                        <span className="evt-headline block">{item.evtLabel}</span>
+                      </summary>
+                      <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
+                        {item.detail}
                       </p>
-                      <p className="evt-headline">{item.evtLabel}</p>
-                      <details className="mt-1.5">
-                        <summary className="disclose">details</summary>
-                        <p className="mt-1 max-w-prose text-xs leading-relaxed text-[var(--ink-2)]">
-                          {item.detail}
-                        </p>
-                      </details>
-                    </div>
+                    </details>
                   ) : (
                     <>
                       <p className="mt-2.5 text-xs text-[var(--ink-3)]">

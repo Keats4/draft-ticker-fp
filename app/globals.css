@@ -233,7 +233,7 @@ details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(
 .evt--wash {
   background: rgba(224, 169, 46, 0.06);
   border-radius: 0 8px 8px 0;
-  padding: 7px 10px 8px;
+  padding: 6px 9px 7px;
 }
 .evt-meta {
   font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
@@ -241,4 +241,11 @@ details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(
 }
 .evt-meta .evt-meta-sub { color: var(--ink-2); font-weight: 600; letter-spacing: 0.06em; }
 .evt-headline { margin-top: 2px; font-size: 12px; line-height: 1.55; color: var(--ink-2); }
+/* Compact evidence summary: meta line and headline stay visible; the small
+   pill on the meta row is the whole disclosure affordance. */
+.evt-summary { display: block; cursor: pointer; list-style: none; }
+.evt-summary::-webkit-details-marker { display: none; }
+.disclose--sm { padding: 0px 7px; font-size: 10px; }
+details[open] .disclose--sm::before { transform: rotate(90deg); }
+details[open] .disclose--sm { background: rgba(15, 109, 181, 0.08); border-color: var(--accent); }
 .evt-headline--lg { font-size: 13px; }
