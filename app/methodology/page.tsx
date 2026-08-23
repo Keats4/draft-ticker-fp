@@ -948,9 +948,8 @@ export default async function Methodology() {
             {[
               ["ADR-001", "Snapshot storage", "Daily snapshots on Vercel Blob, not Postgres", "ADR-001-snapshot-storage.md"],
               ["ADR-002", "Curated catalysts", "Curated catalysts, not automated news analysis", "ADR-002-curated-catalysts.md"],
-              ["ADR-003", "Interpretation layer", "Repositioning to an interpretation layer, not missing data", "ADR-003-repositioning-interpretation-layer.md"],
-              ["ADR-004", "Catalyst sourcing & verification", "Sourcing is agent-assisted; verification is human", "ADR-004-catalyst-sourcing-and-verification.md"],
-              ["ADR-005", "News-lookback preregistration", "Preregistered lookback measurement", "ADR-005-news-lookback-preregistration.md"],
+              ["ADR-003", "Catalyst sourcing & verification", "Sourcing is agent-assisted; verification is human", "ADR-003-catalyst-sourcing-and-verification.md"],
+              ["ADR-004", "News-lookback preregistration", "Preregistered lookback measurement", "ADR-004-news-lookback-preregistration.md"],
             ].map(([id, title, desc, file]) => (
               <div key={id} className="flex items-baseline gap-3 border-t border-[var(--border)] py-2.5">
                 <span className="w-14 shrink-0 text-[11px] tabular-nums text-[var(--ink-3)]">{id}</span>

@@ -1,6 +1,6 @@
 # News lookback test: results
 
-Raw results for RESEARCH_LOG.md finding 13. Machine readable copy: `data/news_lookback.json`. Pre-registration: `decisions/ADR-005-news-lookback-preregistration.md`, committed before the search ran.
+Raw results for RESEARCH_LOG.md finding 13. Machine readable copy: `data/news_lookback.json`. Pre-registration: `decisions/ADR-004-news-lookback-preregistration.md`, committed before the search ran.
 
 Window 2026-08-10 to 2026-08-14. Search range 2026-08-03 to 2026-08-14, derived from the seven day trailing mean rather than chosen. 30 movers clearing the 3 pick bar, each matched to a control moving under 1 pick at the nearest current ADP. Searched by four agents with no repo access, given only names, positions and teams in random order, under an identical protocol: three fixed queries per player, at most three fetches, one published definition of a news event, one syndication rule, publication dates read off the page.
 
@@ -8,7 +8,7 @@ Window 2026-08-10 to 2026-08-14. Search range 2026-08-03 to 2026-08-14, derived 
 
 ## Verdict against the pre-registered rule
 
-ADR-005 required BOTH: a gap of at least 25 points across all pairs, AND the direction holding among the well matched pairs alone.
+ADR-004 required BOTH: a gap of at least 25 points across all pairs, AND the direction holding among the well matched pairs alone.
 
 | | movers | controls | gap |
 |---|---|---|---|
@@ -16,7 +16,7 @@ ADR-005 required BOTH: a gap of at least 25 points across all pairs, AND the dir
 | Well matched 22 | 16/22, 73% | 15/22, 68% | **+4.5 pts** |
 | Flagged 8 | 7/8, 88% | 3/8, 38% | +50.0 pts |
 
-Condition 1 **FAILS** at +16.7 against a +25 bar. Condition 2 passes on direction only. **Verdict: inconclusive at this sample size**, which is what ADR-005 said a result this size would be.
+Condition 1 **FAILS** at +16.7 against a +25 bar. Condition 2 passes on direction only. **Verdict: inconclusive at this sample size**, which is what ADR-004 said a result this size would be.
 
 McNemar exact on the paired data: **p = 0.27** across all pairs, **p = 1.00** among the well matched, on 9 discordant pairs. There is no detectable effect.
 

@@ -1,9 +1,9 @@
 {
  "_schema": {
-  "purpose": "Raw results for the blinded news lookback test. Pre-registration in decisions/ADR-005, writeup in RESEARCH_LOG.md finding 13.",
+  "purpose": "Raw results for the blinded news lookback test. Pre-registration in decisions/ADR-004, writeup in RESEARCH_LOG.md finding 13.",
   "window": "2026-08-10 to 2026-08-14 ADP move window; 2026-08-03 to 2026-08-14 news search range",
   "groups": "M cleared the 3 pick ADP bar. N is its ADP-matched control, moving under 1 pick.",
-  "well_matched": "pair ADP gap of 5 picks or less. Flagged pairs are reported separately per ADR-005.",
+  "well_matched": "pair ADP gap of 5 picks or less. Flagged pairs are reported separately per ADR-004.",
   "searched_by": "four agents with no repo access, given only names, positions and teams in random order, three fixed queries and at most three fetches per player",
   "dbe": "days between the event date and the window end of 2026-08-14"
  },

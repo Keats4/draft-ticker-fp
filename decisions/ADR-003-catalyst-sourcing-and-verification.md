@@ -1,4 +1,4 @@
-# ADR-004: Catalyst sourcing is agent-assisted; verification is human
+# ADR-003: Catalyst sourcing is agent-assisted; verification is human
 
 Date: 2026-08-12 · Status: Accepted · Amends: ADR-002
 

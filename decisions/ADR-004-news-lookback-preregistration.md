@@ -1,6 +1,6 @@
-# ADR-005: The news lookback test is pre-registered before it is run
+# ADR-004: The news lookback test is pre-registered before it is run
 
-Date: 2026-08-14 · Status: Accepted · Relates to: ADR-004, EVALS.md section 7.2
+Date: 2026-08-14 · Status: Accepted · Relates to: ADR-003, EVALS.md section 7.2
 
 ## Context
 

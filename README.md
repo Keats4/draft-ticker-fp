@@ -70,7 +70,7 @@ payload exists so the typed series can always be rebuilt from source. See
   including the major reversals and tradeoffs
 - `EVALS.md`, the grading bar for generated explanations
 - `RESEARCH_LOG.md`, findings and their provenance
-- `decisions/`, ADR-001 through ADR-005
+- `decisions/`, ADR-001 through ADR-004
 
 ## Agent access
 

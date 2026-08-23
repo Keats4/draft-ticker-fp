@@ -1,6 +1,6 @@
 # ADR-002: Curated catalysts, not automated news analysis
 
-Date: 2026-08-10 · Status: Accepted (per BUILD_BRIEF) · **Amended by ADR-004 (2026-08-12)**
+Date: 2026-08-10 · Status: Accepted (per BUILD_BRIEF) · **Amended by ADR-003 (2026-08-12)**
 
 ## Context
 
@@ -15,12 +15,12 @@ Catalysts live in a reviewed file: player, date, category, summary, source
 URL, and a verified flag. No scraper, no news API, no NLP pipeline.
 Unverified items either carry a visible unverified flag or do not ship.
 
-> **Amended 2026-08-12 (ADR-004).** This ADR originally said a human curates
+> **Amended 2026-08-12 (ADR-003).** This ADR originally said a human curates
 > 8-12 players' catalysts by hand. Sourcing is now agent-assisted: research
 > agents find candidate events and confirm each page's date, and a human then
 > opens the source and confirms the event before `verified: true` is set.
 > Attribution and human verification are unchanged; only the finding step
-> changed. See ADR-004 for the three-part definition.
+> changed. See ADR-003 for the three-part definition.
 
 ## Why not automated news
 
