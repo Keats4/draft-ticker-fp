@@ -619,7 +619,7 @@ export default async function Home() {
             Draft Ticker
           </p>
           <h1 className="mt-1 text-[26px] font-bold leading-tight tracking-tight">
-            Know what changed — and how much to care.
+            Know what changed. Know how much to care.
           </h1>
           <p className="mt-1.5 max-w-[560px] text-sm leading-relaxed text-[var(--ink-2)]">
             Draft Ticker tracks rolling 7-day ADP movement against expert

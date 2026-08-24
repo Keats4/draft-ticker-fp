@@ -9,10 +9,35 @@ import { loadLatestSnapshot } from "@/lib/snapshot";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
+/** Production origin. No custom domain is configured; when one exists, this
+ *  is the single line to change. metadataBase makes every relative canonical
+ *  and og:url below resolve to an absolute URL on this origin. */
+const SITE_URL = "https://draft-ticker-fp.vercel.app";
+const SITE_TITLE = "Draft Ticker | Fantasy Football ADP Trends";
+const SITE_DESCRIPTION =
+  "Track rolling 7-day ADP movement against expert consensus, documented events, and fantasy-calendar context.";
+
 export const metadata: Metadata = {
-  title: "Draft Ticker",
-  description:
-    "How fantasy football player values are changing: ADP movement vs expert consensus.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  // "./" resolves per route, so every page carries exactly one canonical
+  // that matches its own og:url - no conflicting values, no duplicates.
+  alternates: { canonical: "./" },
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    type: "website",
+    siteName: "Draft Ticker",
+    url: "./",
+  },
+  // No deliberate social preview image exists yet, so the card type that
+  // renders correctly without one. Do not add an image URL that 404s.
+  twitter: {
+    card: "summary",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
