@@ -456,9 +456,14 @@ export default async function Home() {
   // ---- The plain English lead. ----
   // Two or three moves stated in ordinary language before any vocabulary.
   // Selection is programmatic and reuses what the page already decided: the
-  // leading mirror pair's sides first, then the story ranking, keeping only
-  // moves that cleared the published price bar inside the universe. Nothing
-  // is ever hardcoded, and if no move qualifies the section does not render.
+  // story ranking, keeping only moves that cleared the published price bar
+  // inside the universe, and SKIPPING the players Today's Lead already
+  // claims (leadIds) - the two modules sit adjacent in the first viewport,
+  // so this one answers "what else changed?" rather than repeating the
+  // pair. The heading says "what changed", not "top 3 movers", so the
+  // exclusion does not make it misleading. When no lead resolves, leadIds
+  // is empty and selection is unchanged. Nothing is ever hardcoded, and if
+  // no move qualifies the section does not render.
   const windowDays =
     previous && latest
       ? Math.round(
@@ -479,11 +484,13 @@ export default async function Home() {
     r.hostRankDelta !== null &&
     Math.abs(r.hostRankDelta) >= THRESHOLDS.HOST_RANK_MOVE;
   const leadPool: MarketRow[] = [];
-  for (const r of bestPair ? [bestPair.a, bestPair.b] : []) {
-    if (leadEligible(r)) leadPool.push(r);
-  }
   for (const r of ranked) {
-    if (leadEligible(r) && !leadPool.some((p) => p.fpId === r.fpId)) leadPool.push(r);
+    if (
+      leadEligible(r) &&
+      !leadIds.has(r.fpId) &&
+      !leadPool.some((p) => p.fpId === r.fpId)
+    )
+      leadPool.push(r);
   }
   /** Display copy only: compact market-versus-expert relationship state for
    *  the lead's scan line. Same branches and bars as before; the label is a
