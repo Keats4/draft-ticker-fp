@@ -61,7 +61,11 @@ function fmtFresh(latestPubAt: string): string {
   return `Updated ${t}`;
 }
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const snap = await loadLatestSnapshot();
   const freshness = snap
     ? { label: fmtFresh(snap.meta.latest_pub_at), live: true }
