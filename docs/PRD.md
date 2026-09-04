@@ -5,23 +5,26 @@ https://github.com/Keats4/draft-ticker-fp
 
 ## 1. Problem
 
-FantasyPros publishes both sides of the market. Expert Consensus Rankings
-carry the analyst view. Consensus ADP carries the crowd. Player pages chart
-the two together, daily, with smoothing on the expert line. Real-Time ADP
-adds 24 hour and 7 day movement.
+Fantasy football publishes both sides of a market. Expert consensus
+rankings carry the analyst view. Consensus ADP carries the crowd. Most
+research tools show both as a snapshot, and some chart the two together,
+but they answer what a player costs today rather than how that cost
+changed and why.
 
-FantasyPros already has the core data. The remaining opportunity is helping
-a drafter interpret whether a move matters.
+The core data exists across the industry. The remaining opportunity is
+helping a drafter interpret whether a move matters.
 
-A ten spot move in June looks the same on the page as a ten spot move the
-day after starters played a real game. A move with a confirmed injury in its
-window looks the same as one with no documented event near it.
+A ten spot move in June looks the same on a rankings page as a ten spot
+move the day after starters played a real game. A move with a confirmed
+injury in its window looks the same as one with no documented event near
+it.
 
 The question a drafter asks when a number changes is whether it means
-anything and whether to act. Nothing on the page answers it.
+anything and whether to act. Static rankings and current ADP do not answer
+it.
 
-Draft Ticker is the interpretation layer on data FantasyPros already owns,
-and the structured input an assistant needs to answer that question in
+Draft Ticker is the interpretation layer on that market data, and the
+structured input an assistant needs to answer that question in
 conversation.
 
 ## 2. Objective
@@ -197,14 +200,14 @@ and feed no signal, ranking or selection.
 
 ## 7. Non goals
 
-**Not a news feed.** FantasyPros runs one. This surfaces the price response
-to news.
+**Not a news feed.** Established fantasy platforms run those. This surfaces
+the price response to news.
 
 **Not a rankings product.** No player valuations, no opinion on who is good.
 
-**Not an assistant.** Coach AI already answers questions in league context.
-This produces the market layer that assistant cannot currently read, and is
-built to be consumed by it.
+**Not an assistant.** League assistants already answer draft and roster
+questions in league context. This produces the market layer such
+assistants cannot currently read, and is built to be consumed by one.
 
 **No causal claims.** The evidence tier reports coincidence inside a stated
 window. When two events coincide, both are listed.
@@ -259,14 +262,17 @@ Measurable standalone:
 - Whether a sampled user can correctly state why a player moved after using
   the page, which tests comprehension rather than traffic.
 
-Measurable only inside FantasyPros:
+Standalone product hypotheses (unmeasured until there is traffic):
 
-- Entries into Draft Wizard or Draft Assistant originating here.
-- Premium conversion among users who reach this surface.
-- Preseason retention against users who do not.
+- Return-visitor rate and repeat preseason sessions through the
+  draft-preparation period.
+- Market-row to player-page click-through, and player-history engagement.
+- Catalyst and calendar interaction; AI note expansion once notes ship.
+- Watchlist or follow behavior, if built.
+- Any premium hypothesis is exactly that: hypothetical, and labeled so.
 
-No targets are set. Setting one requires a baseline, and the standalone
-version has no traffic to draw from.
+No targets are set. Setting one requires a baseline, and the product has
+no traffic to draw from yet.
 
 ## 9. Known limitations
 
@@ -312,14 +318,15 @@ grading reaches a defect in the inputs.
 
 ## 11. The AI layer
 
-FantasyPros already runs the right surface. Coach AI answers draft, trade,
-waiver and start or sit questions inside a user's league context.
+Fantasy assistants are becoming the industry's front door: they answer
+draft, trade, waiver and start or sit questions inside a user's league
+context.
 
-What an assistant can say is bounded by what it can read. Coach AI can rank
-a player, weigh him against a roster and explain a projection. It cannot say
-he got five picks cheaper this week, that the market moved before the
-experts did, or that a hamstring reported Thursday sits inside the move
-window. That layer does not exist in structured form.
+What an assistant can say is bounded by what it can read. Assistants can
+rank a player, weigh him against a roster and explain a projection. They
+cannot say he got five picks cheaper this week, that the market moved
+before the experts did, or that a hamstring reported Thursday sits inside
+the move window. That layer does not exist in structured form.
 
 Draft Ticker builds it. Every field traces to a rule or a URL.
 
@@ -327,26 +334,26 @@ Draft Ticker builds it. Every field traces to a rule or a URL.
 thresholds, evidence tier and coverage bar stay deterministic and published,
 because a drafter is about to act on them.
 
-**The gap is observable.** FantasyPros has shipped an MCP server. As
-inspected on August 21, 2026, it exposes 29 tools across rankings, ADP,
-projections, depth charts, league context and advice, and no tool returns
-market change over time: the 24 hour and 7 day trend columns on their own
-Real-Time ADP page do not reach it. The near misses are exactly that: the
-trade tools return counterfactual deltas from a hypothetical trade, and the
-stats tools return aggregates over a window rather than changes across it.
-This is an extension opportunity rather than a missing data capability,
-since the movement data already exists on the Real-Time ADP surface. Draft
-Ticker exposes exactly that layer as three tools in the repository's mcp/
-directory: market movers over the current window, one player's full market
-context, and verified events with dates and sources.
+**The gap is observable.** A leading fantasy platform's public MCP server,
+inspected on August 21, 2026, exposed 29 tools across rankings, ADP,
+projections, depth charts, league context and advice, and no tool returned
+market change over time, even though trend columns exist on that
+platform's own ADP surfaces. The near misses were exactly that: trade
+tools returning counterfactual deltas from a hypothetical trade, and stats
+tools returning aggregates over a window rather than changes across it.
+Movement-over-time is an industry-wide gap in structured assistant access,
+not a missing data capability. Draft Ticker exposes exactly that layer as
+three tools in the repository's mcp/ directory: market movers over the
+current window, one player's full market context, and verified events with
+dates and sources.
 
 **Attribution at scale.** Hand verification is the right cost for a
-prototype and the wrong one for a product. Inside FantasyPros, Fantasy Feed
-already carries every news item tagged to a player with a timestamp, so
-three of the four verification steps are already satisfied by the editorial
+prototype and the wrong one for a product. Any platform with an editorial
+news feed already carries items tagged to a player with a timestamp, so
+three of the four verification steps are satisfied by the editorial
 process that published the item. What remains for a model is ranking which
-of a player's feed items inside the window plausibly explains the move. That
-is a scoring problem with labelled data already in hand, since every
+of a player's feed items inside the window plausibly explains the move.
+That is a scoring problem with labelled data already in hand, since every
 verified catalyst here is a labelled example.
 
 **It has to be precision biased.** The base rate in section 8 means a system
@@ -385,30 +392,32 @@ tape.
 **Second source comparison.** Where two crowds disagree widely on the same
 player, that disagreement is information nobody surfaces.
 
-## 13. Proposals for FantasyPros
+## 13. Platform integration opportunities
 
-Full treatment on the Inside FantasyPros page. Ordered by build cost,
-smallest first.
+How this layer would generalize inside any full fantasy platform that owns
+both a news feed and an ADP surface. Ordered by build cost, smallest
+first. Hypothetical; nothing here is built for a specific company.
 
-**Price response on Fantasy Feed items.** Every feed item gains one line:
-ADP down five picks since this broke, experts moved him up four. Two owned
+**Price response on news items.** Every feed item gains one line: ADP down
+five picks since this broke, experts moved him up four. Two owned
 datasets, highest traffic content surface. No new pipeline, no editorial
 judgment, no external source.
 
-**A why column on Real-Time ADP.** The page already ranks movers. Movers
-with a feed item inside the window get a marker linking to it, so a user
-scanning what moved can see what moved it without leaving the page.
+**A why column on a live-ADP page.** Such a page already ranks movers.
+Movers with a feed item inside the window get a marker linking to it, so a
+user scanning what moved can see what moved it without leaving the page.
 
-**Catalyst attribution as a join.** A movement threshold fires, the pipeline
-retrieves that player's feed items inside the window, and a ranking model
-scores which plausibly explains the move. Requires a confidence bar and a
-sampled precision audit, per section 8.
+**Catalyst attribution as a join.** A movement threshold fires, the
+pipeline retrieves that player's feed items inside the window, and a
+ranking model scores which plausibly explains the move. Requires a
+confidence bar and a sampled precision audit, per section 8.
 
-**Market context inside Coach AI.** The assistant answers in league context
-but cannot read price movement. This layer gives it a structured, dated,
-sourced view of what moved and the documented events near it. Largest
-build, largest payoff, depends on the three above.
+**Market context inside an assistant.** An assistant answers in league
+context but cannot read price movement. This layer gives it a structured,
+dated, sourced view of what moved and the documented events near it.
+Largest build, largest payoff, depends on the three above.
 
 **Sequencing.** The first two ship independently and test whether users
-engage with price context at all. Attribution gates the fourth: an assistant
-that cites the wrong cause does more damage than one that cites none.
+engage with price context at all. Attribution gates the fourth: an
+assistant that cites the wrong cause does more damage than one that cites
+none.

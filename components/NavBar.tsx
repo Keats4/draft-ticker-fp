@@ -5,8 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 /**
- * Five items. Inside FantasyPros is a pitch document rather than a product
- * surface, so it sits in the footer as "For FantasyPros". The Market Price
+ * Five items. The Market Price
  * Index is a badged concept preview promoted to the nav so the in-season
  * thesis is discoverable; the badge on the page keeps it honest. Featured
  * merged into the homepage.

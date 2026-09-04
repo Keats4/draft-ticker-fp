@@ -81,9 +81,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/methodology" className="underline">
               Methodology
             </Link>
-            <Link href="/inside-fantasypros" className="underline">
-              For FantasyPros
-            </Link>
+            <span className="ml-auto">
+              An independent project, not affiliated with or endorsed by any
+              fantasy sports platform or data provider.
+            </span>
           </div>
         </footer>
         <Analytics />

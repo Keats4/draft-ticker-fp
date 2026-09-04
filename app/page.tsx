@@ -79,7 +79,7 @@ const endStop = (t: string) => t.trim().replace(/[.!?]?$/, ".");
 /** First-use definitions for the two core series. Display only; the market
  *  table header carries the fuller versions. */
 const ADP_DEF = "Market (ADP): Average Draft Position across the supported host draft boards. Up means he became more valuable: his rank number fell (99 → 91 = ↑ 8 spots).";
-const ECR_DEF = "Experts (ECR): FantasyPros Expert Consensus Ranking. Up means experts moved him to a lower rank number, i.e. more valuable.";
+const ECR_DEF = "Experts (ECR): Expert Consensus Ranking, aggregated across analysts (source: FantasyPros). Up means experts moved him to a lower rank number, i.e. more valuable.";
 
 /** Surname for tight hero copy ("Jonathon Brooks" → "Brooks"), skipping
  *  generational suffixes so "Kenneth Walker III" → "Walker". */

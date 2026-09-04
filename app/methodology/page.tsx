@@ -172,10 +172,9 @@ export default async function Methodology() {
         Every number on the data pages (Market, Players, player pages,
         and this one) traces to a named source, a capture time, and a
         calculation defined on this page. Where one day of data cannot support a
-        claim, the site says so instead of implying history. Two pages are
-        excluded by design and badged as such: the Market Price Index and
-        Inside FP are concept previews whose figures are illustrative, not
-        measured.
+        claim, the site says so instead of implying history. One page is
+        excluded by design and badged as such: the Market Price Index is a
+        concept preview whose figures are illustrative, not measured.
       </p>
 
       {/* compact sticky document rail */}
@@ -199,16 +198,16 @@ export default async function Methodology() {
       <section className="mt-8 max-w-[720px]">
         <h2 className="text-xl font-semibold">What this adds</h2>
         <p className="mt-1.5 text-sm text-[var(--ink-2)]">
-          FantasyPros already collects, stores, and even charts this series, a
-          daily ECR-vs-ADP chart (two series plus a 5-day moving average)           sits on their own player pages. They render it
-          and stop there. Draft Ticker adds the interpretation layer on top:
-          movement screening, who-moved-first signals, catalyst annotation,
-          calendar context, and evaluated explanations: turning a raw exhibit
-          into a research desk. Signals also carry an evidence tier, verified
-          event in window when one sits inside the rolling window that governs
-          the move, unexplained otherwise (watch, don’t act), so a reading always
-          shows its receipts or admits it has none. We do not claim FantasyPros
-          lacks the data or the chart; we build what they leave off of it.
+          Most fantasy research tools show current ADP and current rankings
+          as a snapshot, and some chart the two series together. What they
+          rarely make legible is whether a move matters. Draft Ticker adds
+          the interpretation layer on top of the raw series: movement
+          screening, who-moved-first signals, catalyst annotation, calendar
+          context, and evaluated explanations: turning a raw exhibit into a
+          research desk. Signals also carry an evidence tier, verified event
+          in window when one sits inside the rolling window that governs the
+          move, unexplained otherwise (watch, don’t act), so a reading always
+          shows its receipts or admits it has none.
         </p>
       </section>
 

@@ -34,7 +34,7 @@ export default function MarketPriceIndex() {
         One transparent, year-round number for a player’s market price, priced
         by the liquid market of the moment. KeepTradeCut owns the year-round
         price for dynasty; nobody owns it for redraft. This is that primitive,
-        first-party and native to the series FantasyPros already publishes.
+        built directly on the ADP series this site already tracks daily.
       </p>
       <p className="mt-2 font-medium text-[var(--foreground)]">
         The signal engine doesn’t change in September; the market it reads does.
@@ -131,7 +131,6 @@ export default function MarketPriceIndex() {
       </section>
 
       <p className="mt-8 text-xs text-[var(--ink-3)]">
-        <Link href="/inside-fantasypros" className="underline">Inside FP</Link> ·{" "}
         <Link href="/methodology" className="underline">Methodology</Link>
       </p>
     </main>

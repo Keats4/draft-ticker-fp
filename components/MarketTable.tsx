@@ -82,7 +82,7 @@ function Move({ v, trackingSince }: { v: number | null; trackingSince?: string |
 
 const H = {
   hostRank: "ADP: the mean of his rank across the contributing league host boards. An average rank, not a literal draft slot. Lower = ranked earlier.",
-  ecr: "Expert Consensus Rank: FantasyPros' aggregated expert ranking. Lower = ranked higher.",
+  ecr: "Expert Consensus Rank: aggregated expert ranking (source: FantasyPros). Lower = ranked higher.",
   gap: "ADP minus ECR, in picks, shown only inside the comparison universe (top 200 by both, ranked widely enough to trust). Positive = experts rank him ahead of his cost (value). Negative = market pays ahead of experts.",
   move: "Change in ADP over the move window, in picks. Positive = rising (ranked earlier now).",
   signal: "A rule-based label comparing market movement with expert movement. Click any chip for the exact rule.",

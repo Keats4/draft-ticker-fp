@@ -4,8 +4,8 @@
  * catalyst diamond markers. Honest at one day: a dot and a note, never a
  * fabricated line or simulated history.
  *
- * Interpretation rule (positioning): this card is NEVER bare. FantasyPros
- * renders the same two-series chart and stops; ours always carries the
+ * Interpretation rule (positioning): this card is NEVER bare. A raw
+ * two-series chart is an exhibit, not a reading; ours always carries the
  * signal chip + the current "what it means" line + catalyst markers. That
  * strip is the visible product difference.
  *
@@ -198,7 +198,7 @@ export default function PlayerChart({
         <span className="text-xs text-[var(--ink-3)]">Up = more valuable</span>
       </figcaption>
 
-      {/* interpretation strip, the layer FantasyPros' own chart doesn't carry */}
+      {/* interpretation strip: the reading a raw two-series chart doesn't carry */}
       <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2">
         <SignalChip signal={signal} />
         {signal && evidence && (
