@@ -314,7 +314,7 @@ export default async function PlayerPage({
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="tabular-nums text-[var(--ink-3)]">{c.date}</span>
                     <span className="rounded bg-[var(--background)] px-1.5 py-0.5 text-xs">{c.category}</span>
-                    <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs font-semibold text-green-800">verified</span>
+                    <span className="val-pill val-pill--pos !ml-0 px-1.5 text-xs">verified</span>
                   </div>
                   <p className="mt-1">{c.summary}</p>
                   <a href={c.source_url} className="mt-1 inline-block text-xs underline text-[var(--ink-3)]" rel="noreferrer">source</a>
@@ -438,7 +438,7 @@ export default async function PlayerPage({
                       SAMPLE: not real
                     </span>
                   ) : c.verified ? (
-                    <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs font-semibold text-green-800">verified</span>
+                    <span className="val-pill val-pill--pos !ml-0 px-1.5 text-xs">verified</span>
                   ) : (
                     <span className="rounded bg-[var(--background)] px-1.5 py-0.5 text-xs text-[var(--ink-3)]">unverified</span>
                   )}

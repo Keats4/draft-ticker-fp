@@ -70,8 +70,21 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      data-theme="dark"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Theme before paint: dark is the default; a stored light choice
+            is applied here so there is no flash. The toggle in NavBar
+            writes the same key. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('dt-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t)}}catch(e){}",
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col">
         <NavBar freshness={freshness} />
         <div className="flex-1">{children}</div>

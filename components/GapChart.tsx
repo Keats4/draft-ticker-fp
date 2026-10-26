@@ -182,7 +182,7 @@ export default function GapChart({
               x2={W - M.right}
               y1={y(t)}
               y2={y(t)}
-              stroke={t === 0 ? "var(--ink-3)" : "#eceef1"}
+              stroke={t === 0 ? "var(--ink-3)" : "var(--border-strong)"}
               strokeWidth="1"
               strokeDasharray={t === 0 ? "4 3" : undefined}
             />

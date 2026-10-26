@@ -121,7 +121,7 @@ export default function CalendarTimeline({
                 style={{
                   minWidth: minWidthFor(RAIL_TITLE[p.title] ?? p.title),
                   ...(isCurrent
-                    ? { background: "var(--surface-info-strong)", borderColor: "var(--navy)" }
+                    ? { background: "var(--surface-info-strong)", borderColor: "color-mix(in srgb, var(--navy) 55%, transparent)" }
                     : { borderColor: "transparent" }),
                 }}
               >

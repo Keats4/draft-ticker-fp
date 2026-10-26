@@ -161,7 +161,7 @@ function StatCard({
           ? "var(--navy)"
           : "var(--ink-3)";
   const inner = (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
+    <div className="card p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-[var(--navy-2)]">{label}</p>
       <div className="mt-1 flex items-baseline justify-between gap-2">
         <span className="text-sm font-semibold">{name}</span>
@@ -400,6 +400,16 @@ export default async function Home() {
         : null;
       return !(status && SEASON_SCOPED_STATUS.has(status));
     }) ?? null;
+  // Landing example: the lead's first player, the way Today's Lead picks it.
+  // Same data the module below renders; nothing is invented for the pitch.
+  const exampleRow: MarketRow | null = bestPair ? bestPair.a : singleHero;
+  const exampleEvent =
+    exampleRow && previous && latest
+      ? catalystsFor(exampleRow.sleeperId)
+          .filter((c) => c.verified && !c.sample && c.short_label)
+          .filter((c) => inMoveWindow(c.date, previous.date, latest.date))
+          .sort((x, y) => (x.date < y.date ? 1 : -1))[0] ?? null
+      : null;
   const leadIds = new Set<number>(
     bestPair ? [bestPair.a.fpId, bestPair.b.fpId] : singleHero ? [singleHero.fpId] : []
   );
@@ -620,47 +630,134 @@ export default async function Home() {
           used to ride the Today's Lead eyebrow lives here instead, so it is
           stated once per viewport. No CTAs, no marketing furniture: the
           product below is the pitch. */}
-      <header className="mb-5 grid grid-cols-1 gap-x-8 gap-y-3 lg:grid-cols-[65fr_35fr] lg:items-end">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--navy-2)]">
-            Draft Ticker
-          </p>
-          <h1 className="mt-1 text-[26px] font-bold leading-tight tracking-tight">
-            Know what changed. Know how much to care.
+      {/* Landing: the thesis in one line, then ONE real move from today's
+          market as the example, the way a good consumer product shows the
+          thing instead of describing it. The market modules begin at
+          #market directly beneath. No CTAs beyond the two links; the
+          product below is the pitch. */}
+      <section className="mb-10 grid grid-cols-1 gap-8 pt-6 lg:grid-cols-[minmax(0,58fr)_minmax(0,42fr)] lg:gap-12 lg:pt-10">
+        <div className="max-w-[640px]">
+          <h1 className="display">
+            Know what changed.<br />Know how much to care.
           </h1>
-          <p className="mt-1.5 max-w-[560px] text-sm leading-relaxed text-[var(--ink-2)]">
+          <p className="mt-5 max-w-[560px] text-[17px] leading-relaxed text-[var(--ink-2)]">
             Draft Ticker tracks rolling 7-day ADP movement against expert
             consensus, documented events, and where we are in the fantasy
-            calendar.
+            calendar. It tells you which moves are real, which side moved
+            first, and whether there is a reason on record.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[15px] font-semibold">
+            <a href="#market" className="text-[var(--accent)] hover:underline">
+              See today&rsquo;s market ↓
+            </a>
+            <Link href="/methodology" className="text-[var(--accent)] hover:underline">
+              How it works →
+            </Link>
+          </div>
+          {phase && (
+            <div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+              <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--ink-3)]">
+                Current phase
+              </span>
+              <Link href="/calendar" className="font-medium hover:underline">
+                {phase.title}
+              </Link>
+              {phase.card_line && <InfoDot text={phase.card_line} />}
+              <span className="flex items-center gap-2 text-xs text-[var(--ink-2)]">
+                Movement trust
+                <PhaseMeter level={phase.signal_level ?? null} />
+              </span>
+            </div>
+          )}
+          <p className="mt-3 text-xs text-[var(--ink-3)]">
+            Free, no sign-up, no ads. Independent and not affiliated with any
+            fantasy platform or data provider.
           </p>
           {!live && (
-            <p className="mt-2 inline-block rounded border border-[var(--gold-border)] bg-[var(--gold-bg)] px-2 py-1 text-xs">
+            <p className="mt-3 inline-block rounded-md border border-[var(--gold-border)] bg-[var(--gold-bg)] px-2 py-1 text-xs">
               FIXTURE DATA: not live.
             </p>
           )}
         </div>
-        {phase && (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 lg:justify-end">
-            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--ink-3)]">
-              Current phase
-            </span>
-            <Link href="/calendar" className="text-sm font-medium hover:underline">
-              {phase.title}
-            </Link>
-            {phase.card_line && <InfoDot text={phase.card_line} />}
-            <span className="flex items-center gap-2">
-              <span className="text-xs text-[var(--ink-2)]">Movement trust:</span>
-              <PhaseMeter level={phase.signal_level ?? null} />
-            </span>
+
+        {exampleRow && (
+          <div className="lg:pt-2">
+            <div className="card overflow-hidden">
+              <div className="flex items-center justify-between gap-3 px-5 pt-4">
+                <span className="text-xs text-[var(--ink-3)]">
+                  {rolling ? "Market move · last 7 days" : `Market move · ${moveWindow}`}
+                </span>
+                <SignalChip signal={exampleRow.signal} />
+              </div>
+              <div className="px-5 pb-4 pt-2">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <Link href={hrefFor(exampleRow)} className="text-[17px] font-semibold hover:underline">
+                      {exampleRow.name}
+                    </Link>
+                    <p className="text-xs text-[var(--ink-3)]">
+                      {exampleRow.position}{exampleRow.posRank} · {exampleRow.team}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="movestat">
+                      <span className="movestat-num" style={{ fontSize: 34 }}>
+                        <span className="movestat-arrow" aria-hidden>
+                          {(exampleRow.hostRankDelta ?? 0) > 0 ? "↑" : "↓"}
+                        </span>
+                        {Math.abs(exampleRow.hostRankDelta ?? 0)}
+                      </span>
+                      <span className="movestat-label">picks {(exampleRow.hostRankDelta ?? 0) > 0 ? "earlier" : "later"} than {daysAgo ?? "the window start"}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <dl className="card-row grid grid-cols-3 px-5 py-3 text-center text-xs">
+                <div>
+                  <dt className="text-[var(--ink-3)]">ADP</dt>
+                  <dd className="text-[15px] font-semibold tabular-nums">{exampleRow.hostRank}</dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--ink-3)]">ECR</dt>
+                  <dd className="text-[15px] font-semibold tabular-nums">{exampleRow.ecr ?? "–"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--ink-3)]">Gap</dt>
+                  <dd className="text-[15px] font-semibold tabular-nums" style={{ color: exampleRow.gap === null ? "var(--ink-3)" : valueTone(exampleRow.gap) }}>
+                    {exampleRow.gap === null ? "–" : `${exampleRow.gap > 0 ? "+" : ""}${exampleRow.gap}`}
+                    {valueWord(exampleRow.gap) && (
+                      <span className={`val-pill ${(exampleRow.gap ?? 0) > 0 ? "val-pill--pos" : "val-pill--neg"}`}>{valueWord(exampleRow.gap)}</span>
+                    )}
+                  </dd>
+                </div>
+              </dl>
+              <div className="card-row px-5 py-4 text-sm">
+                <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--ink-3)]">What it means</p>
+                <p className="mt-1 leading-relaxed text-[var(--foreground)]">
+                  {whatItMeans(exampleRow.signal, exampleRow.gap, exampleRow.hostRankDelta, exampleRow.ecrDelta, exampleRow.gapReason)}
+                </p>
+                <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--ink-3)]">On record</p>
+                <p className="mt-1 leading-relaxed text-[var(--ink-2)]">
+                  {exampleEvent
+                    ? `${fmtShortDate(exampleEvent.date)}: ${endStop(exampleEvent.short_label!)}`
+                    : "No documented event yet. Unexplained moves are shown as unexplained, never dressed up."}
+                </p>
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-[var(--ink-3)]">
+              A real move from today&rsquo;s market, taken from the data below.
+            </p>
           </div>
         )}
-      </header>
+      </section>
+
+      <div id="market" className="scroll-mt-20" />
 
       {/* The plain English lead: the first fifteen seconds, in ordinary
           language. The market mechanics (hero, signals, evidence tiers,
           table) all stay below for the reader who wants them. */}
       {leadItems.length > 0 && (
-        <section className="mb-5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 pb-3.5 pt-3 shadow-sm">
+        <section className="mb-5 card px-4 pb-3.5 pt-3">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--navy-2)]">
             {rolling
               ? "What changed in the last 7 days"
@@ -851,7 +948,7 @@ export default async function Home() {
               return (
                 <div
                   key={r.fpId}
-                  className="relative rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm transition-colors hover:border-[var(--ink-3)]"
+                  className="relative card p-4 transition-colors hover:border-[var(--ink-3)]"
                 >
                   <div className="flex items-baseline justify-between gap-2">
                     {/* Stretched link: the whole card stays a tap target on a
@@ -968,7 +1065,7 @@ export default async function Home() {
         </p>
         <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
           {forYourDraft.map((r, i) => (
-            <div key={r.fpId} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
+            <div key={r.fpId} className="card p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <Link href={hrefFor(r)} className="font-semibold hover:underline">

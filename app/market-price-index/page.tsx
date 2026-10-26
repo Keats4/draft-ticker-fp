@@ -47,7 +47,7 @@ export default function MarketPriceIndex() {
           <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Illustrative year-long market price with two regimes" className="w-full min-w-[640px] sm:min-w-0">
           {/* regime bands */}
           <rect x={PAD} y={PAD} width={handoffX - PAD} height={H - 2 * PAD} fill="var(--gold-bg)" opacity="0.6" />
-          <rect x={handoffX} y={PAD} width={W - PAD - handoffX} height={H - 2 * PAD} fill="#eef2f7" />
+          <rect x={handoffX} y={PAD} width={W - PAD - handoffX} height={H - 2 * PAD} fill="var(--surface-info-soft)" />
           <text x={(PAD + handoffX) / 2} y={PAD + 14} textAnchor="middle" fontSize="11" fill="var(--ink-2)" fontWeight="600">Draft Market</text>
           <text x={(PAD + handoffX) / 2} y={PAD + 28} textAnchor="middle" fontSize="9" fill="var(--ink-3)">priced by: ADP · Jan–Aug</text>
           <text x={(handoffX + W - PAD) / 2} y={PAD + 14} textAnchor="middle" fontSize="11" fill="var(--ink-2)" fontWeight="600">In-Season Market</text>

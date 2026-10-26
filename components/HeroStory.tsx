@@ -68,7 +68,7 @@ export default function HeroStory({
 }) {
   return (
     <section
-      className="mb-8 overflow-hidden rounded-xl border bg-[var(--surface)] shadow-sm"
+      className="card mb-8 overflow-hidden"
       style={{ borderColor: "var(--navy)" }}
       aria-label="Today's lead story"
     >

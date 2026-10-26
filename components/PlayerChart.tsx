@@ -103,7 +103,7 @@ export default function PlayerChart({
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="ADP and ECR by date" className="w-full">
       {[lo, Math.round((lo + hi) / 2), hi].map((t) => (
         <g key={t}>
-          <line x1={M.left} x2={W - M.right} y1={y(t)} y2={y(t)} stroke="#eceef1" strokeWidth="1" />
+          <line x1={M.left} x2={W - M.right} y1={y(t)} y2={y(t)} stroke="var(--border-strong)" strokeWidth="1" />
           <text x={M.left - 6} y={y(t) + 4} textAnchor="end" fontSize="10" fill="var(--ink-3)">{t}</text>
         </g>
       ))}

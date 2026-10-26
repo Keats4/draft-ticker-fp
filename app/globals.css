@@ -1,48 +1,93 @@
 @import "tailwindcss";
 
-/* ---- Draft Ticker design tokens (converged toward north-star concepts) ---- */
-:root {
-  --background: #f6f7f9;   /* app canvas */
-  --surface: #ffffff;      /* cards */
+/* ---- Draft Ticker design tokens ----
+   Two themes on one token set. Dark is the default canvas (near-black,
+   tonal panels, hairline dividers); light is the same system with the
+   original palette. Semantics never change between themes: green is
+   discount, red is premium, gold is evidence, "navy" is the market/
+   movement ink (light on dark, navy on light). The attribute is set
+   before paint by the inline script in app/layout.tsx. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #18181a;   /* app canvas */
+  --surface: #232326;      /* cards: tonal, no border needed */
+  --surface-2: #2b2b30;    /* nested panels on a card */
+  --foreground: #f2f2f4;
+  --ink-2: #b6b6be;        /* secondary text */
+  --ink-3: #8b8b95;        /* tertiary metadata */
+  --border: rgba(255, 255, 255, 0.07);   /* hairline dividers */
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  --navy: #eef0f5;         /* market / movement ink */
+  --navy-2: #dde2ec;
+  --gold: #e6b23a;         /* accents, expert line */
+  --gold-bg: rgba(230, 178, 58, 0.12);
+  --gold-border: rgba(230, 178, 58, 0.32);
+  --gold-ink: #f0c65a;
+
+  --pos: #4ade80;          /* rising / discount */
+  --neg: #f87171;          /* falling / premium */
+
+  --surface-info-soft: #2a2d34;
+  --surface-info-strong: #30343d;
+  --surface-move: #363c48;
+  --border-info-soft: rgba(255, 255, 255, 0.08);
+  --text-info: #dde2ec;
+  --surface-converge: rgba(74, 222, 128, 0.10);
+  --border-converge: rgba(74, 222, 128, 0.26);
+  --text-converge: #86efac;
+
+  --accent: #3b8bff;       /* interactive only: links, disclosure, selected */
+
+  --sig-low: #f87171;
+  --sig-med: #e6b23a;
+  --sig-high: #4ade80;
+
+  --nav-bg: #18181a;
+  --nav-fg: #f2f2f4;
+  --nav-pill: #2b2b30;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --background: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #f3f5f8;
   --foreground: #14181f;
-  --ink-2: #52514e;        /* secondary text */
-  --ink-3: #6e747e;        /* tertiary metadata; secondary text uses --ink-2 */
+  --ink-2: #52514e;
+  --ink-3: #6e747e;
   --border: #e6e8ec;
+  --border-strong: #d6d9df;
 
-  --navy: #16233d;         /* nav bar, market line */
+  --navy: #16233d;
   --navy-2: #26344f;
-  --gold: #e0a92e;         /* accents, expert line */
-  --gold-bg: #fbf5e6;      /* cream 'what it means' panel */
+  --gold: #e0a92e;
+  --gold-bg: #fbf5e6;
   --gold-border: #ecdcae;
-  --gold-ink: #8a6b16;     /* darkened gold for small text/eyebrows */
+  --gold-ink: #8a6b16;
 
-  --pos: #15803d;          /* rising / green */
-  --neg: #c0362c;          /* falling / red */
+  --pos: #15803d;
+  --neg: #c0362c;
 
-  /* Blue-mist information system: near-neutral cool surfaces derived from
-     the navy, for informational pills, stat panels and movement badges.
-     Almost gray at a glance, but with the brand's cool cast. */
   --surface-info-soft: #eef3fa;
   --surface-info-strong: #e5ecf6;
-  /* Primary movement metric surface: the strongest tier of the one blue
-     family. Panels sit on soft, chips on soft, delta pills on strong, the
-     headline movement badge alone on this. */
   --surface-move: #dde7f3;
   --border-info-soft: #cfdae9;
   --text-info: var(--navy-2);
-  /* Convergence sage: "coming into agreement", deliberately far paler than
-     the vivid Discount value green. */
   --surface-converge: #eef7f1;
   --border-converge: #d5e8dc;
+  --text-converge: #2f5d43;
 
-  /* Product-UI accent, the FantasyPros-family blue: interactive moments
-     only (disclosure controls, selected states). Never data, never
-     direction, never value. */
   --accent: #0f6db5;
 
   --sig-low: #c0362c;
   --sig-med: #e0a92e;
   --sig-high: #15803d;
+
+  --nav-bg: #ffffff;
+  --nav-fg: #14181f;
+  --nav-pill: #eef0f4;
 }
 
 @theme inline {
@@ -52,7 +97,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-html { color-scheme: light; }
 
 body {
   background: var(--background);
@@ -113,7 +157,7 @@ body {
 .sig-chip--converging {
   background: var(--surface-converge);
   border-color: var(--border-converge);
-  color: #2f5d43;
+  color: var(--text-converge);
   font-weight: 500;
 }
 .sig-chip--converging:hover { border-color: var(--pos); }
@@ -133,8 +177,8 @@ body {
 .disclose::-webkit-details-marker { display: none; }
 .disclose::before { content: "▸"; font-size: 10px; transition: transform 0.12s; }
 details[open] > .disclose::before { transform: rotate(90deg); }
-.disclose:hover { border-color: var(--accent); background: rgba(15, 109, 181, 0.06); }
-details[open] > .disclose { background: rgba(15, 109, 181, 0.08); border-color: var(--accent); }
+.disclose:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+details[open] > .disclose { background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: var(--accent); }
 details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(--gold); }
 .disclose--gold {
   color: var(--ink-2);
@@ -145,7 +189,7 @@ details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(
 
 /* signal-quality 3-segment meter (calendar) */
 .meter { display: inline-flex; gap: 3px; vertical-align: middle; }
-.meter i { width: 20px; height: 6px; border-radius: 3px; background: #e6e8ec; display: inline-block; }
+.meter i { width: 20px; height: 6px; border-radius: 3px; background: var(--border-strong); display: inline-block; }
 .meter.low   i:nth-child(1) { background: var(--sig-low); }
 .meter.med   i:nth-child(-n+2) { background: var(--sig-med); }
 .meter.high  i { background: var(--sig-high); }
@@ -156,8 +200,8 @@ details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(
    readable secondary, not faded metadata. Both directions the same colour. */
 .movestat { display: block; line-height: 1; }
 .movestat-num {
-  color: var(--navy); font-weight: 700; font-size: 22px;
-  font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+  color: var(--navy); font-weight: 700; font-size: 26px;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
   display: block;
 }
 .movestat-num .movestat-arrow { font-size: 0.88em; font-weight: 700; margin-right: 3px; }
@@ -221,8 +265,8 @@ details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(
   padding: 0 6px; border-radius: 9999px;
   font-size: 11px; font-weight: 600; line-height: 1.6;
 }
-.val-pill--pos { background: rgba(21, 128, 61, 0.10); color: var(--pos); }
-.val-pill--neg { background: rgba(192, 54, 44, 0.10); color: var(--neg); }
+.val-pill--pos { background: color-mix(in srgb, var(--pos) 14%, transparent); color: var(--pos); }
+.val-pill--neg { background: color-mix(in srgb, var(--neg) 14%, transparent); color: var(--neg); }
 
 /* ---- Event note: the documented-event component. Gold marks evidence:
    a 2px gold rule, an EVENT eyebrow with metadata, then the headline
@@ -231,7 +275,7 @@ details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(
 /* Soft evidence wash: a warm inset for the lead strip's event block. The
    card stays white; only the evidence region carries the gold breath. */
 .evt--wash {
-  background: rgba(224, 169, 46, 0.06);
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
   border-radius: 0 8px 8px 0;
   padding: 6px 9px 7px;
 }
@@ -247,5 +291,14 @@ details[open] > .disclose--gold { background: var(--gold-bg); border-color: var(
 .evt-summary::-webkit-details-marker { display: none; }
 .disclose--sm { padding: 0px 7px; font-size: 10px; }
 details[open] .disclose--sm::before { transform: rotate(90deg); }
-details[open] .disclose--sm { background: rgba(15, 109, 181, 0.08); border-color: var(--accent); }
+details[open] .disclose--sm { background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: var(--accent); }
 .evt-headline--lg { font-size: 13px; }
+
+/* ---- Card primitive: tonal elevation. The surface tone separates a card
+   from the canvas; the hairline border only survives as a faint edge so
+   dark and light both read as one calm layer system. */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+.card-row { border-top: 1px solid var(--border); }
+
+/* Landing display type. */
+.display { font-size: clamp(34px, 4.2vw, 50px); line-height: 1.05; letter-spacing: -0.03em; font-weight: 700; }

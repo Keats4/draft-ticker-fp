@@ -212,7 +212,7 @@ export default function MirrorHero({
           panel (28). items-start stops the players from inheriting the
           taller rail's height; the rail may run lower on its own. */}
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[72fr_28fr]">
-        <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
+        <div className="overflow-hidden card">
           {/* Below lg the pair title keeps its original place above the
               sides; on lg it lives in the context card instead. */}
           <div className="flex flex-wrap items-center gap-2 px-4 pt-3 lg:hidden">
@@ -230,7 +230,7 @@ export default function MirrorHero({
           </div>
         </div>
 
-        <aside className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
+        <aside className="card p-4">
           <div className="hidden flex-wrap items-center gap-2 lg:flex">
             {titlePills}
           </div>

@@ -146,7 +146,7 @@ export default function Calendar() {
                 id={`phase-${phase.key}`}
                 open={isCurrent}
                 className="group scroll-mt-4 rounded-lg border bg-[var(--surface)]"
-                style={{ borderColor: isCurrent ? "var(--navy)" : "var(--border)" }}
+                style={{ borderColor: isCurrent ? "color-mix(in srgb, var(--navy) 55%, transparent)" : "var(--border)" }}
               >
                 <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 [&::-webkit-details-marker]:hidden">
                   <span className="text-sm tabular-nums text-[var(--ink-3)]">
