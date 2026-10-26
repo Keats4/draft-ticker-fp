@@ -402,7 +402,11 @@ export default async function Home() {
     }) ?? null;
   // Landing example: the lead's first player, the way Today's Lead picks it.
   // Same data the module below renders; nothing is invented for the pitch.
-  const exampleRow: MarketRow | null = bestPair ? bestPair.a : singleHero;
+  // Fallback chain keeps the landing honest when the market is quiet: the
+  // lead if one resolved, else the biggest real mover either way, else
+  // nothing (the card hides rather than inventing a move).
+  const exampleRow: MarketRow | null =
+    (bestPair ? bestPair.a : singleHero) ?? riser ?? faller ?? null;
   const exampleEvent =
     exampleRow && previous && latest
       ? catalystsFor(exampleRow.sleeperId)
