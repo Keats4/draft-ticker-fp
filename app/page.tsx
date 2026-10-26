@@ -405,8 +405,10 @@ export default async function Home() {
   // Fallback chain keeps the landing honest when the market is quiet: the
   // lead if one resolved, else the biggest real mover either way, else
   // nothing (the card hides rather than inventing a move).
+  const clearedBar = (r: MarketRow | null | undefined): MarketRow | null =>
+    r && r.hostRankDelta !== null && Math.abs(r.hostRankDelta) >= THRESHOLDS.HOST_RANK_MOVE ? r : null;
   const exampleRow: MarketRow | null =
-    (bestPair ? bestPair.a : singleHero) ?? riser ?? faller ?? null;
+    (bestPair ? bestPair.a : singleHero) ?? clearedBar(riser) ?? clearedBar(faller);
   const exampleEvent =
     exampleRow && previous && latest
       ? catalystsFor(exampleRow.sleeperId)
